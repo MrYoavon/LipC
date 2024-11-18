@@ -1,0 +1,57 @@
+@startuml
+actor User as "משתמש"
+actor System as "מערכת"
+
+usecase "הרשמה לאפליקציה" as UC1
+usecase "אימות הרשמה" as UC1_Server
+usecase "התחברות לאפליקציה" as UC2
+usecase "אימות התחברות" as UC2_Server
+usecase "פתיחת שיחה חדשה" as UC3
+usecase "מענה לשיחה" as UC3_Answer
+usecase "ניהול שיחות" as UC3_Server
+usecase "ניהול פרופיל משתמש" as UC4
+usecase "עדכון פרופיל משתמש" as UC4_Server
+usecase "הגדרת העדפות שיחה" as UC5
+usecase "עיבוד תמונות וקריאת שפתיים" as UC7
+usecase "פלט טקסט מנותח" as UC8
+usecase "היסטוריית שיחות" as UC9
+
+User --> UC1 : נרשם
+UC1 --> UC1_Server : בודק הרשמה
+UC1_Server --> System : מבצע אימות הרשמה
+System --> UC1_Server : החזר תוצאה
+UC1_Server --> User : הצלחה
+UC1_Server --> User : הודעת שגיאה (כפילות שם משתמש)
+
+User --> UC2 : מתחבר
+UC2 --> UC2_Server : בודק התחברות
+UC2_Server --> System : מבצע אימות התחברות
+System --> UC2_Server : החזר תוצאה
+UC2_Server --> User : הצלחה
+UC2_Server --> User : הודעת שגיאה (שם משתמש/סיסמא שגויים)
+
+User --> UC3 : יוזם שיחה
+User --> UC3_Answer : עונה לשיחה נכנסת
+UC3 --> UC3_Server : מנהל שיחה
+UC3_Answer --> UC3_Server : מתחבר לשיחה
+UC3_Server --> UC7 : מבצע עיבוד שיחה
+
+User --> UC4 : מעדכן פרופיל
+UC4 --> UC4_Server : מעדכן פרופיל
+UC4_Server --> System : מעדכן פרופיל במערכת
+System --> UC4_Server : החזר תוצאה
+UC4_Server --> User : הצלחה
+UC4_Server --> User : הודעת שגיאה (נתונים לא תקינים)
+
+User --> UC5 : מגדיר העדפות
+UC5 --> UC3_Server : מעביר העדפות
+
+UC7 --> UC8 : מחזיר טקסט מנותח
+UC8 --> System : מעביר טקסט מנותח למערכת
+System --> User : מספק טקסט מנותח
+
+User --> UC9 : ניגש להיסטוריית שיחות
+UC9 --> System : מבקש גישה להיסטוריית שיחות
+System --> UC9 : מחזיר תוצאות
+System --> User : מספק שיחות קודמות
+@enduml

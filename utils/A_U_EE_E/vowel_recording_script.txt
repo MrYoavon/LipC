@@ -1,0 +1,21 @@
+1.	E EE A EE A.
+2.	EE A E A E EE.
+3.	A EE U E EE.
+4.	U E EE A EE E.
+5.	A U E EE U.
+6.	E A EE A E EE A E.
+7.	U A U E U.
+8.	EE A U A E U.
+9.	E U E A E.
+10.	A U A EE U A U.
+11.	A E A U EE.
+12.	E A EE U.
+13.	EE A EE E EE.
+14.	U EE A EE A E A E.
+15.	U E EE E U E.
+16.	A E EE U EE U.
+17.	EE E U A EE U A.
+18.	EE E A EE A U E A.
+19.	EE U A EE A U.
+20.	A U EE A.
+21.	U E A.
