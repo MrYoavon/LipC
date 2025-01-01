@@ -1,9 +1,15 @@
 # data_processing/data_processing.py
+
+# Standard library imports
 import csv
 import os
+
+# Third-party imports
 import cv2
 import tensorflow as tf
 import pandas as pd
+
+# Local application imports
 from data_processing.mouth_detection import MouthDetector
 
 # Define vocabulary for character mapping
@@ -37,18 +43,9 @@ class DataLoader:
         if len(frames) == 0:
             raise ValueError(f"No valid frames found in video {path}")
 
-        # Normalize frames
-        # mean = tf.math.reduce_mean(frames)
-        # std = tf.math.reduce_std(tf.cast(frames, tf.float32))
-        # return tf.cast((frames - mean), tf.float32) / std
-
+        frames = tf.convert_to_tensor(frames)  # Convert list to tensor
+        # print(frames.shape)
         return tf.image.per_image_standardization(frames)
-
-        # mean = tf.math.reduce_mean(frames, axis=[0, 1, 2], keepdims=True)
-        # std = tf.math.reduce_std(tf.cast(frames, tf.float32), axis=[0, 1, 2], keepdims=True)
-        # frames = tf.cast(frames, tf.float32)
-        # normalized_frames = (frames - mean) / std
-        # return normalized_frames
 
     def load_subtitles(self, path: str) -> tf.Tensor:
         """
@@ -65,10 +62,13 @@ class DataLoader:
         tokens = tokens[:-1]
         # Convert tokens to a tensor of strings
         token_tensor = tf.constant(tokens, dtype=tf.string)
+        print("Token tensor shape:", token_tensor.shape)
         tokenized = tf.strings.unicode_split(token_tensor, input_encoding='UTF-8')
-        return char_to_num(tf.reshape(tokenized, [-1]))
+        print("Tokenized shape:", tf.strings.unicode_split(token_tensor, input_encoding='UTF-8'))
+        return char_to_num(tokenized.flat_values)
+        # return char_to_num(tf.reshape(tokenized, [-1]))
 
-    def split_video_by_frames(self, video_path, subtitles_path, output_dir, max_frames=128):
+    def split_video_by_frames(self, video_path: str, subtitles_path: str, output_dir: str, max_frames=128):
         """
         Split video into chunks of `max_frames` or fewer, keeping word boundaries intact.
         """
@@ -90,6 +90,10 @@ class DataLoader:
             start_frame = int((start_ms / 1000) * fps)
             end_frame = int((end_ms / 1000) * fps)
             word_frame_count = end_frame - start_frame
+
+            if word_frame_count > max_frames:
+                print(f"Warning: Subtitle '{subtitle}' spans more than {max_frames} frames. Skipping.")
+                continue
 
             if current_frame_count + word_frame_count > max_frames:
                 # Save current chunk if adding this word exceeds the max frame count
@@ -143,13 +147,37 @@ class DataLoader:
 
     def process_all_videos(self, video_directory, subtitles_directory, output_directory):
         """
-        Process each video in the video_directory, split it, and generate output.
+        Process each video in `video_directory` along with subtitles, split them into chunks, and save them.
         """
+        # Create output directories if they don't exist
+        os.makedirs(output_directory, exist_ok=True)
+        os.makedirs(os.path.join(output_directory, "videos"), exist_ok=True)
+        os.makedirs(os.path.join(output_directory, "subtitles"), exist_ok=True)
+
         for video_file in os.listdir(video_directory):
             if video_file.endswith(".mp4"):
                 video_path = os.path.join(video_directory, video_file)
                 subtitle_path = os.path.join(subtitles_directory, f"{os.path.splitext(video_file)[0]}.csv")
-                self.split_video_by_frames(video_path, subtitle_path, output_directory)
+
+                # Define preprocessed output paths
+                processed_video_path = os.path.join(output_directory, "videos", f"{os.path.splitext(video_file)[0]}_1.mp4")
+                processed_subtitle_path = os.path.join(output_directory, "subtitles", f"{os.path.splitext(video_file)[0]}_1.csv")
+
+                # Skip processing if the preprocessed files already exist
+                if os.path.exists(processed_video_path) and os.path.exists(processed_subtitle_path):
+                    print(f"Skipping {video_file}: Preprocessed files already exist.")
+                    continue
+
+                # Process video and subtitles
+                try:
+                    print(f"Processing video: {video_file}")
+                    self.split_video_by_frames(video_path, subtitle_path, output_directory)
+                    print(f"Successfully processed: {video_file}")
+
+                except FileNotFoundError as e:
+                    print(f"Error: Missing file for {video_file} — {e}")
+                except Exception as e:
+                    print(f"Error processing {video_file}: {e}")
 
 
 class PreProcessor:
@@ -191,8 +219,7 @@ class Augmentor:
         else:
             raise ValueError("Expected frames to have 4 or 5 dimensions, got shape: {}".format(frames.shape))
 
-        # Concatenate original and flipped frames along the batch dimension
-        return tf.concat([frames, flipped_frames], axis=0)
+        return flipped_frames
 
 
 class DatasetPreparer:
@@ -200,19 +227,45 @@ class DatasetPreparer:
         self.video_directory = video_directory
         self.data_loader = data_loader
 
-    def prepare_dataset(self) -> tf.data.Dataset:
+    def prepare_dataset(self):
         """
-        Prepare a dataset that reads videos and subtitles, applies augmentations, and batches data.
+        Prepare a TensorFlow dataset that reads videos and subtitles, splits into training and validation sets,
+        and applies padding, batching, and shuffling.
         """
+        # Create the dataset from video files
         dataset = tf.data.Dataset.list_files(f"{self.video_directory}/*.mp4")
-        dataset = dataset.shuffle(100)
-        dataset = dataset.map(lambda path: PreProcessor.mappable_fn(path, self.data_loader))
 
-        # 5400 frames in each training video (assuming 3 minutes 30 fps)
-        # 240 tokens in each video (120 letters plus space token to separate)
-        dataset = dataset.padded_batch(2, padded_shapes=([128, None, None, None], [12]))
-        dataset = dataset.prefetch(tf.data.AUTOTUNE)
+        # Shuffle the dataset (reshuffling ensures random selection each iteration)
+        dataset = dataset.shuffle(buffer_size=100, reshuffle_each_iteration=True)
 
-        dataset = dataset.map(lambda f, a: (Augmentor.augment_video(f), a))
+        # Map preprocessing function (converts video path to tensors for video and subtitles)
+        dataset = dataset.map(
+            lambda path: PreProcessor.mappable_fn(path, self.data_loader),
+            num_parallel_calls=tf.data.AUTOTUNE
+        )
 
-        return dataset
+        # Calculate dataset size
+        dataset_size = dataset.cardinality().numpy()
+        train_size = int(0.8 * dataset_size)  # 80% for training
+
+        # Split into training and validation datasets
+        train_dataset = dataset.take(train_size)
+        val_dataset = dataset.skip(train_size)
+
+        # Batch and pad the datasets to ensure consistent shapes
+        train_dataset = train_dataset.padded_batch(
+            batch_size=1,  # Customize batch size as needed
+            padded_shapes=([160, 100, 250, 1], [32]),  # Pad video and subtitles
+            padding_values=(0.0, tf.constant(0, dtype=tf.int64))  # Pad video with zeros and labels with 0
+        )
+        val_dataset = val_dataset.padded_batch(
+            batch_size=1,
+            padded_shapes=([160, 100, 250, 1], [32]),
+            padding_values=(0.0, tf.constant(0, dtype=tf.int64))
+        )
+
+        # Prefetch datasets to prevent bottlenecks
+        train_dataset = train_dataset.prefetch(tf.data.AUTOTUNE)
+        val_dataset = val_dataset.prefetch(tf.data.AUTOTUNE)
+
+        return train_dataset, val_dataset

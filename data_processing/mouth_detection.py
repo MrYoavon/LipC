@@ -1,17 +1,20 @@
 # data_processing/mouth_detection.py
 
+# Standard library imports
 import cv2
+import numpy as np
+
+# Third-party imports
 import mediapipe as mp
 from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
-import numpy as np
-
 
 class MouthDetector:
     def __init__(self, model_path='assets/face_landmarker.task', num_faces=1):
-        base_options = python.BaseOptions(model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.GPU)
+        # base_options = python.BaseOptions(model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.GPU)
+        base_options = python.BaseOptions(model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.CPU)
         options = vision.FaceLandmarkerOptions(base_options=base_options,
                                                output_face_blendshapes=True,
                                                output_facial_transformation_matrixes=True,
