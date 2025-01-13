@@ -11,10 +11,13 @@ from mediapipe.framework.formats import landmark_pb2
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
+from constants import VIDEO_WIDTH, VIDEO_HEIGHT
+
+
 class MouthDetector:
     def __init__(self, model_path='assets/face_landmarker.task', num_faces=1):
-        # base_options = python.BaseOptions(model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.GPU)
-        base_options = python.BaseOptions(model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.CPU)
+        base_options = python.BaseOptions(model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.GPU)
+        # base_options = python.BaseOptions(model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.CPU)
         options = vision.FaceLandmarkerOptions(base_options=base_options,
                                                output_face_blendshapes=True,
                                                output_facial_transformation_matrixes=True,
@@ -68,7 +71,7 @@ class MouthDetector:
 
         return annotated_image
 
-    def crop_mouth_from_landmarks(self, rgb_image, detection_result, target_size=(250, 100)):
+    def crop_mouth_from_landmarks(self, rgb_image, detection_result, target_size=(VIDEO_WIDTH, VIDEO_HEIGHT)):
         if detection_result and detection_result.face_landmarks:
             try:
                 face_landmarks = detection_result.face_landmarks[0]
@@ -90,7 +93,7 @@ class MouthDetector:
                 return None
         return None
 
-    def detect_and_crop_mouth(self, frame, target_size=(250, 100)):
+    def detect_and_crop_mouth(self, frame, target_size=(VIDEO_WIDTH, VIDEO_HEIGHT)):
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_image_input = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
         detection_result = self.detector.detect(mp_image_input)

@@ -1,229 +1,49 @@
 # data_processing/data_processing.py
 
-# Standard library imports
-import csv
-import os
-
 # Third-party imports
-import cv2
 import tensorflow as tf
-import pandas as pd
 
-# Local application imports
-from data_processing.mouth_detection import MouthDetector
-
-# Define vocabulary for character mapping
-vocab = ["A", "U", "EE", "E", " "]
-char_to_num = tf.keras.layers.StringLookup(vocabulary=vocab, oov_token="")
-num_to_char = tf.keras.layers.StringLookup(vocabulary=char_to_num.get_vocabulary(), oov_token="", invert=True)
-
-
-class DataLoader:
-    def __init__(self, detector: MouthDetector):
-        self.detector = detector
-
-    def load_video(self, path: str) -> tf.Tensor:
-        """
-        Load video frames, apply mouth detection, convert to grayscale, and normalize.
-        """
-        cap = cv2.VideoCapture(path)
-        frames = []
-
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                break
-
-            frame = self.detector.detect_and_crop_mouth(frame)  # Crop to mouth region
-            if frame is not None:
-                frame = tf.image.rgb_to_grayscale(frame)
-                frames.append(frame)
-
-        cap.release()
-        if len(frames) == 0:
-            raise ValueError(f"No valid frames found in video {path}")
-
-        frames = tf.convert_to_tensor(frames)  # Convert list to tensor
-        # print(frames.shape)
-        return tf.image.per_image_standardization(frames)
-
-    def load_subtitles(self, path: str) -> tf.Tensor:
-        """
-        Load subtitles and map them to character indices.
-        """
-        df = pd.read_csv(path, header=None, names=['start_time', 'end_time', 'subtitle'])
-        tokens = []
-
-        for _, row in df.iterrows():
-            subtitle = row['subtitle'].strip().upper()
-            if subtitle and subtitle != 'IDLE':
-                tokens.extend(list(subtitle) + [' '])
-
-        tokens = tokens[:-1]
-        # Convert tokens to a tensor of strings
-        token_tensor = tf.constant(tokens, dtype=tf.string)
-        print("Token tensor shape:", token_tensor.shape)
-        tokenized = tf.strings.unicode_split(token_tensor, input_encoding='UTF-8')
-        print("Tokenized shape:", tf.strings.unicode_split(token_tensor, input_encoding='UTF-8'))
-        return char_to_num(tokenized.flat_values)
-        # return char_to_num(tf.reshape(tokenized, [-1]))
-
-    def split_video_by_frames(self, video_path: str, subtitles_path: str, output_dir: str, max_frames=128):
-        """
-        Split video into chunks of `max_frames` or fewer, keeping word boundaries intact.
-        """
-        # Load video and subtitle data
-        cap = cv2.VideoCapture(video_path)
-        df = pd.read_csv(subtitles_path, header=None, names=['start_time', 'end_time', 'subtitle'])
-
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        part_num = 1
-        chunk_frames = []
-        chunk_subtitles = []
-        current_frame_count = 0
-        start_time = 0
-
-        for index, row in df.iterrows():
-            start_ms, end_ms, subtitle = row['start_time'], row['end_time'], row['subtitle']
-
-            # Convert start and end times to frame indices
-            start_frame = int((start_ms / 1000) * fps)
-            end_frame = int((end_ms / 1000) * fps)
-            word_frame_count = end_frame - start_frame
-
-            if word_frame_count > max_frames:
-                print(f"Warning: Subtitle '{subtitle}' spans more than {max_frames} frames. Skipping.")
-                continue
-
-            if current_frame_count + word_frame_count > max_frames:
-                # Save current chunk if adding this word exceeds the max frame count
-                self.save_chunk(chunk_frames, chunk_subtitles, video_path, output_dir, part_num, fps)
-                part_num += 1
-                chunk_frames = []
-                chunk_subtitles = []
-                current_frame_count = 0
-                start_time = start_ms  # New start time for the new chunk
-
-            # Add word frames and subtitle
-            chunk_subtitles.append((start_ms - start_time, end_ms - start_time, subtitle))
-
-            # Extract frames for this word
-            cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
-            for _ in range(word_frame_count):
-                ret, frame = cap.read()
-                if not ret:
-                    break
-                chunk_frames.append(frame)
-                current_frame_count += 1
-
-        # Save the last chunk
-        if chunk_frames:
-            self.save_chunk(chunk_frames, chunk_subtitles, video_path, output_dir, part_num, fps)
-
-        cap.release()
-
-    def save_chunk(self, chunk_frames, chunk_subtitles, video_path, output_dir, part_num, fps):
-        """
-        Save a chunk of frames and its corresponding subtitles.
-        """
-        # Define output video and CSV paths
-        file_name = os.path.splitext(os.path.basename(video_path))[0]
-        output_video_path = os.path.join(output_dir, "videos", f"{file_name}_{part_num}.mp4")
-        output_csv_path = os.path.join(output_dir, "subtitles", f"{file_name}_{part_num}.csv")
-
-        # Save the video chunk
-        height, width, _ = chunk_frames[0].shape
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter(output_video_path, fourcc, fps, (width, height))
-        for frame in chunk_frames:
-            out.write(frame)
-        out.release()
-
-        # Save the CSV chunk with adjusted timestamps
-        with open(output_csv_path, mode='w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            for start_ms, end_ms, subtitle in chunk_subtitles:
-                writer.writerow([start_ms, end_ms, subtitle])
-
-    def process_all_videos(self, video_directory, subtitles_directory, output_directory):
-        """
-        Process each video in `video_directory` along with subtitles, split them into chunks, and save them.
-        """
-        # Create output directories if they don't exist
-        os.makedirs(output_directory, exist_ok=True)
-        os.makedirs(os.path.join(output_directory, "videos"), exist_ok=True)
-        os.makedirs(os.path.join(output_directory, "subtitles"), exist_ok=True)
-
-        for video_file in os.listdir(video_directory):
-            if video_file.endswith(".mp4"):
-                video_path = os.path.join(video_directory, video_file)
-                subtitle_path = os.path.join(subtitles_directory, f"{os.path.splitext(video_file)[0]}.csv")
-
-                # Define preprocessed output paths
-                processed_video_path = os.path.join(output_directory, "videos", f"{os.path.splitext(video_file)[0]}_1.mp4")
-                processed_subtitle_path = os.path.join(output_directory, "subtitles", f"{os.path.splitext(video_file)[0]}_1.csv")
-
-                # Skip processing if the preprocessed files already exist
-                if os.path.exists(processed_video_path) and os.path.exists(processed_subtitle_path):
-                    print(f"Skipping {video_file}: Preprocessed files already exist.")
-                    continue
-
-                # Process video and subtitles
-                try:
-                    print(f"Processing video: {video_file}")
-                    self.split_video_by_frames(video_path, subtitle_path, output_directory)
-                    print(f"Successfully processed: {video_file}")
-
-                except FileNotFoundError as e:
-                    print(f"Error: Missing file for {video_file} — {e}")
-                except Exception as e:
-                    print(f"Error processing {video_file}: {e}")
-
-
-class PreProcessor:
-    @staticmethod
-    def prepare_video_and_subtitles(video_path: tf.Tensor, data_loader: DataLoader):
-        """
-        Prepares video and subtitle tensors.
-        """
-        video_path = video_path.numpy().decode('utf-8')
-        base_dir = os.path.dirname(os.path.dirname(video_path))
-        file_name = os.path.splitext(os.path.basename(video_path))[0]
-
-        subtitles_path = os.path.join(base_dir, 'subtitles', f'{file_name}.csv')
-        video_tensor = data_loader.load_video(video_path)
-        subtitle_tensor = data_loader.load_subtitles(subtitles_path)
-
-        return video_tensor, subtitle_tensor
-
-    @staticmethod
-    def mappable_fn(video_path: tf.Tensor, data_loader: DataLoader):
-        """
-        A wrapper function that maps video path to frames and alignments.
-        """
-        return tf.py_function(lambda x: PreProcessor.prepare_video_and_subtitles(x, data_loader), [video_path], [tf.float32, tf.int64])
-
+from constants import MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, VIDEO_TYPE
 
 class Augmentor:
     @staticmethod
-    def augment_video(frames: tf.Tensor) -> tf.Tensor:
+    def augment_video(video_tensor):
         """
-        Augment video frames by applying transformations such as flipping and concatenating.
+        Apply augmentations to a video tensor.
+        :param video_tensor: A tensor representing the video with shape [frames, height, width, channels].
+        :return: Augmented video tensor.
         """
-        if frames.shape.rank == 5:
-            # Apply flipping to each frame in the video sequence
-            flipped_frames = tf.map_fn(lambda x: tf.image.flip_left_right(x), frames)
-        elif frames.shape.rank == 4:
-            # Apply flipping directly if frames already have 4D shape
-            flipped_frames = tf.image.flip_left_right(frames)
-        else:
-            raise ValueError("Expected frames to have 4 or 5 dimensions, got shape: {}".format(frames.shape))
+        # Ensure the tensor has the correct rank and shape
+        # if tf.rank(video_tensor) == 3:  # Missing channel dimension
+        #     video_tensor = tf.expand_dims(video_tensor, axis=-1)  # Add channel dimension
 
-        return flipped_frames
+        # Assert the tensor has the correct rank
+        video_tensor = tf.ensure_shape(video_tensor, [None, None, None, 1])  # Channels fixed to 1
+
+        # Random horizontal flip
+        video_tensor = tf.image.random_flip_left_right(video_tensor)
+
+        # Random brightness adjustment
+        video_tensor = tf.image.random_brightness(video_tensor, max_delta=0.2)
+
+        # Random contrast adjustment
+        video_tensor = tf.image.random_contrast(video_tensor, lower=0.8, upper=1.2)
+
+        # Random cropping
+        crop_fraction = 0.9  # Keep 90% of the original frame size
+        original_shape = tf.shape(video_tensor)
+        crop_size = tf.cast(crop_fraction * tf.cast(original_shape[1:3], tf.float16), tf.int32)
+        video_tensor = tf.image.resize_with_crop_or_pad(video_tensor, crop_size[0], crop_size[1])
+        video_tensor = tf.image.resize(video_tensor, [original_shape[1], original_shape[2]])
+
+        # Explicitly set shape
+        video_tensor = tf.ensure_shape(video_tensor, [MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, 1])
+        video_tensor = tf.cast(video_tensor, tf.float16)
+        return video_tensor
 
 
 class DatasetPreparer:
-    def __init__(self, video_directory: str, data_loader: DataLoader):
+    def __init__(self, video_directory: str, data_loader):
         self.video_directory = video_directory
         self.data_loader = data_loader
 
@@ -233,35 +53,47 @@ class DatasetPreparer:
         and applies padding, batching, and shuffling.
         """
         # Create the dataset from video files
-        dataset = tf.data.Dataset.list_files(f"{self.video_directory}/*.mp4")
+        video_paths = f"{self.video_directory}/*/*.mpg"
+        dataset = tf.data.Dataset.list_files(video_paths, shuffle=False)  # I disabled the default shuffle because I want to have more control over it
 
         # Shuffle the dataset (reshuffling ensures random selection each iteration)
         dataset = dataset.shuffle(buffer_size=100, reshuffle_each_iteration=True)
 
-        # Map preprocessing function (converts video path to tensors for video and subtitles)
+        # Converts video path to tensors for video and subtitles
         dataset = dataset.map(
-            lambda path: PreProcessor.mappable_fn(path, self.data_loader),
+            lambda path: DatasetPreparer.video_path_to_data(path, self.data_loader),
             num_parallel_calls=tf.data.AUTOTUNE
         )
 
         # Calculate dataset size
         dataset_size = dataset.cardinality().numpy()
+        if dataset_size == tf.data.UNKNOWN_CARDINALITY or dataset_size == tf.data.INFINITE_CARDINALITY:
+            raise ValueError("Dataset size is unknown or infinite. Ensure the dataset is finite and valid.")
+
         train_size = int(0.8 * dataset_size)  # 80% for training
 
         # Split into training and validation datasets
         train_dataset = dataset.take(train_size)
         val_dataset = dataset.skip(train_size)
 
+        # Augment the training dataset
+        # train_dataset = train_dataset.map(
+        #     lambda video, subtitle: (Augmentor.augment_video(video), subtitle),
+        #     num_parallel_calls=tf.data.AUTOTUNE
+        # )
+
         # Batch and pad the datasets to ensure consistent shapes
+        batch_size = 2
+        padded_shapes = ([MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, 1], [None])
         train_dataset = train_dataset.padded_batch(
-            batch_size=1,  # Customize batch size as needed
-            padded_shapes=([160, 100, 250, 1], [32]),  # Pad video and subtitles
-            padding_values=(0.0, tf.constant(0, dtype=tf.int64))  # Pad video with zeros and labels with 0
+            batch_size=batch_size,
+            padded_shapes=padded_shapes,
+            padding_values=(tf.constant(0.0, dtype=tf.float16), tf.constant(0, dtype=tf.int8))
         )
         val_dataset = val_dataset.padded_batch(
-            batch_size=1,
-            padded_shapes=([160, 100, 250, 1], [32]),
-            padding_values=(0.0, tf.constant(0, dtype=tf.int64))
+            batch_size=batch_size,
+            padded_shapes=padded_shapes,
+            padding_values=(tf.constant(0.0, dtype=tf.float16), tf.constant(0, dtype=tf.int8))
         )
 
         # Prefetch datasets to prevent bottlenecks
@@ -269,3 +101,27 @@ class DatasetPreparer:
         val_dataset = val_dataset.prefetch(tf.data.AUTOTUNE)
 
         return train_dataset, val_dataset
+
+    @staticmethod
+    def prepare_video_and_subtitles(video_path: tf.Tensor, data_loader):
+        """
+        Prepares video and subtitle tensors.
+        """
+        video_path = video_path.numpy().decode('utf-8')
+        subtitles_path = video_path.replace("videos", "transcriptions").replace(VIDEO_TYPE, "csv")
+
+        video_tensor = data_loader.load_video(video_path)
+        subtitle_tensor = data_loader.load_subtitles(subtitles_path)
+
+        tf.cast(video_tensor, tf.float16)
+        tf.cast(subtitle_tensor, tf.int8)
+
+        return video_tensor, subtitle_tensor
+
+    @staticmethod
+    def video_path_to_data(video_path: tf.Tensor, data_loader):
+        """
+        A wrapper function that maps video path to frames and alignments.
+        """
+        return tf.py_function(lambda x: DatasetPreparer.prepare_video_and_subtitles(x, data_loader),
+                              [video_path], [tf.float16, tf.int8])

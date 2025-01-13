@@ -4,12 +4,13 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.regularizers import l2
 
+from constants import MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH
+
 
 class LipReadingModel:
-    def __init__(self, input_shape=(160, 100, 250, 1), num_classes=5, mask_value=0.0):
+    def __init__(self, input_shape=(MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, 1), num_classes=5):
         self.input_shape = input_shape
         self.num_classes = num_classes
-        self.mask_value = mask_value
         self.model = self.create_model()
 
     def create_model(self):
@@ -33,34 +34,27 @@ class LipReadingModel:
         model.add(layers.MaxPool3D((1, 2, 2), padding='same'))
         print(f"After MaxPool3D-2: {model.layers[-1].output.shape}")
 
-        model.add(layers.Conv3D(160, kernel_size=3, padding='same', activation='relu'))
+        model.add(layers.Conv3D(MAX_FRAMES, kernel_size=3, padding='same', activation='relu'))
         print(f"After Conv3D-3: {model.layers[-1].output.shape}")
         model.add(layers.MaxPool3D((1, 2, 2), padding='same'))
         print(f"After MaxPool3D-3: {model.layers[-1].output.shape}")
 
         # TimeDistributed for applying to each frame in the sequence
-        model.add(layers.TimeDistributed(layers.Reshape((-1,))))  # Flatten each time step
-
-        # Masking Layer
-        model.add(layers.Masking(mask_value=self.mask_value))
-        print(f"After Masking: {model.layers[-1].output.shape}")
-
         # Flatten spatial dimensions for LSTMs
-        # model.add(layers.TimeDistributed(layers.Flatten()))
+        model.add(layers.TimeDistributed(layers.Flatten()))
         print(f"After TimeDistributed Flatten: {model.layers[-1].output.shape}")
 
         # Bidirectional LSTMs for temporal modeling
-        model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+        model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
         print(f"After BiLSTM-1: {model.layers[-1].output[0].shape}")
         model.add(layers.Dropout(0.5))
 
-        model.add(layers.Bidirectional(layers.LSTM(64, return_sequences=True)))
+        model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
         print(f"After BiLSTM-2: {model.layers[-1].output[0].shape}")
         model.add(layers.Dropout(0.5))
 
         # Output layer (logits for CTC loss)
-        # model.add(layers.Dense(self.num_classes + 1, activation="softmax", kernel_initializer="he_normal", kernel_regularizer=l2(1e-4)))
-        model.add(layers.Dense(6, activation="softmax", kernel_initializer="he_normal", kernel_regularizer=l2(1e-4)))
+        model.add(layers.Dense(self.num_classes + 1, activation="softmax", kernel_initializer="he_normal", kernel_regularizer=l2(1e-4)))
         print(f"Final Output Shape (Logits): {model.layers[-1].output.shape}")
 
         print(model.summary())

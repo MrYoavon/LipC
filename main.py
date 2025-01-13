@@ -3,17 +3,24 @@
 # Standard library imports
 import os
 
+# Increase max GPU VRAM usage
+# os.environ["TF_CUDNN_WORKSPACE_LIMIT_IN_MB"] = "16384"
+
 # Third-party imports
-import numpy as np
 import tensorflow as tf
+import numpy as np
+import random
+
+# Set random seeds for reproducibility
+seed = 42
+tf.random.set_seed(seed)
+np.random.seed(seed)
+random.seed(seed)
+
 from tensorflow.keras import mixed_precision
-from tensorflow.keras.layers import Reshape, LSTM, Dense, Bidirectional, TimeDistributed, Conv3D, MaxPool3D
 
 # Disable GPU for Tensorflow
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
-# Increase max GPU VRAM usage
-os.environ["TF_CUDNN_WORKSPACE_LIMIT_IN_MB"] = "16384"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 def configure_devices():
     """
@@ -28,17 +35,13 @@ def configure_devices():
             # Set memory growth to prevent memory allocation problems
             tf.config.experimental.set_memory_growth(gpus[0], True)
             tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
-            tf.config.experimental.set_virtual_device_configuration(
-                gpus[0],
-                [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=19000)]  # Example: Allocate 4GB
-            )
             print(f"Using GPU: {gpus[0]}")
         else:
             print("No GPU detected, using CPU.")
 
         # Log TensorFlow ROCm status (if applicable)
         print(f"TensorFlow Version: {tf.__version__}")
-        print(f"Is ROCm enabled: {tf.test.is_built_with_rocm()}")
+        print(f"Is CUDA enabled: {tf.test.is_built_with_cuda()}")
 
     except RuntimeError as e:
         print(f"Error configuring TensorFlow devices: {e}")
@@ -48,28 +51,45 @@ configure_devices()
 mixed_precision.set_global_policy('mixed_float16')
 
 # Local application imports
-from model.training import decode_predictions, ctc_loss
-from data_processing.data_processing import DatasetPreparer, DataLoader, num_to_char, char_to_num
+from model.training import ctc_loss
+from utils.model_utils import decode_predictions
 from data_processing.mouth_detection import MouthDetector
+from data_processing.data_processing import DatasetPreparer
+from data_processing.data_loader import DataLoader
 from model.model import LipReadingModel
+from constants import char_to_num, num_to_char
+
 
 def train_model():
     """
     Train the lip-reading model and save it to disk.
     """
-    base_dir = "data/A_U_EE_E/"
+    base_dir = "data/GRID_corpus/"
     original_video_dir = base_dir + "videos"
-    original_subtitle_dir = base_dir + "subtitles"
-    output_dir = base_dir + "separated"
+    original_subtitle_dir = base_dir + "transcriptions"
+    # output_dir = base_dir + "separated"
+    output_dir = base_dir
     video_dir = output_dir + "/videos"
 
     mouth_detector = MouthDetector()
 
     # Instantiate DataLoader and DatasetPreparer
-    data_loader = DataLoader(detector=mouth_detector)  # Initialize with any necessary parameters
-    data_loader.process_all_videos(original_video_dir, original_subtitle_dir, output_dir)
-    dataset_preparer = DatasetPreparer(video_directory=video_dir, data_loader=data_loader)  # Provide data_loader here
+    data_loader = DataLoader(detector=mouth_detector)
+    # data_loader.process_all_videos(dataset_type, original_video_dir, original_subtitle_dir, output_dir)
+    dataset_preparer = DatasetPreparer(video_directory=video_dir, data_loader=data_loader)
     train_dataset, val_dataset = dataset_preparer.prepare_dataset()
+
+    # Print information about the datasets
+    print(f"Train dataset: {train_dataset.cardinality().numpy()} batches")
+    print(f"Validation dataset: {val_dataset.cardinality().numpy()} batches")
+    print(f"Train dataset element spec: {train_dataset.element_spec}")
+    print(f"Validation dataset element spec: {val_dataset.element_spec}")
+
+    # for videos, labels in train_dataset:
+    #     print(f"Videos shape (train): {videos.shape}, Labels shape: {labels.shape} | {videos.dtype}, {labels.dtype}")
+    #
+    # for videos, labels in val_dataset:
+    #     print(f"Videos shape (val): {videos.shape}, Labels shape: {labels.shape}")
 
     model = LipReadingModel(num_classes=char_to_num.vocabulary_size())
     # Print the model's input and output shapes
@@ -83,7 +103,7 @@ def train_model():
     print(f"Training history keys: {training_history.history.keys()}")
 
     # Save the final model
-    trained_model.save("models/final_model.h5")
+    trained_model.save("models/final_model.keras")
     print("Model training complete and saved.")
 
 def test_model():
@@ -91,18 +111,19 @@ def test_model():
     Load the trained model and test it on new data.
     """
     # Load the saved model
-    saved_model_path = "models/final_model.h5"
+    saved_model_path = "models/final_model.keras"
     if not os.path.exists(saved_model_path):
         print(f"Saved model not found at {saved_model_path}. Train the model first.")
         return
 
-    model = tf.keras.models.load_model(saved_model_path, custom_objects={"ctc_loss": ctc_loss, "Reshape": Reshape, "LSTM": LSTM})  # Add custom losses if needed
+    model = tf.keras.models.load_model(saved_model_path, custom_objects={"ctc_loss": ctc_loss})
     print(f"Model loaded from {saved_model_path}.")
     print(model.summary())
 
     # Prepare test data
-    base_dir = "data/A_U_EE_E/temp/"
-    output_dir = base_dir + "separated"
+    base_dir = "data/GRID_corpus/"
+    # output_dir = base_dir + "separated"
+    output_dir = base_dir
     video_dir = output_dir + "/videos"
 
     mouth_detector = MouthDetector()
@@ -135,7 +156,8 @@ def main():
     Main function to train or test the model.
     """
     # Choose between training and testing
-    action = input("Enter 'train' to train the model or 'test' to test the model: ").strip().lower()
+    # action = input("Enter 'train' to train the model or 'test' to test the model: ").strip().lower()
+    action = 'train'
     if action == 'train':
         train_model()
     elif action == 'test':
