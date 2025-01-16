@@ -77,13 +77,13 @@ class DatasetPreparer:
         val_dataset = dataset.skip(train_size)
 
         # Augment the training dataset
-        # train_dataset = train_dataset.map(
-        #     lambda video, subtitle: (Augmentor.augment_video(video), subtitle),
-        #     num_parallel_calls=tf.data.AUTOTUNE
-        # )
+        train_dataset = train_dataset.map(
+            lambda video, subtitle: (Augmentor.augment_video(video), subtitle),
+            num_parallel_calls=tf.data.AUTOTUNE
+        )
 
         # Batch and pad the datasets to ensure consistent shapes
-        batch_size = 2
+        batch_size = 4
         padded_shapes = ([MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, 1], [None])
         train_dataset = train_dataset.padded_batch(
             batch_size=batch_size,
