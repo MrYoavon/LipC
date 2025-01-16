@@ -1,7 +1,7 @@
 # model/training.py
+
 import math
 import os
-import editdistance
 from datetime import datetime
 
 import tensorflow as tf
@@ -9,6 +9,7 @@ from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping,
 from tensorflow.keras.models import Sequential
 
 from constants import num_to_char
+from utils.model_utils import decode_predictions
 
 
 def train_model(model: Sequential, train_data: tf.data.Dataset, validation_data: tf.data.Dataset|None) -> tuple[Sequential, tf.keras.callbacks.History]:
@@ -44,17 +45,25 @@ def train_model(model: Sequential, train_data: tf.data.Dataset, validation_data:
     # Produce one example
     example_callback = ProduceExample(validation_data)
 
+    # Tensorboard
+    log_dir = f"logs/fit/{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+    tensorboard_callback = TensorBoard(
+        log_dir=log_dir,
+        histogram_freq=1,
+    )
+
     history = None
     try:
         history = model.fit(
             train_data,
             validation_data=validation_data,
-            validation_freq=5,
+            # validation_freq=5,
             epochs=100,
             callbacks=[checkpoint_callback,
                        early_stopping_callback,
                        lr_scheduler_callback,
                        example_callback,
+                       tensorboard_callback
                     ],
             verbose=1,
         )
@@ -102,139 +111,6 @@ def ctc_loss(y_true, y_pred):
     return tf.reduce_mean(loss)
 
 
-def decode_predictions(y_pred, beam_width=10):
-    # y_pred: (batch_size, timesteps, num_classes)
-    y_pred = tf.transpose(y_pred, perm=[1, 0, 2])  # Convert to time-major format
-    input_length = tf.fill([tf.shape(y_pred)[1]], tf.shape(y_pred)[0])  # Dynamic sequence lengths
-
-    # Perform beam search decoding
-    decoded, log_prob = tf.nn.ctc_beam_search_decoder(
-        y_pred,
-        sequence_length=input_length,
-        beam_width=beam_width
-    )
-    return decoded
-
-
-# def calculate_wer(ground_truth, prediction):
-#     """
-#     Calculate Word Error Rate (WER).
-#
-#     Args:
-#         ground_truth (str): The correct transcription.
-#         prediction (str): The predicted transcription.
-#
-#     Returns:
-#         float: WER value.
-#     """
-#     # Split the sentences into words
-#     gt_words = ground_truth.split()
-#     pred_words = prediction.split()
-#
-#     # Calculate Levenshtein distance
-#     distance = editdistance.eval(gt_words, pred_words)
-#
-#     # Compute WER
-#     wer = distance / len(gt_words) if len(gt_words) > 0 else float('inf')
-#     return wer
-#
-#
-# class WordErrorRateMetric(tf.keras.metrics.Metric):
-#     def __init__(self, name="wer", **kwargs):
-#         super(WordErrorRateMetric, self).__init__(name=name, **kwargs)
-#         self.total_wer = self.add_weight(name="total_wer", initializer="zeros", dtype=tf.float16)
-#         self.count = self.add_weight(name="count", initializer="zeros", dtype=tf.float16)
-#
-#     def update_state(self, y_true, y_pred, sample_weight=None):
-#         """
-#         Update WER for a batch.
-#
-#         Args:
-#             y_true: Ground truth labels (list of strings).
-#             y_pred: Predicted labels (list of strings).
-#         """
-#         def logits_to_text(logits):
-#             return tf.strings.reduce_join(num_to_char(logits), axis=-1)
-#
-#         true_str = logits_to_text(y_true)
-#         pred_str = logits_to_text(y_pred)
-#
-#         tf.print("TRUE", true_str)
-#         tf.print("PRED", pred_str)
-#
-#         # Use tf.py_function to calculate WER with Python logic
-#         def calculate_batch_wer(true_text, pred_text):
-#             total_wer = 0.0
-#             count = 0
-#             for gt, pred in zip(true_text, pred_text):
-#                 wer = calculate_wer(gt.decode('utf-8'), pred.decode('utf-8'))
-#                 total_wer += wer
-#                 count += 1
-#             return total_wer, count
-#
-#         batch_wer, batch_count = tf.py_function(
-#             calculate_batch_wer,
-#             [true_str, pred_str],
-#             [tf.float32, tf.float32],
-#         )
-#
-#         self.total_wer.assign_add(batch_wer)
-#         self.count.assign_add(batch_count)
-#
-#     def result(self):
-#         return self.total_wer / self.count
-#
-#     def reset_states(self):
-#         self.total_wer.assign(0.0)
-#         self.count.assign(0.0)
-
-# class WordErrorRateMetric(tf.keras.metrics.Metric):
-#     def __init__(self, name="wer", **kwargs):
-#         super(WordErrorRateMetric, self).__init__(name=name, **kwargs)
-#         self.total_wer = self.add_weight(name="total_wer", initializer="zeros", dtype=tf.float32)
-#         self.count = self.add_weight(name="count", initializer="zeros", dtype=tf.float32)
-#
-#     def update_state(self, y_true, y_pred, sample_weight=None):
-#         """
-#         Update WER for a batch.
-#
-#         Args:
-#             y_true: Ground truth labels (Tensor of strings).
-#             y_pred: Predicted labels (Tensor of strings).
-#         """
-#         def logits_to_text(logits):
-#             return tf.strings.reduce_join(num_to_char(logits), axis=-1)
-#
-#         # Convert logits to text
-#         true_texts = logits_to_text(y_true)
-#         pred_texts = logits_to_text(y_pred)
-#
-#         # Split strings into words
-#         true_words = tf.strings.split(true_texts)
-#         pred_words = tf.strings.split(pred_texts)
-#
-#         # Convert RaggedTensors to SparseTensors
-#         # true_words_sparse = true_words.to_sparse()
-#         # pred_words_sparse = pred_words.to_sparse()
-#
-#         # Calculate the edit distance (Levenshtein distance)
-#         edit_distances = tf.edit_distance(pred_words, true_words, normalize=False)
-#
-#         # Calculate WER for each sample
-#         true_lengths = tf.cast(true_words.row_lengths(), tf.float32)
-#         sample_wer = tf.where(true_lengths > 0, edit_distances / true_lengths, tf.zeros_like(true_lengths))
-#
-#         # Update metric
-#         self.total_wer.assign_add(tf.reduce_sum(sample_wer))
-#         self.count.assign_add(tf.cast(tf.size(sample_wer), tf.float32))
-#
-#     def result(self):
-#         return self.total_wer / self.count
-#
-#     def reset_states(self):
-#         self.total_wer.assign(0.0)
-#         self.count.assign(0.0)
-
 class CWERMetric(tf.keras.metrics.Metric):
     """ A custom TensorFlow metric to compute the Character Error Rate
     """
@@ -268,7 +144,6 @@ class CWERMetric(tf.keras.metrics.Metric):
                 "CER": tf.math.divide_no_nan(self.cer_accumulator, tf.cast(self.counter, tf.float32)),
                 "WER": tf.math.divide_no_nan(self.wer_accumulator, tf.cast(self.counter, tf.float32))
         }
-
 
 
 class ProduceExample(tf.keras.callbacks.Callback):
