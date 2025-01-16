@@ -39,9 +39,10 @@ def configure_devices():
         else:
             print("No GPU detected, using CPU.")
 
-        # Log TensorFlow ROCm status (if applicable)
+        # Log TensorFlow ROCm or CUDA status (if applicable)
         print(f"TensorFlow Version: {tf.__version__}")
         print(f"Is CUDA enabled: {tf.test.is_built_with_cuda()}")
+        print(f"Is ROCm enabled: {tf.test.is_built_with_rocm()}")
 
     except RuntimeError as e:
         print(f"Error configuring TensorFlow devices: {e}")
@@ -65,17 +66,12 @@ def train_model():
     Train the lip-reading model and save it to disk.
     """
     base_dir = "data/GRID_corpus/"
-    original_video_dir = base_dir + "videos"
-    original_subtitle_dir = base_dir + "transcriptions"
-    # output_dir = base_dir + "separated"
-    output_dir = base_dir
-    video_dir = output_dir + "/videos"
+    video_dir = base_dir + "videos"
 
     mouth_detector = MouthDetector()
 
     # Instantiate DataLoader and DatasetPreparer
     data_loader = DataLoader(detector=mouth_detector)
-    # data_loader.process_all_videos(dataset_type, original_video_dir, original_subtitle_dir, output_dir)
     dataset_preparer = DatasetPreparer(video_directory=video_dir, data_loader=data_loader)
     train_dataset, val_dataset = dataset_preparer.prepare_dataset()
 
@@ -92,7 +88,6 @@ def train_model():
     #     print(f"Videos shape (val): {videos.shape}, Labels shape: {labels.shape}")
 
     model = LipReadingModel(num_classes=char_to_num.vocabulary_size())
-    # Print the model's input and output shapes
     print(f"Model Input Shape: {model.model.input_shape}")
     print(f"Model Output Shape: {model.model.output_shape}")
 
@@ -122,14 +117,12 @@ def test_model():
 
     # Prepare test data
     base_dir = "data/GRID_corpus/"
-    # output_dir = base_dir + "separated"
-    output_dir = base_dir
-    video_dir = output_dir + "/videos"
+    video_dir = base_dir + "videos"
 
     mouth_detector = MouthDetector()
     data_loader = DataLoader(detector=mouth_detector)
     dataset_preparer = DatasetPreparer(video_directory=video_dir, data_loader=data_loader)
-    _, test_dataset = dataset_preparer.prepare_dataset()  # Assuming you have a separate test set
+    _, test_dataset = dataset_preparer.prepare_dataset()  # Using the validation dataset as test
 
     # Evaluate the model
     for batch in test_dataset.take(1):  # Test on a single batch
