@@ -3,7 +3,7 @@ import tensorflow as tf
 MAX_FRAMES = 75
 VIDEO_WIDTH = 125
 VIDEO_HEIGHT = 50
-VIDEO_TYPE = "mpg"
+VIDEO_TYPE = "mp4"
 
 # Define vocabulary for character mapping
 # vocab = ["A", "U", "I", "E", " "]
