@@ -5,6 +5,7 @@ import tensorflow as tf
 
 from constants import MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, VIDEO_TYPE
 
+
 class Augmentor:
     @staticmethod
     def augment_video(video_tensor):
@@ -13,11 +14,6 @@ class Augmentor:
         :param video_tensor: A tensor representing the video with shape [frames, height, width, channels].
         :return: Augmented video tensor.
         """
-        # Ensure the tensor has the correct rank and shape
-        # if tf.rank(video_tensor) == 3:  # Missing channel dimension
-        #     video_tensor = tf.expand_dims(video_tensor, axis=-1)  # Add channel dimension
-
-        # Assert the tensor has the correct rank
         video_tensor = tf.ensure_shape(video_tensor, [None, None, None, 1])  # Channels fixed to 1
 
         # Random horizontal flip
@@ -53,13 +49,13 @@ class DatasetPreparer:
         and applies padding, batching, and shuffling.
         """
         # Create the dataset from video files
-        video_paths = f"{self.video_directory}/*/*.mpg"
+        video_paths = f"{self.video_directory}/*/*.{VIDEO_TYPE}"
         dataset = tf.data.Dataset.list_files(video_paths, shuffle=False)  # I disabled the default shuffle because I want to have more control over it
 
-        # Shuffle the dataset (reshuffling ensures random selection each iteration)
+        # Shuffle the dataset
         dataset = dataset.shuffle(buffer_size=100, reshuffle_each_iteration=True)
 
-        # Converts video path to tensors for video and subtitles
+        # Map video paths to video and subtitle data
         dataset = dataset.map(
             lambda path: DatasetPreparer.video_path_to_data(path, self.data_loader),
             num_parallel_calls=tf.data.AUTOTUNE
@@ -70,20 +66,20 @@ class DatasetPreparer:
         if dataset_size == tf.data.UNKNOWN_CARDINALITY or dataset_size == tf.data.INFINITE_CARDINALITY:
             raise ValueError("Dataset size is unknown or infinite. Ensure the dataset is finite and valid.")
 
-        train_size = int(0.8 * dataset_size)  # 80% for training
+        train_size = int(0.8 * dataset_size)
 
         # Split into training and validation datasets
         train_dataset = dataset.take(train_size)
         val_dataset = dataset.skip(train_size)
 
-        # Augment the training dataset
-        train_dataset = train_dataset.map(
-            lambda video, subtitle: (Augmentor.augment_video(video), subtitle),
-            num_parallel_calls=tf.data.AUTOTUNE
-        )
+        # # Augment the training dataset
+        # train_dataset = train_dataset.map(
+        #     lambda video, subtitle: (Augmentor.augment_video(video), subtitle),
+        #     num_parallel_calls=tf.data.AUTOTUNE
+        # )
 
         # Batch and pad the datasets to ensure consistent shapes
-        batch_size = 4
+        batch_size = 8
         padded_shapes = ([MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, 1], [None])
         train_dataset = train_dataset.padded_batch(
             batch_size=batch_size,
@@ -96,11 +92,31 @@ class DatasetPreparer:
             padding_values=(tf.constant(0.0, dtype=tf.float16), tf.constant(0, dtype=tf.int8))
         )
 
-        # Prefetch datasets to prevent bottlenecks
-        train_dataset = train_dataset.prefetch(tf.data.AUTOTUNE)
-        val_dataset = val_dataset.prefetch(tf.data.AUTOTUNE)
+        # Cache and Prefetch datasets to prevent bottlenecks
+        train_dataset = train_dataset.cache().prefetch(tf.data.AUTOTUNE)
+        val_dataset = val_dataset.cache().prefetch(tf.data.AUTOTUNE)
 
         return train_dataset, val_dataset
+
+    # @staticmethod
+    # def pad_video(video_tensor, target_frames=MAX_FRAMES):
+    #     """
+    #     Pad the video tensor to ensure it has the target number of frames.
+    #     :param video_tensor: A tensor representing the video with shape [frames, height, width, channels].
+    #     :param target_frames: The desired number of frames in the output tensor.
+    #     :return: Padded video tensor.
+    #     """
+    #     padding = target_frames - tf.shape(video_tensor)[0]
+    #     padded_video = tf.pad(video_tensor, [[0, padding], [0, 0], [0, 0], [0, 0]])
+    #
+    #     padded_video = tf.ensure_shape(padded_video, [target_frames, VIDEO_HEIGHT, VIDEO_WIDTH, 1])
+    #     return padded_video
+    #
+    # @staticmethod
+    # def pad_subtitles(subtitles, max_length=75):
+    #     padding = max_length - tf.shape(subtitles)[0]
+    #     padded_subtitles = tf.pad(subtitles, [[0, padding]])
+    #     return padded_subtitles
 
     @staticmethod
     def prepare_video_and_subtitles(video_path: tf.Tensor, data_loader):
@@ -123,5 +139,8 @@ class DatasetPreparer:
         """
         A wrapper function that maps video path to frames and alignments.
         """
-        return tf.py_function(lambda x: DatasetPreparer.prepare_video_and_subtitles(x, data_loader),
-                              [video_path], [tf.float16, tf.int8])
+        return tf.py_function(
+            func=lambda x: DatasetPreparer.prepare_video_and_subtitles(x, data_loader),
+            inp=[video_path],
+            Tout=[tf.float16, tf.int8]
+        )
