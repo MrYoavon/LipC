@@ -39,12 +39,12 @@ def filter_videos_by_frame_count(input_dir, output_dir, frame_count_target=75):
 
                     # Copy video to output directory
                     destination_path = os.path.join(destination_dir, file)
-                    shutil.copy2(video_path, destination_path)
-                    print(f"Copied: {video_path} -> {destination_path}")
+                    # shutil.copy2(video_path, destination_path)
+                    # print(f"Copied: {video_path} -> {destination_path} | Frames: {frame_count}")
                 else:
-                    print(f"Skipped: {video_path} (Frames: {frame_count})")
+                    print(f"Skipped: {video_path} (Frames: {frame_count}) | Frames: {frame_count}")
 
 # Example usage
-input_directory = "../../data/GRID_corpus/original_videos"  # Replace with the path to your input directory
-output_directory = "../../data/GRID_corpus/videos"  # Replace with the path to your output directory
+input_directory = "../../data/GRID_corpus/videos"  # Replace with the path to your input directory
+output_directory = "../../data/GRID_corpus/videos_2"  # Replace with the path to your output directory
 filter_videos_by_frame_count(input_directory, output_directory)

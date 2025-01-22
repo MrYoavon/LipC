@@ -2,8 +2,8 @@ import os
 import csv
 
 # Define the base directories
-base_dir = '../../data/GRID_corpus/original_transcriptions/'
-output_base_dir = '../../data/GRID_corpus/transcriptions/'
+base_dir = '../../data/GRID_corpus_normal/original_transcriptions/'
+output_base_dir = '../../data/GRID_corpus_normal/transcriptions/'
 
 
 def create_output_dir_structure(base_dir, output_base_dir):

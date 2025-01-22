@@ -24,6 +24,7 @@ dataset_directory = "../../data/GRID_corpus/videos"
 faulty_videos = check_videos(dataset_directory)
 
 if faulty_videos:
+    print(f"There are {len(faulty_videos)} faulty videos.")
     print("Faulty videos detected:")
     for video in faulty_videos:
         print(video)
