@@ -1,0 +1,123 @@
+# validate_videos.py
+
+import os
+import cv2
+import argparse
+import logging
+
+
+def setup_logging(log_file='video_validation.log'):
+    """
+    Sets up the logging configuration.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s [%(levelname)s] %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler()
+        ]
+    )
+
+
+def is_video_corrupted_opencv(video_path):
+    """
+    Checks if a video is corrupted by attempting to read all its frames using OpenCV.
+
+    :param video_path: Path to the video file.
+    :return: Tuple (is_corrupted: bool, error_message: str)
+    """
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        return True, "Cannot open video."
+
+    frame_count = 0
+    corrupted = False
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        frame_count += 1
+
+    cap.release()
+
+    if frame_count == 0:
+        return True, "No frames could be read."
+
+    return corrupted, ""
+
+
+def validate_videos_opencv(video_directory):
+    """
+    Validates all videos in the specified directory using OpenCV.
+
+    :param video_directory: Root directory containing video files.
+    """
+    corrupted_videos = []
+    total_videos = 0
+
+    for root, _, files in os.walk(video_directory):
+        for file in files:
+            if file.lower().endswith(('.mpg', '.mp4', '.avi', '.mkv')):
+                total_videos += 1
+                video_path = os.path.join(root, file)
+                is_corrupted, error = is_video_corrupted_opencv(video_path)
+                if is_corrupted:
+                    corrupted_videos.append((video_path, error))
+                    logging.warning(f"Corrupted Video: {video_path} | Reason: {error}")
+                else:
+                    logging.info(f"Valid Video: {video_path}")
+
+    logging.info(f"Validation Complete: {total_videos} videos checked.")
+    logging.info(f"Corrupted Videos Found: {len(corrupted_videos)}")
+
+    return corrupted_videos
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Validate video dataset for corruption using OpenCV.")
+    parser.add_argument(
+        '--video_dir',
+        type=str,
+        required=True,
+        help='Path to the root video directory.'
+    )
+    parser.add_argument(
+        '--action',
+        type=str,
+        default='log',
+        choices=['log', 'delete', 'move'],
+        help='Action to take on corrupted videos: log, delete, or move.'
+    )
+    parser.add_argument(
+        '--move_dir',
+        type=str,
+        default=None,
+        help='Destination directory to move corrupted videos if action is "move".'
+    )
+    args = parser.parse_args()
+
+    setup_logging()
+
+    corrupted = validate_videos_opencv(args.video_dir)
+
+    if args.action == 'delete':
+        for video_path, _ in corrupted:
+            try:
+                os.remove(video_path)
+                logging.info(f"Deleted Corrupted Video: {video_path}")
+            except Exception as e:
+                logging.error(f"Failed to delete {video_path}: {e}")
+    elif args.action == 'move':
+        if not args.move_dir:
+            logging.error("Move directory not specified. Use --move_dir to specify the destination.")
+            exit(1)
+        os.makedirs(args.move_dir, exist_ok=True)
+        for video_path, _ in corrupted:
+            try:
+                dest_path = os.path.join(args.move_dir, os.path.basename(video_path))
+                os.rename(video_path, dest_path)
+                logging.info(f"Moved Corrupted Video: {video_path} -> {dest_path}")
+            except Exception as e:
+                logging.error(f"Failed to move {video_path}: {e}")
+    # If action is 'log', nothing more to do as logging is already handled
