@@ -36,6 +36,7 @@ def train_model(model: Sequential, train_data: tf.data.Dataset, validation_data:
         os.path.join(run_dir, 'cp-{epoch:04d}.weights.h5'),
         monitor='val_loss',
         save_weights_only=True,
+        save_best_only=True,
         verbose=1
     )
 
@@ -94,14 +95,15 @@ def cosine_annealing_with_warm_restarts(epoch, T_0, T_mult=1, initial_lr=0.001, 
 
 
 def ctc_loss(y_true, y_pred):
-    y_true = tf.cast(y_true, dtype=tf.int8)
-    y_pred = tf.cast(y_pred, dtype=tf.float16)
+    y_true = tf.cast(y_true, dtype=tf.int32)
+    y_true_sparse = tf.sparse.from_dense(y_true)
+    y_pred = tf.cast(y_pred, dtype=tf.float32)
 
-    input_length = tf.reduce_sum(tf.ones_like(y_pred[:, :, 0], dtype=tf.int8), axis=1)  # Length of each input sequence
-    label_length = tf.reduce_sum(tf.ones_like(y_true, dtype=tf.int8), axis=1)  # Length of each label sequence
+    input_length = tf.reduce_sum(tf.ones_like(y_pred[:, :, 0], dtype=tf.int32), axis=1)  # Length of each input sequence
+    label_length = tf.sparse.reduce_max(y_true_sparse, axis=1) + 1  # Adding 1 because it starts at 0
 
     loss = tf.nn.ctc_loss(
-        labels=y_true,
+        labels=y_true_sparse,
         logits=y_pred,
         label_length=label_length,
         logit_length=input_length,
@@ -155,22 +157,21 @@ class ProduceExample(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None) -> None:
         try:
             videos, labels = next(self.dataset_iter)
-            predictions = self.model.predict(videos)  # Predict logits from the model
-            predictions = tf.cast(predictions, dtype=tf.float32)
-
-            # Decode predictions
-            decoded_predictions = decode_predictions(predictions, beam_width=5)
-            dense_decoded = tf.sparse.to_dense(decoded_predictions[0], default_value=-1)
-
-            # Display results
-            for i, sequence in enumerate(dense_decoded):
-                original = tf.strings.reduce_join(
-                    [num_to_char(word).numpy().decode('utf-8') for word in labels[i].numpy() if word != -1]
-                )
-                prediction = tf.strings.reduce_join(
-                    [num_to_char(word).numpy().decode('utf-8') for word in sequence.numpy() if word != -1]
-                )
-                print(f"Original: {original} | Prediction: {prediction}")
-
         except StopIteration:
-            print("No more examples in the validation dataset.")
+            self.dataset_iter = iter(self.dataset)
+            videos, labels = next(self.dataset_iter)
+
+        predictions = self.model.predict(videos)  # Predict logits from the model
+        decoded_predictions = decode_predictions(tf.cast(predictions, dtype=tf.float32))
+        dense_decoded = tf.sparse.to_dense(decoded_predictions[0], default_value=-1)
+
+        # Display results
+        for i, sequence in enumerate(dense_decoded):
+            original = tf.strings.reduce_join(
+                [num_to_char(word).numpy().decode('utf-8') for word in labels[i].numpy() if word != -1]
+            )
+            prediction = tf.strings.reduce_join(
+                [num_to_char(word).numpy().decode('utf-8') for word in sequence.numpy() if word != -1]
+            )
+            print(f"Original: {original} | Prediction: {prediction}")
+
