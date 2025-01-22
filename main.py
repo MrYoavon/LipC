@@ -1,13 +1,10 @@
 # main.py
 
-# Standard library imports
 import os
-
-# Increase max GPU VRAM usage
-# os.environ["TF_CUDNN_WORKSPACE_LIMIT_IN_MB"] = "16384"
 
 # Third-party imports
 import tensorflow as tf
+# tf.config.run_functions_eagerly(True)  # Enable eager execution for debugging purposes
 import numpy as np
 import random
 
@@ -16,8 +13,6 @@ seed = 42
 tf.random.set_seed(seed)
 np.random.seed(seed)
 random.seed(seed)
-
-from tensorflow.keras import mixed_precision
 
 # Disable GPU for Tensorflow
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -49,6 +44,7 @@ def configure_devices():
 
 # Call the device configuration function
 configure_devices()
+from tensorflow.keras import mixed_precision
 mixed_precision.set_global_policy('mixed_float16')
 
 # Local application imports
@@ -65,7 +61,7 @@ def train_model():
     """
     Train the lip-reading model and save it to disk.
     """
-    base_dir = "data/GRID_corpus/"
+    base_dir = "data/GRID_corpus_normal/"
     video_dir = base_dir + "videos"
 
     mouth_detector = MouthDetector()
