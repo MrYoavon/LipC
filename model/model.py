@@ -25,36 +25,50 @@ class LipReadingModel:
 
         # 3D Convolution layers for spatial and temporal features
         model.add(layers.Conv3D(128, kernel_size=3, padding='same', activation='relu'))
-        print(f"After Conv3D-1: {model.layers[-1].output.shape}")
         model.add(layers.MaxPool3D((1, 2, 2), padding='same'))
-        print(f"After MaxPool3D-1: {model.layers[-1].output.shape}")
-
         model.add(layers.Conv3D(256, kernel_size=3, padding='same', activation='relu'))
-        print(f"After Conv3D-2: {model.layers[-1].output.shape}")
         model.add(layers.MaxPool3D((1, 2, 2), padding='same'))
-        print(f"After MaxPool3D-2: {model.layers[-1].output.shape}")
-
         model.add(layers.Conv3D(MAX_FRAMES, kernel_size=3, padding='same', activation='relu'))
-        print(f"After Conv3D-3: {model.layers[-1].output.shape}")
         model.add(layers.MaxPool3D((1, 2, 2), padding='same'))
-        print(f"After MaxPool3D-3: {model.layers[-1].output.shape}")
 
         # TimeDistributed for applying to each frame in the sequence
-        # Flatten spatial dimensions for LSTMs
         model.add(layers.TimeDistributed(layers.Flatten()))
-        print(f"After TimeDistributed Flatten: {model.layers[-1].output.shape}")
+
+        # Add a masking layer
+        model.add(layers.Masking(mask_value=0.0))
 
         # Bidirectional LSTMs for temporal modeling
-        model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+        model.add(layers.Bidirectional(
+            # Apart from units and return_sequences, all other parameters are to ensure TF implementation is used
+            # because the default ROCm implementation is not compatible with padded sequences
+            # this implementation is slower, but at least it works
+            layers.LSTM(
+                units=128,
+                return_sequences=True,
+                activation='tanh',
+                recurrent_activation='sigmoid',
+                recurrent_dropout=0.2,
+                use_bias=True
+            )
+        ))
         print(f"After BiLSTM-1: {model.layers[-1].output[0].shape}")
         model.add(layers.Dropout(0.5))
 
-        model.add(layers.Bidirectional(layers.LSTM(128, return_sequences=True)))
+        model.add(layers.Bidirectional(
+            layers.LSTM(
+                units=128,
+                return_sequences=True,
+                activation='tanh',
+                recurrent_activation='sigmoid',
+                recurrent_dropout=0.2,
+                use_bias=True
+            )
+        ))
         print(f"After BiLSTM-2: {model.layers[-1].output[0].shape}")
         model.add(layers.Dropout(0.5))
 
         # Output layer (logits for CTC loss)
-        model.add(layers.Dense(self.num_classes + 1, activation="softmax", kernel_initializer="he_normal", kernel_regularizer=l2(1e-4)))
+        model.add(layers.Dense(self.num_classes + 1, kernel_initializer="he_normal", kernel_regularizer=l2(1e-4)))
         print(f"Final Output Shape (Logits): {model.layers[-1].output.shape}")
 
         print(model.summary())
