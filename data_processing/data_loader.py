@@ -1,9 +1,6 @@
-import os
-
 import cv2
 import tensorflow as tf
 import pandas as pd
-import csv
 
 from constants import char_to_num, MAX_FRAMES
 from data_processing.mouth_detection import MouthDetector
@@ -17,16 +14,16 @@ class DataLoader:
         """
         Load video frames, apply mouth detection, convert to grayscale, and normalize.
         """
-        cap = cv2.VideoCapture(path)
-        frames = []
+        with tf.device('/CPU:0'):
+            cap = cv2.VideoCapture(path)
+            frames = []
 
-        while cap.isOpened():
-            ret, frame = cap.read()
-            if not ret:
-                break
+            while cap.isOpened():
+                ret, frame = cap.read()
+                if not ret:
+                    break
 
-            frame = self.detector.detect_and_crop_mouth(frame)  # Crop to mouth region
-            with tf.device('/CPU:0'):
+                frame = self.detector.detect_and_crop_mouth(frame)  # Crop to mouth region
                 if frame is not None:
                     # Convert the OpenCV image (NumPy array) to a TensorFlow tensor
                     frame_tensor = tf.convert_to_tensor(frame, dtype=tf.float16)
@@ -37,12 +34,18 @@ class DataLoader:
                     frame = tf.image.rgb_to_grayscale(frame_tensor)
                     frames.append(frame)
 
-        cap.release()
-        if len(frames) == 0:
-            raise ValueError(f"No valid frames found in video {path}")
+            cap.release()
+            if len(frames) == 0:
+                raise ValueError(f"No valid frames found in video {path}")
 
-        frames = tf.convert_to_tensor(frames, dtype=tf.float16)  # Convert list to tensor
-        return tf.cast(tf.image.per_image_standardization(frames), dtype=tf.float16)
+            frames = tf.convert_to_tensor(frames, dtype=tf.float16)  # Convert list to tensor
+
+            # Ensure tensor has 4 dimensions (batch, height, width, channels)
+            if len(frames.shape) != 4:
+                raise ValueError(f"Expected 4D tensor for frames, got shape: {frames.shape}")
+
+            # print(f"Loaded video: {path} | Frames: {frames.shape[0]} | Shape: {frames.shape[1:]}")
+            return tf.cast(tf.image.per_image_standardization(frames), dtype=tf.float16)
 
     def load_subtitles(self, path: str) -> tf.Tensor:
         """
@@ -53,16 +56,21 @@ class DataLoader:
 
         for _, row in df.iterrows():
             subtitle = row['subtitle'].strip().lower()
-            if subtitle and (subtitle != 'idle' or subtitle != 'sil'):
+            if subtitle and subtitle != 'sil' and subtitle != 'idle':
                 tokens.extend(list(subtitle) + [' '])
+
+        if not tokens:
+            raise ValueError("Token list is empty. Check subtitle content.")
 
         with tf.device('/CPU:0'):
             tokens = tokens[:-1]  # Remove the last space
-            # Convert tokens to a tensor of strings
             token_tensor = tf.constant(tokens, dtype=tf.string)
+
             tokenized = tf.strings.unicode_split(token_tensor, input_encoding='UTF-8')
-            # return char_to_num(tokenized.flat_values)
-            return tf.cast(char_to_num(tf.reshape(tokenized, [-1])), tf.int8)
+
+            flattened = tf.reshape(tokenized, [-1])
+
+            return tf.cast(char_to_num(flattened), tf.int8)
 
     # def split_video_by_frames(self, video_path: str, subtitles_path: str, output_dir: str):
     #     """
