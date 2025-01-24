@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.regularizers import l2
 
-from constants import MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH
+from constants import MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, BATCH_SIZE
 
 
 class LipReadingModel:
@@ -20,7 +20,7 @@ class LipReadingModel:
         model = models.Sequential()
 
         # Input layer
-        model.add(layers.Input(shape=self.input_shape))
+        model.add(layers.Input(shape=self.input_shape, batch_size=BATCH_SIZE))
         print(f"Input Shape: {self.input_shape}")
 
         # 3D Convolution layers for spatial and temporal features

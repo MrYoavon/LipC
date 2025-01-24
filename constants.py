@@ -4,6 +4,10 @@ MAX_FRAMES = 75
 VIDEO_WIDTH = 125
 VIDEO_HEIGHT = 50
 VIDEO_TYPE = "mp4"
+BATCH_SIZE = 8
+
+TRAIN_TFRECORDS_PATH = "data/GRID_corpus_normal/train.tfrecords"
+VAL_TFRECORDS_PATH = "data/GRID_corpus_normal/val.tfrecords"
 
 # Define vocabulary for character mapping
 # vocab = ["A", "U", "I", "E", " "]

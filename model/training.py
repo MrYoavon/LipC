@@ -8,7 +8,7 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping, LearningRateScheduler, TensorBoard
 from tensorflow.keras.models import Sequential
 
-from constants import num_to_char
+from constants import num_to_char, TRAIN_TFRECORDS_PATH, VAL_TFRECORDS_PATH, BATCH_SIZE
 from utils.model_utils import decode_predictions
 
 
@@ -53,12 +53,25 @@ def train_model(model: Sequential, train_data: tf.data.Dataset, validation_data:
         histogram_freq=1,
     )
 
+    # Calculate the number of steps per epoch
+    def count_tfrecords(tfrecords_path):
+        return sum(1 for _ in tf.data.TFRecordDataset(tfrecords_path))
+
+    train_num_samples = count_tfrecords(TRAIN_TFRECORDS_PATH)
+    val_num_samples = count_tfrecords(VAL_TFRECORDS_PATH)
+
+    # Usually, we'd need to divide by the batch size, but since the dataset is already batched before saving to TFRecords,
+    # we can just use the number of samples as the steps per epoch.
+    train_steps_per_epoch = train_num_samples
+    val_steps_per_epoch = val_num_samples
+
     history = None
     try:
         history = model.fit(
             train_data,
             validation_data=validation_data,
-            # validation_freq=5,
+            steps_per_epoch=train_steps_per_epoch,
+            validation_steps=val_steps_per_epoch,
             epochs=100,
             callbacks=[checkpoint_callback,
                        early_stopping_callback,

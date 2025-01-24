@@ -69,13 +69,15 @@ def train_model():
     # Instantiate DataLoader and DatasetPreparer
     data_loader = DataLoader(detector=mouth_detector)
     dataset_preparer = DatasetPreparer(video_directory=video_dir, data_loader=data_loader)
-    train_dataset, val_dataset = dataset_preparer.prepare_dataset()
+    train_dataset, val_dataset = dataset_preparer.prepare_dataset(save_tfrecords=True)
 
     # Print information about the datasets
     print(f"Train dataset: {train_dataset.cardinality().numpy()} batches")
     print(f"Validation dataset: {val_dataset.cardinality().numpy()} batches")
     print(f"Train dataset element spec: {train_dataset.element_spec}")
     print(f"Validation dataset element spec: {val_dataset.element_spec}")
+
+    # print(f"Number of elements: {len(list(train_dataset))} | {len(list(val_dataset))}")
 
     # for videos, labels in train_dataset:
     #     print(f"Videos shape (train): {videos.shape}, Labels shape: {labels.shape} | {videos.dtype}, {labels.dtype}")
