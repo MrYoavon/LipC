@@ -48,7 +48,7 @@ from tensorflow.keras import mixed_precision
 mixed_precision.set_global_policy('mixed_float16')
 
 # Local application imports
-from model.training import ctc_loss
+from model.training import ctc_loss, WordErrorRate
 from utils.model_utils import decode_predictions
 from data_processing.mouth_detection import MouthDetector
 from data_processing.data_processing import DatasetPreparer
@@ -84,6 +84,17 @@ def train_model():
     #
     # for videos, labels in val_dataset:
     #     print(f"Videos shape (val): {videos.shape}, Labels shape: {labels.shape}")
+
+    # for videos, labels in train_dataset.take(1):
+    #     y_true = labels
+    #     print(labels)
+    #     y_pred = tf.random.uniform((8, 75, char_to_num.vocabulary_size() + 1), minval=0, maxval=1, dtype=tf.float16)
+    #     print(y_pred)
+    #     wer_metric = WordErrorRate()
+    #     wer_metric.update_state(y_true, y_pred)
+    #     wer = wer_metric.result()
+    #     print(f"Initial WER: {wer}")
+
 
     model = LipReadingModel(num_classes=char_to_num.vocabulary_size())
     print(f"Model Input Shape: {model.model.input_shape}")
