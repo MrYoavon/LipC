@@ -18,7 +18,7 @@ def train_model(model: Sequential, train_data: tf.data.Dataset, validation_data:
     cer = CharacterErrorRate()
     wer = WordErrorRate()
     model.compile(
-                  optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+                  optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
                   loss=ctc_loss,
                   metrics=[cer, wer]
                   )
@@ -26,8 +26,8 @@ def train_model(model: Sequential, train_data: tf.data.Dataset, validation_data:
     # Learning rate scheduler
     lr_scheduler_callback = LearningRateScheduler(lambda epoch: cosine_annealing_with_warm_restarts(epoch,
                                                                                                     T_0=10,
-                                                                                                    T_mult=1,
-                                                                                                    initial_lr=0.001,
+                                                                                                    T_mult=2,
+                                                                                                    initial_lr=0.0001,
                                                                                                     eta_min=0.0001))
 
     # Model checkpoint
