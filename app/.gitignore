@@ -1,0 +1,85 @@
+# Flutter/Dart specific
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+.generated/
+
+# Android specific
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/local.properties
+**/gradle/
+**/.gradle/
+**/.idea/
+**/*.iml
+**/*.keystore
+
+# iOS specific
+**/ios/.generated/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Runner.xcworkspace/
+**/ios/Pods/
+**/ios/Podfile.lock
+**/ios/DerivedData/
+**/ios/.symlinks/
+**/ios/.swiftlint.yml
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.xcframework
+
+# Web specific
+**/web/.generated/
+
+# macOS specific
+.DS_Store
+**/macos/Flutter/ephemeral/
+**/macos/.symlinks/
+**/macos/Pods/
+
+# Windows specific
+**/windows/Flutter/ephemeral/
+
+# Linux specific
+**/linux/Flutter/ephemeral/
+
+# Package config
+**/.vscode/
+**/.metadata
+**/pubspec.lock
+
+# Miscellaneous
+.idea/
+*.iml
+*.log
+*.tmp
+*.lock
+*.bak
+*.swp
+*.swo
+*.err
+*.orig
+*.rej
+*.sublime-project
+*.sublime-workspace
+
+# Flutter-IntelliJ plugin files
+**/.idea/libraries/
+**/.idea/modules.xml
+**/.idea/workspace.xml
+**/.idea/tasks.xml
+**/.idea/description.xml
+**/.idea/gradle.xml
+**/.idea/assetWizardSettings.xml
+**/.idea/misc.xml
+**/.idea/runConfigurations/
+**/android/.idea/
+**/ios/.idea/
+
+# VS Code specific
+.vscode/
+.history/
