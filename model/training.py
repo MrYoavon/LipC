@@ -3,13 +3,12 @@
 import math
 import os
 from datetime import datetime
-from typing import List, Tuple
 
 import tensorflow as tf
-from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping, LearningRateScheduler, TensorBoard
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, LearningRateScheduler, TensorBoard
 from tensorflow.keras.models import Sequential
 
-from constants import num_to_char, TRAIN_TFRECORDS_PATH, VAL_TFRECORDS_PATH, BATCH_SIZE
+from constants import num_to_char, TRAIN_TFRECORDS_PATH, VAL_TFRECORDS_PATH
 from utils.model_utils import decode_predictions
 
 
