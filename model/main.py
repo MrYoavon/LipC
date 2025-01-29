@@ -48,12 +48,12 @@ from tensorflow.keras import mixed_precision
 mixed_precision.set_global_policy('mixed_float16')
 
 # Local application imports
-from model.training import ctc_loss
+from core_model.training import ctc_loss
 from model.utils.model_utils import decode_predictions
 from model.data_processing.mouth_detection import MouthDetector
 from model.data_processing.data_processing import DatasetPreparer
 from model.data_processing.data_loader import DataLoader
-from model.model import LipReadingModel
+from core_model.model import LipReadingModel
 from constants import char_to_num, num_to_char
 
 
@@ -61,7 +61,7 @@ def train_model():
     """
     Train the lip-reading model and save it to disk.
     """
-    base_dir = "data/GRID_corpus_normal/"
+    base_dir = "model/data/GRID_corpus_normal/"
     video_dir = base_dir + "videos"
 
     mouth_detector = MouthDetector()
@@ -100,14 +100,14 @@ def train_model():
     print(f"Model Input Shape: {model.model.input_shape}")
     print(f"Model Output Shape: {model.model.output_shape}")
 
-    from model.training import train_model
+    from core_model.training import train_model
     trained_model, training_history = train_model(model.model, train_dataset, val_dataset)
 
     # Inspect the training history
     print(f"Training history keys: {training_history.history.keys()}")
 
     # Save the final model
-    trained_model.save("models/final_model.keras")
+    trained_model.save("model/models/final_model.keras")
     print("Model training complete and saved.")
 
 def test_model():
@@ -115,7 +115,7 @@ def test_model():
     Load the trained model and test it on new data.
     """
     # Load the saved model
-    saved_model_path = "models/final_model.keras"
+    saved_model_path = "model/models/final_model.keras"
     if not os.path.exists(saved_model_path):
         print(f"Saved model not found at {saved_model_path}. Train the model first.")
         return
@@ -125,7 +125,7 @@ def test_model():
     print(model.summary())
 
     # Prepare test data
-    base_dir = "model/data/GRID_corpus/"
+    base_dir = "model/data/GRID_corpus_normal/"
     video_dir = base_dir + "videos"
 
     mouth_detector = MouthDetector()

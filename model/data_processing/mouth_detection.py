@@ -15,7 +15,7 @@ from model.constants import VIDEO_WIDTH, VIDEO_HEIGHT
 
 
 class MouthDetector:
-    def __init__(self, model_path='assets/face_landmarker.task', num_faces=1):
+    def __init__(self, model_path='model/assets/face_landmarker.task', num_faces=1):
         base_options = python.BaseOptions(model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.GPU)
         # base_options = python.BaseOptions(model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.CPU)
         options = vision.FaceLandmarkerOptions(base_options=base_options,

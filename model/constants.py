@@ -6,8 +6,8 @@ VIDEO_HEIGHT = 50
 VIDEO_TYPE = "mp4"
 BATCH_SIZE = 8
 
-TRAIN_TFRECORDS_PATH = "data/GRID_corpus_normal/train.tfrecords"
-VAL_TFRECORDS_PATH = "data/GRID_corpus_normal/val.tfrecords"
+TRAIN_TFRECORDS_PATH = "model/data/GRID_corpus_normal/train.tfrecords"
+VAL_TFRECORDS_PATH = "model/data/GRID_corpus_normal/val.tfrecords"
 
 # Define vocabulary for character mapping
 # vocab = ["A", "U", "I", "E", " "]

@@ -10,27 +10,59 @@ from model.constants import MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, VIDEO_TYPE, B
 
 class Augmentor:
     @staticmethod
-    def augment_video(video_tensor):
+    # def augment_video(video_tensor):
+    #     """
+    #     Apply augmentations to a video tensor.
+    #     :param video_tensor: A tensor representing the video with shape [frames, height, width, channels].
+    #     :return: Augmented video tensor.
+    #     """
+    #     video_tensor = tf.ensure_shape(video_tensor, [None, None, None, None, 1])  # Channels fixed to 1
+    #
+    #     # Random horizontal flip
+    #     video_tensor = tf.image.random_flip_left_right(video_tensor)
+    #
+    #     # Random brightness adjustment
+    #     video_tensor = tf.image.random_brightness(video_tensor, max_delta=0.2)
+    #
+    #     # Random contrast adjustment
+    #     video_tensor = tf.image.random_contrast(video_tensor, lower=0.8, upper=1.2)
+    #
+    #     # Explicitly set shape
+    #     video_tensor = tf.ensure_shape(video_tensor, [BATCH_SIZE, MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, 1])
+    #     video_tensor = tf.cast(video_tensor, tf.float16)
+    #     return video_tensor
+    def augment_video(batch_video_tensor):
         """
-        Apply augmentations to a video tensor.
-        :param video_tensor: A tensor representing the video with shape [frames, height, width, channels].
-        :return: Augmented video tensor.
+        Apply augmentations to a batch of video tensors.
+        :param batch_video_tensor: A tensor representing a batch of videos with shape [batch_size, frames, height, width, channels].
+        :return: Augmented batch of video tensors.
         """
-        video_tensor = tf.ensure_shape(video_tensor, [None, None, None, 1])  # Channels fixed to 1
+        batch_video_tensor = tf.ensure_shape(batch_video_tensor, [None, None, None, None, 1])  # Channels fixed to 1
 
-        # Random horizontal flip
-        video_tensor = tf.image.random_flip_left_right(video_tensor)
+        def augment_single_video(video_tensor):
+            """
+            Apply augmentations to a single video tensor.
+            :param video_tensor: A tensor representing a single video with shape [frames, height, width, channels].
+            :return: Augmented video tensor.
+            """
+            # Random horizontal flip
+            video_tensor = tf.image.random_flip_left_right(video_tensor)
 
-        # Random brightness adjustment
-        video_tensor = tf.image.random_brightness(video_tensor, max_delta=0.2)
+            # Random brightness adjustment
+            video_tensor = tf.image.random_brightness(video_tensor, max_delta=0.2)
 
-        # Random contrast adjustment
-        video_tensor = tf.image.random_contrast(video_tensor, lower=0.8, upper=1.2)
+            # Random contrast adjustment
+            video_tensor = tf.image.random_contrast(video_tensor, lower=0.8, upper=1.2)
+
+            return video_tensor
+
+        # Apply the augmentations to each video in the batch
+        batch_video_tensor = tf.map_fn(augment_single_video, batch_video_tensor)
 
         # Explicitly set shape
-        video_tensor = tf.ensure_shape(video_tensor, [MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, 1])
-        video_tensor = tf.cast(video_tensor, tf.float16)
-        return video_tensor
+        batch_video_tensor = tf.ensure_shape(batch_video_tensor, [BATCH_SIZE, MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, 1])
+        batch_video_tensor = tf.cast(batch_video_tensor, tf.float16)
+        return batch_video_tensor
 
 
 class DatasetPreparer:
@@ -54,16 +86,8 @@ class DatasetPreparer:
         if os.path.exists(TRAIN_TFRECORDS_PATH) and os.path.exists(VAL_TFRECORDS_PATH):
             print(f"Loading datasets from TFRecords: {TRAIN_TFRECORDS_PATH} and {VAL_TFRECORDS_PATH}")
             # Load datasets from TFRecords
-            train_dataset = self.load_tfrecords(
-                TRAIN_TFRECORDS_PATH,
-                padded_shapes=([MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, 1], [None]),
-                batch_size=8
-            )
-            val_dataset = self.load_tfrecords(
-                VAL_TFRECORDS_PATH,
-                padded_shapes=([MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, 1], [None]),
-                batch_size=8
-            )
+            train_dataset = self.load_tfrecords(TRAIN_TFRECORDS_PATH, is_training=True)
+            val_dataset = self.load_tfrecords(VAL_TFRECORDS_PATH)
         else:
             print("TFRecords files not found. Creating datasets from raw files...")
             # Create the dataset from video files
@@ -71,7 +95,7 @@ class DatasetPreparer:
             dataset = tf.data.Dataset.list_files(video_paths, shuffle=False)  # Disable default shuffle for control
 
             # Shuffle the dataset
-            dataset = dataset.shuffle(buffer_size=100, reshuffle_each_iteration=True)
+            # dataset = dataset.shuffle(buffer_size=100, reshuffle_each_iteration=True)
 
             # Map video paths to video and subtitle data
             dataset = dataset.map(
@@ -89,12 +113,6 @@ class DatasetPreparer:
             # Split into training and validation datasets
             train_dataset = dataset.take(train_size)
             val_dataset = dataset.skip(train_size)
-
-            # # Augment the training dataset
-            # train_dataset = train_dataset.map(
-            #     lambda video, subtitle: (Augmentor.augment_video(video), subtitle),
-            #     num_parallel_calls=tf.data.AUTOTUNE
-            # )
 
             # Batch and pad the datasets to ensure consistent shapes
             padded_shapes = ([MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, 1], [None])
@@ -120,26 +138,6 @@ class DatasetPreparer:
                 print("Datasets saved to TFRecords.")
 
         return train_dataset, val_dataset
-
-    # @staticmethod
-    # def pad_video(video_tensor, target_frames=MAX_FRAMES):
-    #     """
-    #     Pad the video tensor to ensure it has the target number of frames.
-    #     :param video_tensor: A tensor representing the video with shape [frames, height, width, channels].
-    #     :param target_frames: The desired number of frames in the output tensor.
-    #     :return: Padded video tensor.
-    #     """
-    #     padding = target_frames - tf.shape(video_tensor)[0]
-    #     padded_video = tf.pad(video_tensor, [[0, padding], [0, 0], [0, 0], [0, 0]])
-    #
-    #     padded_video = tf.ensure_shape(padded_video, [target_frames, VIDEO_HEIGHT, VIDEO_WIDTH, 1])
-    #     return padded_video
-    #
-    # @staticmethod
-    # def pad_subtitles(subtitles, max_length=75):
-    #     padding = max_length - tf.shape(subtitles)[0]
-    #     padded_subtitles = tf.pad(subtitles, [[0, padding]])
-    #     return padded_subtitles
 
     @staticmethod
     def prepare_video_and_subtitles(video_path: tf.Tensor, data_loader):
@@ -211,17 +209,22 @@ class DatasetPreparer:
         self.write_to_tfrecords(val_dataset, val_path)
         print(f"Validation dataset saved to {val_path}")
 
-    def load_tfrecords(self, tfrecords_path, padded_shapes, batch_size=8):
+    def load_tfrecords(self, tfrecords_path, is_training=False):
         """
         Load a TFRecords file and prepare it as a dataset.
         """
         dataset = tf.data.TFRecordDataset(tfrecords_path)
         dataset = dataset.map(self.parse_tfrecords, num_parallel_calls=tf.data.AUTOTUNE)
-        # dataset = dataset.padded_batch(
-        #     batch_size=batch_size,
-        #     padded_shapes=padded_shapes,
-        #     padding_values=(tf.constant(0.0, dtype=tf.float16), tf.constant(0, dtype=tf.int8))
-        # )
+
+        if is_training:
+            # Augment the training dataset
+            dataset = dataset.map(
+                lambda video, subtitle: (Augmentor.augment_video(video), subtitle),
+                num_parallel_calls=tf.data.AUTOTUNE
+            )
+            dataset = dataset.shuffle(buffer_size=100, reshuffle_each_iteration=True)
+        else:
+            dataset = dataset.shuffle(buffer_size=100, reshuffle_each_iteration=False)
 
         dataset = dataset.prefetch(tf.data.AUTOTUNE)
         return dataset

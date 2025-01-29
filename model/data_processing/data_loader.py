@@ -3,7 +3,7 @@ import tensorflow as tf
 import pandas as pd
 
 from model.constants import char_to_num
-from model.data_processing.data_processing import MouthDetector
+from model.data_processing.mouth_detection import MouthDetector
 
 
 class DataLoader:
