@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lip_c/call_page.dart';
 
 import 'server_helper.dart';
 
@@ -130,37 +131,6 @@ class _ContactsPageState extends State<ContactsPage> {
             ),
           ],
         ),
-        // body: Column(
-        //   children: [
-        //     Expanded(
-        //       child: ListView.builder(
-        //         itemCount: _contacts.length,
-        //         itemBuilder: (context, index) {
-        //           final contact = _contacts[index];
-        //           if (_searchQuery.isNotEmpty &&
-        //               !contact['name']
-        //                   .toLowerCase()
-        //                   .contains(_searchQuery.toLowerCase())) {
-        //             return Container(); // Skip contacts that don't match the search query
-        //           }
-        //           return ListTile(
-        //             leading: CircleAvatar(
-        //               child: Text(contact['name']![0]), // Use initials as a placeholder
-        //             ),
-        //             title: Text(contact['name']),
-        //             subtitle: const Text('Status: Online'),
-        //             trailing: IconButton(
-        //               icon: const Icon(Icons.video_call),
-        //               onPressed: () {
-        //                 // Start video call
-        //               },
-        //             ),
-        //           );
-        //         },
-        //       ),
-        //     ),
-        //   ],
-        // ),
         body: FutureBuilder<List<Map<String, dynamic>>>(
           future: _contactsFuture,
           builder: (context, snapshot) {
@@ -176,10 +146,6 @@ class _ContactsPageState extends State<ContactsPage> {
                 itemCount: contacts.length,
                 itemBuilder: (context, index) {
                   final contact = contacts[index];
-                  // return ListTile(
-                  //   title: Text(contact['name'] ?? "Unknown"),
-                  //   subtitle: Text(contact['id'] ?? "Unknown ID"),
-                  // );
                   if (_searchQuery.isNotEmpty &&
                       !contact['name']
                           .toLowerCase()
@@ -197,6 +163,10 @@ class _ContactsPageState extends State<ContactsPage> {
                       icon: const Icon(Icons.video_call),
                       onPressed: () {
                         // Start video call
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CallPage(username: contact['name'])),
+                      );
                       },
                     ),
                   );

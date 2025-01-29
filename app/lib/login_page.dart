@@ -13,7 +13,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final ServerHelper _serverHelper =
-      ServerHelper(serverUrl: 'ws://192.168.1.107:8765');
+      ServerHelper(serverUrl: 'ws://192.168.1.5:8765');
 
   @override
   void dispose() {
