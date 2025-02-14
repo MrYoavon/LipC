@@ -88,6 +88,6 @@ async def start_server():
     Start the WebSocket server.
     """
     logging.basicConfig(level=logging.INFO)
-    async with websockets.serve(handle_connection, "192.168.1.107", 8765):
-        logging.info("WebSocket server started on ws://192.168.1.107:8765")
+    async with websockets.serve(handle_connection, "192.168.1.5", 8765):
+        logging.info("WebSocket server started on ws://192.168.1.5:8765")
         await asyncio.Future()  # Keep the server running

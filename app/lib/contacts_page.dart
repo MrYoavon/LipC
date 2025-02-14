@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lip_c/call_page.dart';
 
-import 'server_helper.dart';
+import 'call_page.dart';
+import 'helpers/server_helper.dart';
 
 class ContactsPage extends StatefulWidget {
   final ServerHelper serverHelper;
@@ -163,10 +163,12 @@ class _ContactsPageState extends State<ContactsPage> {
                       icon: const Icon(Icons.video_call),
                       onPressed: () {
                         // Start video call
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => CallPage(username: contact['name'])),
-                      );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  CallPage(username: contact['name'])),
+                        );
                       },
                     ),
                   );
