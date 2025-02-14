@@ -35,13 +35,8 @@ class FaceDetectionService {
     // print("Image Data Length: ${rgbData.length}");
     // print("Expected: ${sourceWidth * sourceHeight * 3}");
     // Decode image using package:image.
-    img.Image? image = img.Image.fromBytes(
+    img.Image image = img.Image.fromBytes(
         bytes: rgbData.buffer, width: sourceWidth, height: sourceHeight);
-    // print("image: $image");
-    if (image == null) {
-      print('Failed to decode image');
-      return null;
-    }
 
     // Resize image to match model's expected input size.
     img.Image resizedImage =
