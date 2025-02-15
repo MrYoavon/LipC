@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lip_c/login_page.dart';
+import 'package:lip_c/pages/login_page.dart';
 
 void main() {
   runApp(const LipC());

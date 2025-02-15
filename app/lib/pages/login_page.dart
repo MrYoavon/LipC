@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'contacts_page.dart';
-import 'helpers/server_helper.dart';
+import '../helpers/server_helper.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'call_page.dart';
-import 'helpers/server_helper.dart';
+import '../helpers/server_helper.dart';
 
 class ContactsPage extends StatefulWidget {
   final ServerHelper serverHelper;

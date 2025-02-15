@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:flutter/widgets.dart';
@@ -11,16 +12,19 @@ class FaceDetectionService {
   // Loads the face detection short range model.
   // This model expects an input image of size 128x128x3.
   static Future<void> loadModel() async {
-    _interpreter =
-        await Interpreter.fromAsset("assets/face_detection_short_range.tflite");
+    final interpreterOptions = InterpreterOptions();
+    _interpreter = await Interpreter.fromAsset(
+      "assets/blaze_face_short_range.tflite",
+      options: interpreterOptions,
+    );
     print("interpreter: $_interpreter");
   }
 
   // Runs inference on the provided NV21 image data.
   // It resizes the image to 128x128, normalizes the pixels, and creates the proper input tensor.
   // Then, it runs inference in real time and post-processes the model output to obtain the mouth bounding box.
-  static Future<Rect?> detectMouth(Uint8List imageData, int sourceWidth,
-      int sourceHeight, int rotationAngle) async {
+  static Future<Rect?> detectMouth(
+      Uint8List imageData, int sourceWidth, int sourceHeight) async {
     if (_interpreter == null) return null;
 
     // Get expected input shape: [1, targetHeight, targetWidth, channels]
@@ -35,15 +39,22 @@ class FaceDetectionService {
     // print("Image Data Length: ${rgbData.length}");
     // print("Expected: ${sourceWidth * sourceHeight * 3}");
     // Decode image using package:image.
-    img.Image image = img.Image.fromBytes(
+    img.Image? image = img.Image.fromBytes(
         bytes: rgbData.buffer, width: sourceWidth, height: sourceHeight);
+    // print("image: $image");
+    if (image == null) {
+      print('Failed to decode image');
+      return null;
+    }
 
     // Resize image to match model's expected input size.
     img.Image resizedImage =
         img.copyResize(image, width: targetWidth, height: targetHeight);
 
-    // Rotate the image.
-    img.Image rotatedImage = img.copyRotate(resizedImage, angle: rotationAngle);
+    if (Platform.isAndroid) {
+      image = img.copyRotate(image, angle: -90);
+      image = img.flipHorizontal(image);
+    }
 
     // Create input tensor: a 4D array of shape [1, targetHeight, targetWidth, channels] with normalized pixel values.
     // Replace the normalization in the input tensor generation:
@@ -52,16 +63,17 @@ class FaceDetectionService {
       (_) => List.generate(
           targetHeight,
           (y) => List.generate(targetWidth, (x) {
-                final pixel = rotatedImage.getPixel(x, y);
+                final pixel = resizedImage.getPixel(x, y);
                 // Extract RGB components and normalize to [-1.0, 1.0].
-                double r = (pixel.r / 127.5) - 1.0;
-                double g = (pixel.g / 127.5) - 1.0;
-                double b = (pixel.b / 127.5) - 1.0;
+                double r = ((pixel.r / 127.5) - 1.0).clamp(-1.0, 1.0);
+                double g = ((pixel.g / 127.5) - 1.0).clamp(-1.0, 1.0);
+                double b = ((pixel.b / 127.5) - 1.0).clamp(-1.0, 1.0);
                 return [r, g, b];
               }, growable: false),
           growable: false),
       growable: false,
     );
+
     // print(
     //     "input shape: ${input.length}x${input[0].length}x${input[0][0].length}x${input[0][0][0].length}");
 
@@ -76,7 +88,6 @@ class FaceDetectionService {
     // Post-process the output.
     // print(outputs);
     final mouthBox = getMouthBox(outputs);
-    print(mouthBox);
 
     return mouthBox;
   }
@@ -136,9 +147,9 @@ Rect? getMouthBox(Map<int, Object> outputs) {
 
   // Extract the nested lists properly
   final List<List<List<dynamic>>> rawRegressors =
-      outputs[0] as List<List<List<dynamic>>>;
+      outputs[0] as List<List<List<dynamic>>>; // Shape: [1, 896, 16]
   final List<List<List<dynamic>>> rawClassificators =
-      outputs[1] as List<List<List<dynamic>>>;
+      outputs[1] as List<List<List<dynamic>>>; // Shape: [1, 896, 1]
 
   // Convert the nested lists into 2D lists
   final List<List<dynamic>> regressors = rawRegressors[0]; // Shape: [896, 16]
@@ -155,6 +166,7 @@ Rect? getMouthBox(Map<int, Object> outputs) {
       maxIndex = i;
     }
   }
+  print("Confidence: $maxConfidence");
 
   // Extract face bounding box parameters.
   final double faceXCenter = regressors[maxIndex][0]; // x_center of face
@@ -179,9 +191,9 @@ Rect? getMouthBox(Map<int, Object> outputs) {
   final double x2 = mouthXCenter + mouthBoxWidth / 2;
   final double y2 = mouthYCenter + mouthBoxHeight / 2;
 
-  // // Convert normalized coordinates to image scale.
-  // final imageWidth = 128; // Change to match your actual image dimensions.
-  // final imageHeight = 128; // Change to match your actual image dimensions.
+  // Convert normalized coordinates to image scale.
+  final imageWidth = 128; // Change to match your actual image dimensions.
+  final imageHeight = 128; // Change to match your actual image dimensions.
 
   // return Rect.fromLTRB(
   //   x1 * imageWidth,
@@ -189,7 +201,12 @@ Rect? getMouthBox(Map<int, Object> outputs) {
   //   x2 * imageWidth,
   //   y2 * imageHeight,
   // );
-  return Rect.fromLTRB(x1, y1, x2, y2);
+  return Rect.fromLTRB(
+    imageWidth * faceXCenter,
+    imageHeight * faceYCenter,
+    imageWidth * faceWidth,
+    imageHeight * faceHeight,
+  );
 }
 
 // A simple class to hold anchor information.
