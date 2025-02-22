@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-class CallControls extends StatelessWidget {
+class CallControls extends StatefulWidget {
   final VoidCallback onFlipCamera;
   final VoidCallback onToggleCamera;
   final VoidCallback onEndCall;
-  final bool isCameraOn;
+  final VoidCallback onToggleMute;
+
   const CallControls({
-    Key? key,
+    super.key,
     required this.onFlipCamera,
     required this.onToggleCamera,
+    required this.onToggleMute,
     required this.onEndCall,
-    required this.isCameraOn,
-  }) : super(key: key);
+  });
+
+  @override
+  State<CallControls> createState() => _CallControlsState();
+}
+
+class _CallControlsState extends State<CallControls> {
+  bool isCameraOn = true;
+
+  bool isMuted = false;
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +39,23 @@ class CallControls extends StatelessWidget {
             backgroundColor: Colors.grey.shade800,
             child: IconButton(
               icon: const Icon(LucideIcons.refreshCw, color: Colors.white),
-              onPressed: onFlipCamera,
+              onPressed: () {
+                widget.onFlipCamera();
+              },
             ),
           ),
-          // Mute/Unmute (dummy)
+          // Mute/Unmute
           CircleAvatar(
             radius: 28,
-            backgroundColor: Colors.grey.shade800,
+            backgroundColor: isMuted ? Colors.grey.shade800 : Colors.white,
             child: IconButton(
-              icon: const Icon(LucideIcons.mic, color: Colors.white),
-              onPressed: () {},
+              icon: isMuted
+                  ? const Icon(LucideIcons.micOff, color: Colors.white)
+                  : Icon(LucideIcons.mic, color: Colors.grey.shade800),
+              onPressed: () {
+                isMuted = !isMuted;
+                widget.onToggleMute();
+              },
             ),
           ),
           // Toggle Video
@@ -49,7 +66,10 @@ class CallControls extends StatelessWidget {
               icon: isCameraOn
                   ? Icon(LucideIcons.video, color: Colors.grey.shade800)
                   : const Icon(LucideIcons.videoOff, color: Colors.white),
-              onPressed: onToggleCamera,
+              onPressed: () {
+                isCameraOn = !isCameraOn;
+                widget.onToggleCamera();
+              },
             ),
           ),
           // End Call
@@ -58,7 +78,9 @@ class CallControls extends StatelessWidget {
             backgroundColor: Colors.red,
             child: IconButton(
               icon: const Icon(LucideIcons.phoneOff, color: Colors.white),
-              onPressed: onEndCall,
+              onPressed: () {
+                widget.onEndCall();
+              },
             ),
           ),
         ],

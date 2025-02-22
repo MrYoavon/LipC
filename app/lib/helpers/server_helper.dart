@@ -15,6 +15,9 @@ class ServerHelper {
         _channel.stream); // Add the original stream to the controller
   }
 
+  // Expose the incoming message stream.
+  Stream get messages => _controller.stream;
+
   // Authenticate the user
   Future<bool> authenticate(String username, String password) async {
     final completer = Completer<bool>();
@@ -49,6 +52,11 @@ class ServerHelper {
     });
 
     return completer.future;
+  }
+
+  void sendRawMessage(Map<String, dynamic> message) {
+    print("Sending raw message: $message");
+    _channel.sink.add(jsonEncode(message));
   }
 
   // Close the WebSocket connection

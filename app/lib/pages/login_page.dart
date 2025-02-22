@@ -15,19 +15,24 @@ class _LoginPageState extends State<LoginPage> {
   final ServerHelper _serverHelper =
       ServerHelper(serverUrl: 'ws://192.168.1.5:8765');
 
+  bool _isLoading = false;
+
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
-    _serverHelper.closeConnection();
     super.dispose();
   }
 
   void _login() async {
+    setState(() => _isLoading = true);
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
-    if (await _serverHelper.authenticate(username, password)) {
+    bool isAuthenticated = await _serverHelper.authenticate(username, password);
+    setState(() => _isLoading = false);
+
+    if (isAuthenticated) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -40,7 +45,10 @@ class _LoginPageState extends State<LoginPage> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Invalid username or password")),
+        SnackBar(
+          content: const Text("Invalid username or password"),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -48,26 +56,54 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Login")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(labelText: "Username"),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: "Password"),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text("Login"),
-            ),
-          ],
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.lock, size: 80, color: Colors.blueAccent),
+              const SizedBox(height: 20),
+              Text("Welcome to Lip-C",
+                  style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: "Username",
+                  prefixIcon: const Icon(Icons.person),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              const SizedBox(height: 15),
+              TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  prefixIcon: const Icon(Icons.lock),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _login,
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text("Login", style: TextStyle(fontSize: 16)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

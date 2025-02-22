@@ -1,53 +1,29 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class PipPreview extends StatelessWidget {
-  final bool isCameraInitialized;
-  final CameraController? cameraController;
-  final List<CameraDescription>? cameras;
-  final int selectedCameraIndex;
-  final bool isCameraOn;
+  final RTCVideoRenderer localRenderer;
   const PipPreview({
-    Key? key,
-    required this.isCameraInitialized,
-    required this.cameraController,
-    required this.cameras,
-    required this.selectedCameraIndex,
-    required this.isCameraOn,
-  }) : super(key: key);
+    super.key,
+    required this.localRenderer,
+  });
 
   @override
   Widget build(BuildContext context) {
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAA$localRenderer");
     return Positioned(
       top: 40,
       right: 20,
+      width: 120,
+      height: 160,
       child: Container(
-        width: 120,
-        height: 160,
         decoration: BoxDecoration(
-          color: Colors.grey.shade700,
-          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white, width: 2),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: isCameraInitialized && cameraController != null
-              ? RotatedBox(
-                  quarterTurns: cameras![selectedCameraIndex].lensDirection ==
-                          CameraLensDirection.front
-                      ? 3
-                      : 1,
-                  child: CameraPreview(cameraController!),
-                )
-              : isCameraOn
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Center(
-                      child: Text("Camera off",
-                          style: TextStyle(color: Colors.white)),
-                    ),
+        child: RTCVideoView(
+          localRenderer,
+          mirror: true,
+          objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
         ),
       ),
     );
