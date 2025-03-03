@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:lip_c/call_page.dart';
+import 'dart:async';
 
-import 'server_helper.dart';
+import 'package:flutter/material.dart';
+
+import '../helpers/call_orchestrator.dart';
+import '../helpers/server_helper.dart';
 
 class ContactsPage extends StatefulWidget {
   final ServerHelper serverHelper;
@@ -24,12 +26,20 @@ class _ContactsPageState extends State<ContactsPage> {
   String _searchQuery = '';
   final FocusNode _searchFocusNode = FocusNode();
 
+  late CallOrchestrator callOrchestrator;
+
   late Future<List<Map<String, dynamic>>> _contactsFuture;
 
   @override
   void initState() {
     super.initState();
     _contactsFuture = widget.serverHelper.fetchContacts();
+
+    callOrchestrator = CallOrchestrator(
+      serverHelper: widget.serverHelper,
+      localUsername: widget.username,
+      context: context,
+    );
   }
 
   @override
@@ -162,11 +172,7 @@ class _ContactsPageState extends State<ContactsPage> {
                     trailing: IconButton(
                       icon: const Icon(Icons.video_call),
                       onPressed: () {
-                        // Start video call
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => CallPage(username: contact['name'])),
-                      );
+                        callOrchestrator.callUser(contact['name']);
                       },
                     ),
                   );
