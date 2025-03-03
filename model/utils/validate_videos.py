@@ -1,14 +1,19 @@
-# validate_videos.py
-
 import os
 import cv2
 import argparse
 import logging
 
 
-def setup_logging(log_file='video_validation.log'):
+###############################
+#      Logging Setup          #
+###############################
+
+def setup_logging(log_file: str = 'video_validation.log') -> None:
     """
-    Sets up the logging configuration.
+    Set up the logging configuration.
+
+    Args:
+        log_file (str): File to which logs will be written.
     """
     logging.basicConfig(
         level=logging.INFO,
@@ -20,21 +25,28 @@ def setup_logging(log_file='video_validation.log'):
     )
 
 
-def is_video_corrupted_opencv(video_path):
-    """
-    Checks if a video is corrupted by attempting to read all its frames using OpenCV.
+###############################
+#   Video Validation Logic    #
+###############################
 
-    :param video_path: Path to the video file.
-    :return: Tuple (is_corrupted: bool, error_message: str)
+def is_video_corrupted_opencv(video_path: str) -> tuple[bool, str]:
+    """
+    Check if a video is corrupted by attempting to read all its frames using OpenCV.
+
+    Args:
+        video_path (str): Path to the video file.
+
+    Returns:
+        tuple: (is_corrupted, error_message) where is_corrupted is True if the video is corrupted,
+               and error_message describes the issue.
     """
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         return True, "Cannot open video."
 
     frame_count = 0
-    corrupted = False
     while True:
-        ret, frame = cap.read()
+        ret, _ = cap.read()
         if not ret:
             break
         frame_count += 1
@@ -44,14 +56,18 @@ def is_video_corrupted_opencv(video_path):
     if frame_count == 0:
         return True, "No frames could be read."
 
-    return corrupted, ""
+    return False, ""
 
 
-def validate_videos_opencv(video_directory):
+def validate_videos_opencv(video_directory: str) -> list[tuple[str, str]]:
     """
-    Validates all videos in the specified directory using OpenCV.
+    Validate all videos in the specified directory using OpenCV.
 
-    :param video_directory: Root directory containing video files.
+    Args:
+        video_directory (str): Root directory containing video files.
+
+    Returns:
+        list: A list of tuples for corrupted videos in the form (video_path, error_message).
     """
     corrupted_videos = []
     total_videos = 0
@@ -74,8 +90,14 @@ def validate_videos_opencv(video_directory):
     return corrupted_videos
 
 
+###############################
+#          Main Block         #
+###############################
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Validate video dataset for corruption using OpenCV.")
+    parser = argparse.ArgumentParser(
+        description="Validate video dataset for corruption using OpenCV."
+    )
     parser.add_argument(
         '--video_dir',
         type=str,
@@ -120,4 +142,4 @@ if __name__ == "__main__":
                 logging.info(f"Moved Corrupted Video: {video_path} -> {dest_path}")
             except Exception as e:
                 logging.error(f"Failed to move {video_path}: {e}")
-    # If action is 'log', nothing more to do as logging is already handled
+    # If action is 'log', logging already handles output.
