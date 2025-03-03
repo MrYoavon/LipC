@@ -5,8 +5,7 @@ import os
 from datetime import datetime
 
 import tensorflow as tf
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, LearningRateScheduler, TensorBoard
-from tensorflow.keras.optimizers.schedules import LearningRateSchedule
+from tensorflow.keras.callbacks import Callback, ModelCheckpoint, EarlyStopping, LearningRateScheduler, TensorBoard
 from tensorflow.keras.models import Sequential
 
 from model.constants import num_to_char, TRAIN_TFRECORDS_PATH, VAL_TFRECORDS_PATH
@@ -17,19 +16,19 @@ def train_model(model: Sequential, train_data: tf.data.Dataset, validation_data:
     # Compile the model with Adam optimizer, Word Error Rate and CTC loss
     cer = CharacterErrorRate()
     wer = WordErrorRate()
-    clr = CyclicalLearningRate(initial_lr=1e-5, max_lr=1e-3, step_size=2000)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=1e-4)
     model.compile(
-                  optimizer=tf.keras.optimizers.Adam(learning_rate=clr),
+                  optimizer=optimizer,
                   loss=ctc_loss,
                   metrics=[cer, wer]
                   )
 
     # Learning rate scheduler
-    # lr_scheduler_callback = LearningRateScheduler(lambda epoch: cosine_annealing_with_warm_restarts(epoch,
-    #                                                                                                 T_0=10,
-    #                                                                                                 T_mult=2,
-    #                                                                                                 initial_lr=1e-4,
-    #                                                                                                 eta_min=0.5e-5))
+    lr_scheduler_callback = LearningRateScheduler(lambda epoch: cosine_annealing_with_warm_restarts(epoch,
+                                                                                                    T_0=7,
+                                                                                                    T_mult=2,
+                                                                                                    initial_lr=2e-4,
+                                                                                                    eta_min=1e-5))
 
     # Model checkpoint
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -77,7 +76,7 @@ def train_model(model: Sequential, train_data: tf.data.Dataset, validation_data:
             validation_steps=val_steps_per_epoch,
             epochs=100,
             callbacks=[checkpoint_callback,
-                       # lr_scheduler_callback,
+                       lr_scheduler_callback,
                        early_stopping_callback,
                        example_callback,
                        tensorboard_callback
@@ -90,18 +89,6 @@ def train_model(model: Sequential, train_data: tf.data.Dataset, validation_data:
             print(frames.shape, labels.shape)
 
     return model, history
-
-
-class CyclicalLearningRate(LearningRateSchedule):
-    def __init__(self, initial_lr, max_lr, step_size):
-        self.initial_lr = initial_lr
-        self.max_lr = max_lr
-        self.step_size = step_size
-
-    def __call__(self, step):
-        cycle = tf.math.floor(1 + step / (2 * self.step_size))
-        x = tf.math.abs(step / self.step_size - 2 * cycle + 1)
-        return self.initial_lr + (self.max_lr - self.initial_lr) * tf.maximum(0., (1 - x))
 
 
 def cosine_annealing_with_warm_restarts(epoch, T_0, T_mult=1, initial_lr=0.001, eta_min=0.0):
