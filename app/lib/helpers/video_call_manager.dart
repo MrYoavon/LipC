@@ -2,11 +2,15 @@
 import 'dart:async';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
+import '../models/connection_target.dart';
 import 'server_helper.dart';
 
 class VideoCallManager {
   RTCPeerConnection? _peerConnection;
-  List<Map<String, dynamic>> _pendingIceCandidates = [];
+  RTCPeerConnection? _serverConnection;
+  List<Map<String, dynamic>> _peerPendingIceCandidates = [];
+  List<Map<String, dynamic>> _serverPendingIceCandidates = [];
+
   MediaStream? _localStream;
   final ServerHelper serverHelper;
   final String localUsername;
@@ -39,20 +43,74 @@ class VideoCallManager {
     ]
   };
 
-  Future<void> setupCallEnvironment() async {
+  Future<void> setupCallEnvironment(ConnectionTarget target) async {
+    RTCPeerConnection? connection = getConnection(target);
     print("VideoCallManager: Setting up call environment");
 
     // Create a new RTCPeerConnection if it doesn't exist.
     // ignore: prefer_conditional_assignment
-    if (_peerConnection == null) {
-      _peerConnection = await createPeerConnection(_iceServers);
+    if (connection == null) {
+      connection = await createPeerConnection(_iceServers);
+
+      target == ConnectionTarget.peer
+          ? _peerConnection = connection
+          : _serverConnection = connection;
+    }
+
+    // Set up onTrack listener for remote streams.
+    connection.onTrack = (RTCTrackEvent event) {
+      if (event.streams.isNotEmpty) {
+        _remoteStreamController.add(event.streams[0]);
+      }
+    };
+
+    // Request the local media stream using the front camera.
+    // ignore: prefer_conditional_assignment
+    if (_localStream == null) {
+      _localStream = await navigator.mediaDevices.getUserMedia({
+        'video': {'facingMode': 'user'},
+        'audio': true,
+      });
+      // Notify listeners that the local stream is available.
+      _localStreamController.add(_localStream!);
+    }
+
+    // Add all tracks from the local stream to the peer connection.
+    _localStream!.getTracks().forEach((track) {
+      connection!.addTrack(track, _localStream!);
+    });
+
+    print("Finished setting up call environment for $target");
+  }
+
+  Future<void> negotiateCall(ConnectionTarget target,
+      {bool isCaller = false}) async {
+    RTCPeerConnection? connection = getConnection(target);
+
+    print("Negotiating call with target: $target");
+    if (isCaller) {
+      RTCSessionDescription offer = await createOffer(target);
+      serverHelper.sendRawMessage({
+        "type": "offer",
+        "from": localUsername,
+        "target": connection == _peerConnection ? remoteUsername : 'server',
+        "payload": offer.toMap(),
+      });
+    } else {
+      RTCSessionDescription answer = await createAnswer(target);
+      serverHelper.sendRawMessage({
+        "type": "answer",
+        "from": localUsername,
+        "target": connection == _peerConnection ? remoteUsername : 'server',
+        "payload": answer.toMap(),
+      });
     }
 
     // Process any pending ICE candidates.
-    processPendingIceCandidates();
+    processPendingIceCandidates(target);
 
     // Send generated ICE candidates to the remote user.
-    _peerConnection!.onIceCandidate = (RTCIceCandidate? candidate) {
+    connection!.onIceCandidate = (RTCIceCandidate? candidate) {
       if (candidate != null) {
         print("Sending candidate: ${{
           'candidate': candidate.candidate,
@@ -63,7 +121,7 @@ class VideoCallManager {
         serverHelper.sendRawMessage({
           'type': 'ice_candidate',
           'from': localUsername,
-          'target': remoteUsername,
+          'target': connection == _peerConnection ? remoteUsername : 'server',
           'payload': {
             'candidate': candidate.candidate,
             'sdpMid': candidate.sdpMid,
@@ -73,72 +131,37 @@ class VideoCallManager {
       }
     };
 
-    // Set up onTrack listener for remote streams.
-    _peerConnection!.onTrack = (RTCTrackEvent event) {
-      if (event.streams.isNotEmpty) {
-        _remoteStreamController.add(event.streams[0]);
-      }
-    };
-
-    // Request the local media stream using the front camera.
-    _localStream = await navigator.mediaDevices.getUserMedia({
-      'video': {'facingMode': 'user'},
-      'audio': true,
-    });
-
-    // Add all tracks from the local stream to the peer connection.
-    _localStream!.getTracks().forEach((track) {
-      _peerConnection!.addTrack(track, _localStream!);
-    });
-
-    // Notify listeners that the local stream is available.
-    _localStreamController.add(_localStream!);
-
-    print("Finished setting up call environment");
-  }
-
-  Future<void> negotiateCall({bool isCaller = false}) async {
-    print("Negotiating call");
-    if (isCaller) {
-      RTCSessionDescription offer = await createOffer();
-      serverHelper.sendRawMessage({
-        "type": "offer",
-        "from": localUsername,
-        "target": remoteUsername,
-        "payload": offer.toMap(),
-      });
-    } else {
-      RTCSessionDescription answer = await createAnswer();
-      serverHelper.sendRawMessage({
-        "type": "answer",
-        "from": localUsername,
-        "target": remoteUsername,
-        "payload": answer.toMap(),
-      });
-    }
     print("Finished negotiating call");
   }
 
   /// Create an SDP offer.
-  Future<RTCSessionDescription> createOffer() async {
-    RTCSessionDescription offer = await _peerConnection!.createOffer();
-    await _peerConnection!.setLocalDescription(offer);
+  Future<RTCSessionDescription> createOffer(ConnectionTarget target) async {
+    RTCPeerConnection? connection = getConnection(target);
+    RTCSessionDescription offer = await connection!.createOffer();
+    await connection.setLocalDescription(offer);
     return offer;
   }
 
   /// Create an SDP answer.
-  Future<RTCSessionDescription> createAnswer() async {
-    RTCSessionDescription answer = await _peerConnection!.createAnswer();
-    await _peerConnection!.setLocalDescription(answer);
+  Future<RTCSessionDescription> createAnswer(ConnectionTarget target) async {
+    RTCPeerConnection? connection = getConnection(target);
+    RTCSessionDescription answer = await connection!.createAnswer();
+    await connection.setLocalDescription(answer);
     return answer;
   }
 
-  Future<void> onReceiveIceCandidate(Map<String, dynamic> candidateData) async {
+  Future<void> onReceiveIceCandidate(
+      ConnectionTarget target, Map<String, dynamic> candidateData) async {
+    RTCPeerConnection? connection = getConnection(target);
+    List<Map<String, dynamic>> pendingCandidates = connection == _peerConnection
+        ? _peerPendingIceCandidates
+        : _serverPendingIceCandidates;
+
     // If the peer connection isn't ready, store the candidate and return.
-    if (_peerConnection == null) {
+    if (connection == null) {
       print(
           "ICE candidate received, but _peerConnection is null. Storing candidate.");
-      _pendingIceCandidates.add(candidateData);
+      pendingCandidates.add(candidateData);
       return;
     }
 
@@ -149,37 +172,64 @@ class VideoCallManager {
         candidateData['sdpMid'],
         candidateData['sdpMLineIndex'],
       );
-      await _peerConnection!.addCandidate(candidate);
+      await connection.addCandidate(candidate);
       print("Added ICE candidate: ${candidate.candidate}");
     }
   }
 
 // Call this method after the peer connection has been created and initialized.
-  void processPendingIceCandidates() {
-    if (_peerConnection != null && _pendingIceCandidates.isNotEmpty) {
-      for (var candidateData in _pendingIceCandidates) {
-        onReceiveIceCandidate(candidateData);
+  void processPendingIceCandidates(ConnectionTarget target) {
+    RTCPeerConnection? connection = getConnection(target);
+    if (connection == null) {
+      return;
+    }
+
+    List<Map<String, dynamic>> pendingCandidates = connection == _peerConnection
+        ? _peerPendingIceCandidates
+        : _serverPendingIceCandidates;
+
+    if (pendingCandidates.isNotEmpty) {
+      for (var candidateData in pendingCandidates) {
+        onReceiveIceCandidate(target, candidateData);
       }
-      _pendingIceCandidates.clear();
+      pendingCandidates.clear();
     }
   }
 
-  Future<void> onReceiveOffer(Map<String, dynamic> offerData) async {
+  Future<void> onReceiveOffer(
+      ConnectionTarget target, Map<String, dynamic> offerData) async {
+    RTCPeerConnection? connection = getConnection(target);
     // ignore: prefer_conditional_assignment
-    if (_peerConnection == null) {
-      _peerConnection = await createPeerConnection(
+    if (connection == null) {
+      connection = await createPeerConnection(
           _iceServers); // Ensure peer connection is initialized
+
+      target == ConnectionTarget.peer
+          ? _peerConnection = connection
+          : _serverConnection = connection;
     }
 
-    await _peerConnection!.setRemoteDescription(
+    await connection.setRemoteDescription(
         RTCSessionDescription(offerData['sdp'], offerData['type']));
 
-    negotiateCall(isCaller: false);
+    negotiateCall(target, isCaller: false);
   }
 
-  Future<void> onReceiveAnswer(Map<String, dynamic> answerData) async {
-    await _peerConnection!.setRemoteDescription(
+  Future<void> onReceiveAnswer(
+      ConnectionTarget target, Map<String, dynamic> answerData) async {
+    RTCPeerConnection? connection = getConnection(target);
+    print("Received answer from $target - ${answerData['sdp']}");
+    await connection!.setRemoteDescription(
         RTCSessionDescription(answerData['sdp'], answerData['type']));
+  }
+
+  RTCPeerConnection? getConnection(ConnectionTarget target) {
+    switch (target) {
+      case ConnectionTarget.server:
+        return _serverConnection;
+      case ConnectionTarget.peer:
+        return _peerConnection;
+    }
   }
 
   // Flip the camera on the local media stream.
@@ -218,6 +268,7 @@ class VideoCallManager {
   void dispose() {
     _localStream?.dispose();
     _peerConnection?.close();
+    _serverConnection?.close();
     _localStreamController.close();
     _remoteStreamController.close();
   }

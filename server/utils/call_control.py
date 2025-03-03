@@ -23,9 +23,9 @@ async def handle_call_invite(websocket, data):
     else:
         # Inform caller that the target isn't available.
         error_msg = {
-            "type": "call_invite_response",
+            "type": "call_reject",
             "success": False,
-            "message": "Target not connected."
+            "message": f"{target} is not available."
         }
         await websocket.send(json.dumps(error_msg))
 
@@ -51,7 +51,7 @@ async def handle_call_accept(websocket, data):
         error_msg = {
             "type": "call_accept",
             "success": False,
-            "message": "Caller not connected."
+            "message": f"{caller} not connected."
         }
         await websocket.send(json.dumps(error_msg))
 
@@ -71,13 +71,13 @@ async def handle_call_reject(websocket, data):
             "from": callee,
             "target": caller,
             "success": False,
-            "message": "Call rejected by callee."
+            "message": f"Call rejected by {callee}."
         }
         await caller_ws.send(json.dumps(reject_msg))
     else:
         error_msg = {
             "type": "call_reject",
             "success": False,
-            "message": "Caller not connected."
+            "message": f"{caller} not connected."
         }
         await websocket.send(json.dumps(error_msg))

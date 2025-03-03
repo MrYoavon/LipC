@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'server_helper.dart';
 import 'video_call_manager.dart';
 import 'call_control_manager.dart';
+import '../models/connection_target.dart'; // Shared enum
 
 class CallOrchestrator {
   final ServerHelper serverHelper;
@@ -21,7 +22,7 @@ class CallOrchestrator {
     required this.localUsername,
     required this.context,
   }) {
-    // Initialize the managers
+    // Initialize the managers.
     videoCallManager = VideoCallManager(
       serverHelper: serverHelper,
       localUsername: localUsername,
@@ -33,58 +34,103 @@ class CallOrchestrator {
       localUsername: localUsername,
       context: context,
       onCallAccepted: (data) async {
+        // Send the user to the call page.
         callControlManager.onCallEstablished(data, videoCallManager);
-        // Set up the call environment.
-        await videoCallManager.setupCallEnvironment();
+
+        // When the call is accepted, first establish the peer connection.
+        await videoCallManager.setupCallEnvironment(ConnectionTarget.peer);
+
+        // Establish the server connection.
+        await videoCallManager.setupCallEnvironment(ConnectionTarget.server);
+
         // Send call acceptance.
         callControlManager.sendCallAccept(data);
       },
     );
 
-    // Start listening to signaling messages and route them appropriately.
+    // Listen to signaling messages and route them appropriately.
     serverHelper.messages.listen((message) async {
-      print("CallOrchestrator received message: $message");
       final data = jsonDecode(message);
 
-      switch (data["type"]) {
+      final String messageType = data["type"];
+      final String messageTarget = data["target"] ?? "";
+      final String messageFrom = data["from"] ?? "";
+
+      switch (messageType) {
         case "call_invite":
-          if (data["target"] == localUsername) {
+          // Call invites are for peer connections.
+          if (messageTarget == localUsername) {
             print(
                 "CallOrchestrator: Received call invite from ${data["from"]}");
-            videoCallManager.remoteUsername = data[
-                "from"]; // Set the remote username because initially it's set to an empty string ('')
+            videoCallManager.remoteUsername =
+                data["from"]; // Set remote username.
             callControlManager.onCallInvite(data);
           }
           break;
         case "call_accept":
-          print("CallOrchestrator: Received call accept from ${data["from"]}");
-          if (data["target"] == localUsername) {
+          // Accept messages for peer connection.
+          if (messageTarget == localUsername) {
+            print(
+                "CallOrchestrator: Received call accept from ${data["from"]}");
             callControlManager.onCallEstablished(data, videoCallManager);
-            await videoCallManager.setupCallEnvironment();
-            await videoCallManager.negotiateCall(isCaller: true);
+
+            await videoCallManager.setupCallEnvironment(ConnectionTarget.peer);
+            await videoCallManager.negotiateCall(ConnectionTarget.peer,
+                isCaller: true);
+
+            await videoCallManager
+                .setupCallEnvironment(ConnectionTarget.server);
+            await videoCallManager.negotiateCall(ConnectionTarget.server,
+                isCaller: true);
           }
           break;
         case "call_reject":
-          print("CallOrchestrator: Received call reject from ${data["from"]}");
-          if (data["target"] == localUsername) {
+          if (messageTarget == localUsername) {
+            print(
+                "CallOrchestrator: Received call reject from ${data["from"]}");
             callControlManager.onCallReject(data);
           }
           break;
         case "ice_candidate":
-          if (data["target"] == localUsername) {
-            await videoCallManager.onReceiveIceCandidate(data["payload"]);
+          // Route ICE candidates based on target.
+          if (messageFrom == "server") {
+            print(
+                "CallOrchestrator: Received server ICE candidate from ${data["from"]}");
+            await videoCallManager.onReceiveIceCandidate(
+                ConnectionTarget.server, data["payload"]);
+          } else {
+            print(
+                "CallOrchestrator: Received ICE candidate from ${data["from"]}");
+            await videoCallManager.onReceiveIceCandidate(
+                ConnectionTarget.peer, data["payload"]);
           }
           break;
         case "offer":
-          if (data["target"] == localUsername) {
+          // Handle SDP offers.
+          if (messageFrom == "server") {
+            print(
+                "CallOrchestrator: Received server offer from ${data["from"]}");
+            await videoCallManager.onReceiveOffer(
+                ConnectionTarget.server, data["payload"]);
+          } else {
             print("CallOrchestrator: Received offer from ${data["from"]}");
-            await videoCallManager.onReceiveOffer(data["payload"]);
+            await videoCallManager.onReceiveOffer(
+                ConnectionTarget.peer, data["payload"]);
+            await videoCallManager.negotiateCall(ConnectionTarget.server,
+                isCaller: true);
           }
           break;
         case "answer":
-          if (data["target"] == localUsername) {
+          // Handle SDP answers.
+          if (messageFrom == "server") {
+            print(
+                "CallOrchestrator: Received server answer from ${data["from"]}");
+            await videoCallManager.onReceiveAnswer(
+                ConnectionTarget.server, data["payload"]);
+          } else {
             print("CallOrchestrator: Received answer from ${data["from"]}");
-            await videoCallManager.onReceiveAnswer(data["payload"]);
+            await videoCallManager.onReceiveAnswer(
+                ConnectionTarget.peer, data["payload"]);
           }
           break;
         default:
@@ -93,7 +139,7 @@ class CallOrchestrator {
     });
   }
 
-  /// Starts the call by initializing the video connection.
+  /// Starts the call by initializing the peer connection.
   Future<void> callUser(String remoteUsername) async {
     this.remoteUsername = remoteUsername;
     videoCallManager.remoteUsername = remoteUsername;
