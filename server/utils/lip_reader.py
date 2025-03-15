@@ -1,5 +1,7 @@
 # lip_reader.py
+import cv2
 import tensorflow as tf
+import os
 
 from .mouth_detection import MouthDetector
 from constants import VIDEO_WIDTH, VIDEO_HEIGHT, num_to_char
@@ -30,6 +32,13 @@ class LipReadingPipeline:
             # Skip this frame if no mouth is detected.
             return None
         
+        # save_dir = "cropped_mouths"
+        # os.makedirs(save_dir, exist_ok=True)
+        # # Use the current buffer size (or a timestamp) to create a unique filename.
+        # filename = os.path.join(save_dir, f"cropped_{len(self.buffer)}.png")
+        # cv2.imwrite(filename, cropped_mouth)
+        # print(f"Saved cropped mouth image to: {filename}")
+        
         # Convert the cropped image to a TensorFlow tensor and normalize to [0, 1]
         frame_tensor = tf.convert_to_tensor(cropped_mouth, dtype=tf.float16) / 255.0
         # Convert RGB image to grayscale (if your model expects a single channel)
@@ -39,7 +48,7 @@ class LipReadingPipeline:
         
         # Append the processed frame to the buffer
         self.buffer.append(frame_tensor)
-        print(f"Buffer size: {len(self.buffer)}")
+        print(f"Buffer size: {len(self.buffer)}", end="\r")
         
         # When enough frames are accumulated, form a batch and run inference
         if len(self.buffer) == self.sequence_length:
@@ -50,7 +59,7 @@ class LipReadingPipeline:
             # Run model inference
             prediction = self.model.predict(sequence)
 
-            decoded_predictions = decode_predictions(tf.cast(prediction, dtype=tf.float32))
+            decoded_predictions = decode_predictions(tf.cast(prediction, dtype=tf.float32), beam_width=25)
             dense_decoded = tf.sparse.to_dense(decoded_predictions[0], default_value=-1)[0]
 
             final_output = tf.strings.reduce_join(

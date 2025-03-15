@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lip_c/constants.dart';
 
 import '../helpers/call_orchestrator.dart';
 import '../helpers/server_helper.dart';
@@ -81,6 +82,7 @@ class _ContactsPageState extends State<ContactsPage> {
       onTap: _onTapOutside, // Detect taps outside the search field
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: AppColors.background,
           leading: IconButton(
             icon: const Icon(Icons.search),
             onPressed: _onSearchTap,
@@ -95,15 +97,16 @@ class _ContactsPageState extends State<ContactsPage> {
                     });
                   },
                   autofocus: true,
-                  style: const TextStyle(color: Colors.black),
+                  style: const TextStyle(color: AppColors.textPrimary),
                   decoration: const InputDecoration(
                     hintText: 'Search contacts...',
-                    hintStyle: TextStyle(color: Colors.black54),
+                    hintStyle: TextStyle(color: AppColors.textPrimary),
                     border: InputBorder.none,
                   ),
                 )
               : const Center(
-                  child: Text('Lip-C', style: TextStyle(color: Colors.black)),
+                  child: Text('Lip-C',
+                      style: TextStyle(color: AppColors.textPrimary)),
                 ),
           actions: [
             PopupMenuButton<String>(
@@ -128,14 +131,18 @@ class _ContactsPageState extends State<ContactsPage> {
                         widget.profileImage!.isNotEmpty
                     ? AssetImage(widget.profileImage!) as ImageProvider
                     : null, // Use null if no image exists
-                child: widget.profileImage == null ||
-                        widget.profileImage!.isEmpty
-                    ? Text(
-                        _getInitials(widget.username),
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 20),
-                      )
-                    : null, // Display initials if no image is found
+                backgroundColor: AppColors.accent,
+                foregroundColor: AppColors.background,
+                child:
+                    widget.profileImage == null || widget.profileImage!.isEmpty
+                        ? Text(
+                            _getInitials(widget.username),
+                            style: const TextStyle(
+                              color: AppColors.background,
+                              fontSize: 20,
+                            ),
+                          )
+                        : null, // Display initials if no image is found
               ),
               padding: const EdgeInsets.only(right: 16),
             ),
@@ -156,6 +163,8 @@ class _ContactsPageState extends State<ContactsPage> {
                 itemCount: contacts.length,
                 itemBuilder: (context, index) {
                   final contact = contacts[index];
+                  final color = AppColors()
+                      .getUserColor(contact['name']); // Replace name with ID
                   if (_searchQuery.isNotEmpty &&
                       !contact['name']
                           .toLowerCase()
@@ -164,6 +173,8 @@ class _ContactsPageState extends State<ContactsPage> {
                   }
                   return ListTile(
                     leading: CircleAvatar(
+                      backgroundColor: color,
+                      foregroundColor: AppColors.background,
                       child: Text(
                           contact['name']![0]), // Use initials as a placeholder
                     ),
@@ -182,11 +193,15 @@ class _ContactsPageState extends State<ContactsPage> {
           },
         ),
         floatingActionButton: FloatingActionButton(
+          backgroundColor: AppColors.accent,
+          foregroundColor: AppColors.background,
           onPressed: () {
             // Add new contact
           },
           tooltip: 'Add Contact',
-          child: const Icon(Icons.add),
+          child: const Icon(
+            Icons.add,
+          ),
         ),
       ),
     );

@@ -2,13 +2,13 @@ import asyncio
 import json
 import logging
 import os
-import mediapipe as mp
 from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription
 import cv2
+
+from mpc001.pipelines.pipeline import InferencePipeline
 from .state import clients  # clients is assumed to be a dict holding websocket and peer connection info
-from .lip_reader import LipReadingPipeline
-from .mouth_detection import MouthDetector
-from .video_display_widget import VideoDisplayWidget
+# from .lip_reader import LipReadingPipeline
+# from .mouth_detection import MouthDetector
 
 
 class WebRTCServer:
@@ -25,64 +25,64 @@ class WebRTCServer:
 
         # Register event handlers
         self.pc.on("track", self.on_track)
-        # self.pc.on("icecandidate", self.on_icecandidate)
+        # self.pc.on("icecandidate", self.on_icecandidate)  # ICE trickle isn't implemented as of the time of writing in aiortc.
 
-        # Create a PyQt widget for displaying the annotated frames.
-        self.qt_display_widget = VideoDisplayWidget(window_title=f"Face Mesh {self.sender}")
+        # # Initialize the lip reading pipeline (update the model_path as needed).
+        # print(f"Does model exist? {os.path.exists('models/final_model.keras')}")
+        # self.pipeline = LipReadingPipeline(model_path="models/cp-0029.keras")
 
-        # Initialize the lip reading pipeline (update the model_path as needed).
-        print(f"Does model exist? {os.path.exists('models/final_model.keras')}")
-        self.pipeline = LipReadingPipeline(model_path="models/final_model.keras")
+        # self.detector = MouthDetector()
 
-        self.detector = MouthDetector()
+        self.pipeline = InferencePipeline(
+            config_filename="mpc001/configs/LRS3_V_WER19.1.ini",
+            detector="mediapipe",
+            face_track=True,
+        )
 
     async def on_track(self, track):
-        logging.info("Received %s track from %s", track.kind, self.sender)
-        # Optionally set an onended callback.
-        track.onended = lambda: logging.info("%s track from %s ended", track.kind, self.sender)
+        logging.info(f"Received {track.kind} track from {self.sender}")
+        track.onended = lambda: logging.info(f"{track.kind} track from {self.sender} ended")
 
         if track.kind == "video":
+            self.video_writer = None  # Initialize if you decide to record video.
+            frame_buffer = []         # Buffer to accumulate frames.
+            buffer_size = 30          # Adjust this to the number of frames you want per inference run.
             # try:
             while True:
-                # Wait for a new frame from the WebRTC video track.
+                # Receive a frame from the video track.
                 frame = await track.recv()
-                # print(f"FRAME RECEIVED: {frame}")
-                # Convert the frame to a NumPy array in BGR format.
                 img = frame.to_ndarray(format="bgr24")
-                # Pass the frame to the processing pipeline.
+                frame_buffer.append(img)
 
+                # Once we've accumulated enough frames, run inference.
+                if len(frame_buffer) >= buffer_size:
+                    # Offload inference to a thread so as not to block the event loop.
+                    # forward_buffer() is the custom method that processes the list of frames.
+                    prediction = await asyncio.to_thread(self.pipeline.forward_buffer, frame_buffer)
+                    if prediction is not None:
+                        logging.info(f"Model Prediction: {prediction}")
+                        # Here you can send the prediction back to the client or process it further.
+                    else:
+                        logging.debug("Insufficient data for a complete prediction, accumulating frames...")
+                    # Clear the buffer (or implement a sliding window if desired).
+                    frame_buffer = []
 
-                rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-                # Run detection to obtain face landmarks
-                detection_result = self.detector.detect_face_landmarks(img)
-                
-                # Draw the landmarks on the RGB image using your provided function
-                annotated_rgb = self.detector.draw_landmarks_on_image(rgb_img, detection_result)
-                # Convert back to BGR for display with OpenCV
-                annotated_bgr = cv2.cvtColor(annotated_rgb, cv2.COLOR_RGB2BGR)
-                
-                # Update the PyQt display widget with the annotated image.
-                # This call is nonblocking because it updates the widget's content.
-                self.qt_display_widget.update_image(annotated_bgr)
-                
-
-                prediction = self.pipeline.process_frame(img)
-                if prediction is not None:
-                    logging.info(f"Model Prediction: {prediction}")
-                    # Here you can send the prediction back to the client or process it further.
-                else:
-                    logging.debug("Accumulating frames for sequence...")
-                    
+                # Yield control to the event loop.
+                await asyncio.sleep(0)
             # except Exception as e:
-            #     logging.error("Error processing video track from %s: %s", self.sender, e)
+            #     logging.error(f"Error processing video track from {self.sender}: {e}")
+            # finally:
+            #     # Release the VideoWriter when done
+            #     if self.video_writer is not None:
+            #         self.video_writer.release()
+            #         logging.info(f"Released video writer for {self.sender}")
         elif track.kind == "audio":
             # Here you could pass the audio frames to a playback library (e.g., PyAudio)
-            logging.info("Received an audio track from %s", self.sender)
+            logging.info(f"Received an audio track from {self.sender}")
 
     async def on_icecandidate(self, candidate):
         if candidate is None:
-            logging.info("ICE candidate gathering complete for %s", self.sender)
+            logging.info(f"No more ICE candidates for {self.sender}")
         else:
             print(f"ICE CANDIDATE GENERATED: {candidate}")
             candidate_payload = {
@@ -96,7 +96,7 @@ class WebRTCServer:
                 "target": self.sender,
                 "payload": candidate_payload,
             }
-            logging.info("Sending ICE candidate to %s: %s", self.sender, candidate_payload)
+            logging.info(f"Sending ICE candidate to {self.sender} | {candidate_payload}")
             await self.websocket.send(json.dumps(message))
 
     async def handle_offer(self, offer_data):

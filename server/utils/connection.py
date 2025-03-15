@@ -47,4 +47,4 @@ async def handle_connection(websocket):
     # except Exception as e:
     #     logging.error(f"Connection error: {e}")
     # finally:
-    await handle_disconnection(websocket)
+    #     await handle_disconnection(websocket)
