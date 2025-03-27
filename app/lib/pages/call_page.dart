@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:lip_c/models/lip_c_user.dart';
 import '../helpers/server_helper.dart';
 import '../helpers/video_call_manager.dart';
 import '../widgets/call_controls.dart';
@@ -8,15 +9,15 @@ import '../widgets/pip_preview.dart';
 import '../widgets/subtitles_display.dart';
 
 class CallPage extends StatefulWidget {
-  final String localUsername;
-  final String remoteUsername; // The username of the remote peer.
+  final LipCUser localUser;
+  final LipCUser remoteUser;
   final ServerHelper serverHelper;
   final VideoCallManager videoCallManager;
 
   const CallPage({
     super.key,
-    required this.localUsername,
-    required this.remoteUsername,
+    required this.localUser,
+    required this.remoteUser,
     required this.serverHelper,
     required this.videoCallManager,
   });
@@ -29,6 +30,7 @@ class _CallPageState extends State<CallPage> {
   // Renderers for displaying video streams.
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
+  bool isRemoteCameraOn = true;
 
   String subtitles = "Live subtitles will appear here.";
   bool isCallInitialized = false;
@@ -38,6 +40,14 @@ class _CallPageState extends State<CallPage> {
     super.initState();
     _initRenderers();
     _initCall();
+
+    // Listen to remote video status updates.
+    widget.videoCallManager.remoteVideoStatusStream.listen((isVideoOn) {
+      setState(() {
+        // Update a local state variable to conditionally display the video stream or profile image.
+        isRemoteCameraOn = isVideoOn;
+      });
+    });
   }
 
   // Initialize the RTCVideoRenderers.
@@ -52,7 +62,6 @@ class _CallPageState extends State<CallPage> {
 
     // Subscribe to the remote stream.
     widget.videoCallManager.remoteStreamStream.listen((stream) {
-      print("CallPage: Received remote stream");
       setState(() {
         _remoteRenderer.srcObject = stream;
       });
@@ -70,6 +79,32 @@ class _CallPageState extends State<CallPage> {
     });
   }
 
+  Widget _buildRemotePlaceholder() {
+    // Check if the remote user has a profile picture.
+    if (widget.remoteUser.profilePic.isNotEmpty) {
+      return CircleAvatar(
+        radius: 50,
+        backgroundImage: NetworkImage(widget.remoteUser.profilePic),
+        backgroundColor: Colors.transparent,
+      );
+    } else {
+      // Build initials from the remote user's name.
+      String initials = widget.remoteUser.name
+          .split(' ')
+          .map((e) => e.isNotEmpty ? e[0] : '')
+          .take(2)
+          .join();
+      return CircleAvatar(
+        radius: 50,
+        backgroundColor: Colors.blue,
+        child: Text(
+          initials,
+          style: TextStyle(fontSize: 24, color: Colors.white),
+        ),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _localRenderer.dispose();
@@ -84,7 +119,11 @@ class _CallPageState extends State<CallPage> {
       body: Stack(
         children: [
           // Main Feed: Full-screen image view.
-          MainFeed(remoteRenderer: _remoteRenderer),
+          MainFeed(
+            remoteRenderer: _remoteRenderer,
+            isRemoteCameraOn: isRemoteCameraOn,
+            placeholder: _buildRemotePlaceholder(),
+          ),
           // Picture-in-Picture preview.
           PipPreview(localRenderer: _localRenderer),
           // Subtitles overlay.

@@ -1,7 +1,7 @@
 # utils/call_control.py
 import json
 import logging
-from .state import clients
+from services.state import clients
 
 async def handle_call_invite(websocket, data):
     """
@@ -79,5 +79,57 @@ async def handle_call_reject(websocket, data):
             "type": "call_reject",
             "success": False,
             "message": f"{caller} not connected."
+        }
+        await websocket.send(json.dumps(error_msg))
+
+async def handle_call_end(websocket, data):
+    """
+    Forward a call end request from either party to the other.
+    Data should contain "from" and "target".
+    """
+    sender = data.get("from")
+    target = data.get("target")
+    logging.info(f"Call end request from {sender} to {target}")
+    
+    if target in clients:
+        target_ws = clients[target]["ws"]
+        end_msg = {
+            "type": "call_end",
+            "from": sender,
+            "target": target
+        }
+        await target_ws.send(json.dumps(end_msg))
+    else:
+        error_msg = {
+            "type": "call_end",
+            "success": False,
+            "message": f"{target} not connected."
+        }
+        await websocket.send(json.dumps(error_msg))
+
+async def handle_video_state(websocket, data):
+    """
+    Forward video state updates between caller and target.
+    Data should contain "from" and "target" with "video" boolean.
+    """
+    sender = data.get("from")
+    target = data.get("target")
+    video_state = data.get("video")
+    logging.info(f"Video state update from {sender} to {target}: {video_state}")
+    
+    if target in clients:
+        target_ws = clients[target]["ws"]
+        state_msg = {
+            "type": "video_state",
+            "success": True,
+            "from": sender,
+            "video": video_state
+        }
+        await target_ws.send(json.dumps(state_msg))
+    else:
+        error_msg = {
+            "type": "video_state",
+            "success": False,
+            "message": f"{target} not connected."
         }
         await websocket.send(json.dumps(error_msg))

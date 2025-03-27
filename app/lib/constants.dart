@@ -30,3 +30,6 @@ class AppConstants {
   static const double defaultMargin = 16.0;
   // Add other constants such as font sizes, durations, etc.
 }
+
+const String serverUrl = "ws://192.168.1.5:8765";
+const String appName = "LipC";

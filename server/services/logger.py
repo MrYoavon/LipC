@@ -1,6 +1,6 @@
 import logging
 
-def setup_logging():
+def setup_logger():
     """Set up logging configuration."""
     logging.basicConfig(
         level=logging.DEBUG,

@@ -1,26 +1,36 @@
 // File: helpers/call_control_manager.dart
 import 'package:flutter/material.dart';
 import 'package:lip_c/helpers/video_call_manager.dart';
+import 'package:lip_c/models/lip_c_user.dart';
+import 'package:collection/collection.dart';
 
 import '../pages/call_page.dart';
 import 'server_helper.dart';
 
 class CallControlManager {
-  final ServerHelper serverHelper;
-  final String localUsername;
   BuildContext context;
+  final ServerHelper serverHelper;
+  final LipCUser localUser;
+  List<LipCUser> contacts;
   final Future<void> Function(Map<String, dynamic> data) onCallAccepted;
 
   CallControlManager({
-    required this.serverHelper,
-    required this.localUsername,
     required this.context,
+    required this.serverHelper,
+    required this.localUser,
+    required this.contacts,
     required this.onCallAccepted,
   });
 
   // Callback for incoming call invites.
   void onCallInvite(Map<String, dynamic> data) {
     print("Received call invite from ${data["from"]}");
+
+    // Find the remote user in the contacts list.
+    final remoteUser = contacts.firstWhereOrNull(
+      (contact) => contact.userId == data["from"],
+    );
+
     // You can now show a dialog to accept/reject the call.
     showDialog(
       context: context,
@@ -28,7 +38,7 @@ class CallControlManager {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Incoming Call"),
-          content: Text("Call from ${data["from"]}"),
+          content: Text("Call from ${remoteUser?.username ?? data["from"]}"),
           actions: [
             TextButton(
               onPressed: () {
@@ -51,12 +61,12 @@ class CallControlManager {
   }
 
   // Send a call invitation.
-  void sendCallInvite(String targetUsername) {
-    print("Sending call invite to $targetUsername");
+  void sendCallInvite(LipCUser remoteUser) {
+    print("Sending call invite to ${remoteUser.username}");
     serverHelper.sendRawMessage({
       "type": "call_invite",
-      "from": localUsername,
-      "target": targetUsername,
+      "from": localUser.userId,
+      "target": remoteUser.userId,
     });
   }
 
@@ -65,7 +75,7 @@ class CallControlManager {
     print("Sending call accept to ${data["from"]}");
     serverHelper.sendRawMessage({
       "type": "call_accept",
-      "from": localUsername,
+      "from": localUser.userId,
       "target": data["from"],
     });
   }
@@ -75,7 +85,7 @@ class CallControlManager {
     print("Sending call reject to ${data["from"]}");
     serverHelper.sendRawMessage({
       "type": "call_reject",
-      "from": localUsername,
+      "from": localUser.userId,
       "target": data["from"],
     });
   }
@@ -98,12 +108,20 @@ class CallControlManager {
       context,
       MaterialPageRoute(
         builder: (context) => CallPage(
-          localUsername: localUsername,
-          remoteUsername: data["from"], // Caller's username
+          localUser: localUser,
+          remoteUser: findContact(data["from"])!,
           serverHelper: serverHelper,
           videoCallManager: videoCallManager,
         ),
       ),
     );
+  }
+
+  void updateContacts(List<LipCUser> newContacts) {
+    contacts = newContacts;
+  }
+
+  LipCUser? findContact(String userId) {
+    return contacts.firstWhereOrNull((contact) => contact.userId == userId);
   }
 }

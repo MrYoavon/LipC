@@ -1,46 +1,46 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:lip_c/constants.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../constants.dart';
 import '../helpers/call_orchestrator.dart';
-import '../helpers/server_helper.dart';
+import '../helpers/call_history_service.dart';
+import '../providers/current_user_provider.dart';
+import '../providers/server_helper_provider.dart';
+import '../providers/contacts_provider.dart';
+import 'call_history_page.dart';
 
-class ContactsPage extends StatefulWidget {
-  final ServerHelper serverHelper;
-  final String?
-      profileImage; // Profile image path (can be null or empty if no image exists)
-  final String username; // User's name to extract initials
-
-  const ContactsPage(
-      {super.key,
-      required this.serverHelper,
-      required this.profileImage,
-      required this.username});
+class ContactsPage extends ConsumerStatefulWidget {
+  const ContactsPage({super.key});
 
   @override
   _ContactsPageState createState() => _ContactsPageState();
 }
 
-class _ContactsPageState extends State<ContactsPage> {
+class _ContactsPageState extends ConsumerState<ContactsPage> {
   bool _isSearching = false;
   String _searchQuery = '';
   final FocusNode _searchFocusNode = FocusNode();
 
   late CallOrchestrator callOrchestrator;
-
-  late Future<List<Map<String, dynamic>>> _contactsFuture;
+  late CallHistoryService callHistoryService;
 
   @override
   void initState() {
     super.initState();
-    _contactsFuture = widget.serverHelper.fetchContacts();
 
-    callOrchestrator = CallOrchestrator(
-      serverHelper: widget.serverHelper,
-      localUsername: widget.username,
-      context: context,
-    );
+    final serverHelper = ref.read(serverHelperProvider);
+    final currentUser = ref.read(currentUserProvider)!;
+    final contacts = ref.read(contactsProvider(currentUser.userId)).contacts;
+
+    setState(() {
+      callOrchestrator = CallOrchestrator(
+        context: context,
+        localUser: currentUser,
+        serverHelper: serverHelper,
+        contacts: contacts,
+      );
+      callHistoryService = CallHistoryService(serverHelper: serverHelper);
+    });
   }
 
   @override
@@ -66,20 +66,137 @@ class _ContactsPageState extends State<ContactsPage> {
   String _getInitials(String name) {
     List<String> nameParts = name.split(" ");
     String initials = '';
-
     for (var part in nameParts) {
       if (part.isNotEmpty) {
         initials += part[0].toUpperCase();
       }
     }
-
     return initials.length > 2 ? initials.substring(0, 2) : initials;
+  }
+
+  void _showAddContactDialog() {
+    final TextEditingController _contactNameController =
+        TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            "Add Contact",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Enter the username of the contact you wish to add:",
+                style: TextStyle(fontSize: 14, color: Colors.black54),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _contactNameController,
+                decoration: InputDecoration(
+                  hintText: "Contact username",
+                  prefixIcon: const Icon(Icons.person),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: AppColors.accent,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () async {
+                final contactName = _contactNameController.text.trim();
+                final currentUser = ref.read(currentUserProvider)!;
+                final contactsState = ref.read(
+                  contactsProvider(currentUser.userId),
+                );
+                // Use the contacts notifier to add a new contact.
+                final contactsNotifier = ref.read(
+                  contactsProvider(currentUser.userId).notifier,
+                );
+
+                if (contactName.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Please enter a username")),
+                  );
+                  return;
+                } else if (contactName == currentUser.username) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("You cannot add yourself")),
+                  );
+                  return;
+                } else if (contactsState.contacts
+                    .any((contact) => contact.username == contactName)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Contact already exists")),
+                  );
+                  return;
+                }
+                Navigator.pop(context); // Dismiss the dialog
+
+                await contactsNotifier.addContact(contactName);
+              },
+              child: const Text("Add"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = ref.watch(currentUserProvider);
+    // Listen for changes in the contacts provider and update the orchestrator.
+    ref.listen<ContactsState>(contactsProvider(currentUser!.userId),
+        (previous, next) {
+      // If an error occurs, show it as a SnackBar at the bottom.
+      if (next.errorMessage != null && next.errorMessage!.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(next.errorMessage!),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+      print("Contacts updated: ${next.contacts.length}");
+      callOrchestrator.updateContacts(next.contacts);
+    });
+
+    // Watch the contacts provider for updates.
+    final contactsState = ref.watch(contactsProvider(currentUser.userId));
+    final contacts = contactsState.contacts;
+    final isLoading = contactsState.isLoading;
+
     return GestureDetector(
-      onTap: _onTapOutside, // Detect taps outside the search field
+      onTap: _onTapOutside,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: AppColors.background,
@@ -109,11 +226,24 @@ class _ContactsPageState extends State<ContactsPage> {
                       style: TextStyle(color: AppColors.textPrimary)),
                 ),
           actions: [
+            IconButton(
+              icon: const Icon(Icons.history),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CallHistoryPage(
+                      service: callHistoryService,
+                      userId: currentUser.userId,
+                    ),
+                  ),
+                );
+              },
+            ),
             PopupMenuButton<String>(
               onSelected: (value) {
-                // Handle menu option
                 if (value == 'settings') {
-                  // Navigate to settings page
+                  // Navigate to settings page if needed.
                 }
               },
               itemBuilder: (context) => [
@@ -127,81 +257,75 @@ class _ContactsPageState extends State<ContactsPage> {
                 ),
               ],
               icon: CircleAvatar(
-                backgroundImage: widget.profileImage != null &&
-                        widget.profileImage!.isNotEmpty
-                    ? AssetImage(widget.profileImage!) as ImageProvider
-                    : null, // Use null if no image exists
+                backgroundImage: currentUser.profilePic.isNotEmpty
+                    ? AssetImage(currentUser.profilePic) as ImageProvider
+                    : null,
                 backgroundColor: AppColors.accent,
                 foregroundColor: AppColors.background,
-                child:
-                    widget.profileImage == null || widget.profileImage!.isEmpty
-                        ? Text(
-                            _getInitials(widget.username),
-                            style: const TextStyle(
-                              color: AppColors.background,
-                              fontSize: 20,
-                            ),
-                          )
-                        : null, // Display initials if no image is found
+                child: currentUser.profilePic.isEmpty
+                    ? Text(
+                        _getInitials(currentUser.username),
+                        style: const TextStyle(
+                          color: AppColors.background,
+                          fontSize: 20,
+                        ),
+                      )
+                    : null,
               ),
               padding: const EdgeInsets.only(right: 16),
             ),
           ],
         ),
-        body: FutureBuilder<List<Map<String, dynamic>>>(
-          future: _contactsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text("Error: ${snapshot.error}"));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(child: Text("No contacts found."));
-            } else {
-              final contacts = snapshot.data!;
-              return ListView.builder(
-                itemCount: contacts.length,
-                itemBuilder: (context, index) {
-                  final contact = contacts[index];
-                  final color = AppColors()
-                      .getUserColor(contact['name']); // Replace name with ID
-                  if (_searchQuery.isNotEmpty &&
-                      !contact['name']
-                          .toLowerCase()
-                          .contains(_searchQuery.toLowerCase())) {
-                    return Container(); // Skip contacts that don't match the search query
-                  }
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: color,
-                      foregroundColor: AppColors.background,
-                      child: Text(
-                          contact['name']![0]), // Use initials as a placeholder
-                    ),
-                    title: Text(contact['name']),
-                    subtitle: const Text('Status: Online'),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.video_call),
-                      onPressed: () {
-                        callOrchestrator.callUser(contact['name']);
-                      },
-                    ),
-                  );
-                },
-              );
-            }
-          },
-        ),
+        body: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : contacts.isEmpty
+                ? const Center(child: Text("No contacts found."))
+                : ListView.builder(
+                    itemCount: contacts.length,
+                    itemBuilder: (context, index) {
+                      final contact = contacts[index];
+                      final color = AppColors().getUserColor(contact.userId);
+                      if (_searchQuery.isNotEmpty &&
+                          (!contact.name
+                                  .toLowerCase()
+                                  .contains(_searchQuery.toLowerCase()) ||
+                              !contact.username
+                                  .toLowerCase()
+                                  .contains(_searchQuery.toLowerCase()))) {
+                        return Container(); // Skip contacts that don't match search.
+                      }
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: color,
+                          foregroundColor: AppColors.background,
+                          child: Text(contact.name[0]),
+                        ),
+                        title: Row(
+                          children: [
+                            Text(contact.name),
+                            Text(" @${contact.username}",
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12,
+                                )),
+                          ],
+                        ),
+                        subtitle: const Text('Status: Online'),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.video_call),
+                          onPressed: () {
+                            callOrchestrator.callUser(contact);
+                          },
+                        ),
+                      );
+                    },
+                  ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: AppColors.accent,
           foregroundColor: AppColors.background,
-          onPressed: () {
-            // Add new contact
-          },
+          onPressed: _showAddContactDialog,
           tooltip: 'Add Contact',
-          child: const Icon(
-            Icons.add,
-          ),
+          child: const Icon(Icons.add),
         ),
       ),
     );

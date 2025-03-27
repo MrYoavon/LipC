@@ -1,6 +1,7 @@
 // File: video_call_manager.dart
 import 'dart:async';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:lip_c/models/lip_c_user.dart';
 
 import '../models/connection_target.dart';
 import 'server_helper.dart';
@@ -12,23 +13,30 @@ class VideoCallManager {
   List<Map<String, dynamic>> _serverPendingIceCandidates = [];
 
   MediaStream? _localStream;
+  final LipCUser localUser;
+  LipCUser? remoteUser;
   final ServerHelper serverHelper;
-  final String localUsername;
-  String remoteUsername;
 
   final _localStreamController = StreamController<MediaStream>.broadcast();
+  final StreamController<bool> _localVideoStatusController =
+      StreamController<bool>.broadcast();
   final _remoteStreamController = StreamController<MediaStream>.broadcast();
+  final StreamController<bool> _remoteVideoStatusController =
+      StreamController<bool>.broadcast();
 
   /// Expose the local media stream.
   Stream<MediaStream> get localStreamStream => _localStreamController.stream;
+  Stream<bool> get localVideoStatusStream => _localVideoStatusController.stream;
 
   /// Expose the remote media stream.
   Stream<MediaStream> get remoteStreamStream => _remoteStreamController.stream;
+  Stream<bool> get remoteVideoStatusStream =>
+      _remoteVideoStatusController.stream;
 
   VideoCallManager({
     required this.serverHelper,
-    required this.localUsername,
-    required this.remoteUsername,
+    required this.localUser,
+    required this.remoteUser,
   });
 
   final _iceServers = {
@@ -59,6 +67,7 @@ class VideoCallManager {
 
     // Set up onTrack listener for remote streams.
     connection.onTrack = (RTCTrackEvent event) {
+      print("Received remote stream: ${event.streams[0].id}");
       if (event.streams.isNotEmpty) {
         _remoteStreamController.add(event.streams[0]);
       }
@@ -90,18 +99,20 @@ class VideoCallManager {
     print("Negotiating call with target: $target");
     if (isCaller) {
       RTCSessionDescription offer = await createOffer(target);
+      print("Created offer: ${offer.sdp}");
       serverHelper.sendRawMessage({
         "type": "offer",
-        "from": localUsername,
-        "target": connection == _peerConnection ? remoteUsername : 'server',
+        "from": localUser.userId,
+        "target": connection == _peerConnection ? remoteUser!.userId : 'server',
         "payload": offer.toMap(),
       });
     } else {
       RTCSessionDescription answer = await createAnswer(target);
+      print("Created answer to $target | $remoteUser- ${answer.sdp}");
       serverHelper.sendRawMessage({
         "type": "answer",
-        "from": localUsername,
-        "target": connection == _peerConnection ? remoteUsername : 'server',
+        "from": localUser.userId,
+        "target": connection == _peerConnection ? remoteUser!.userId : 'server',
         "payload": answer.toMap(),
       });
     }
@@ -120,8 +131,9 @@ class VideoCallManager {
 
         serverHelper.sendRawMessage({
           'type': 'ice_candidate',
-          'from': localUsername,
-          'target': connection == _peerConnection ? remoteUsername : 'server',
+          'from': localUser.userId,
+          'target':
+              connection == _peerConnection ? remoteUser!.userId : 'server',
           'payload': {
             'candidate': candidate.candidate,
             'sdpMid': candidate.sdpMid,
@@ -218,9 +230,12 @@ class VideoCallManager {
   Future<void> onReceiveAnswer(
       ConnectionTarget target, Map<String, dynamic> answerData) async {
     RTCPeerConnection? connection = getConnection(target);
-    print("Received answer from $target - ${answerData['sdp']}");
     await connection!.setRemoteDescription(
         RTCSessionDescription(answerData['sdp'], answerData['type']));
+  }
+
+  void updateRemoteVideoStatus(bool isVideoOn) {
+    _remoteVideoStatusController.add(isVideoOn);
   }
 
   RTCPeerConnection? getConnection(ConnectionTarget target) {
@@ -264,12 +279,18 @@ class VideoCallManager {
     }
   }
 
+  void setRemoteUser(LipCUser remoteUser) {
+    this.remoteUser = remoteUser;
+  }
+
   // Dispose of the resources.
   void dispose() {
     _localStream?.dispose();
     _peerConnection?.close();
     _serverConnection?.close();
     _localStreamController.close();
+    _localVideoStatusController.close();
     _remoteStreamController.close();
+    _remoteVideoStatusController.close();
   }
 }

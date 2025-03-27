@@ -5,8 +5,8 @@ import os
 from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription
 import cv2
 
-from mpc001.pipelines.pipeline import InferencePipeline
-from .state import clients  # clients is assumed to be a dict holding websocket and peer connection info
+# from mpc001.pipelines.pipeline import InferencePipeline
+from services.state import clients  # clients is assumed to be a dict holding websocket and peer connection info
 # from .lip_reader import LipReadingPipeline
 # from .mouth_detection import MouthDetector
 
@@ -33,52 +33,47 @@ class WebRTCServer:
 
         # self.detector = MouthDetector()
 
-        self.pipeline = InferencePipeline(
-            config_filename="mpc001/configs/LRS3_V_WER19.1.ini",
-            detector="mediapipe",
-            face_track=True,
-        )
+        # self.pipeline = InferencePipeline(
+        #     config_filename="mpc001/configs/LRS3_V_WER19.1.ini",
+        #     detector="mediapipe",
+        #     face_track=True,
+        # )
 
     async def on_track(self, track):
         logging.info(f"Received {track.kind} track from {self.sender}")
         track.onended = lambda: logging.info(f"{track.kind} track from {self.sender} ended")
 
         if track.kind == "video":
-            self.video_writer = None  # Initialize if you decide to record video.
-            frame_buffer = []         # Buffer to accumulate frames.
-            buffer_size = 30          # Adjust this to the number of frames you want per inference run.
-            # try:
-            while True:
-                # Receive a frame from the video track.
-                frame = await track.recv()
-                img = frame.to_ndarray(format="bgr24")
-                frame_buffer.append(img)
+            logging.info(f"Received a video track from {self.sender}")
+            # frame_buffer = []         # Buffer to accumulate frames.
+            # buffer_size = 30          # Adjust this to the number of frames you want per inference run.
+            # # try:
+            # while True:
+            #     # Receive a frame from the video track.
+            #     frame = await track.recv()
+            #     img = frame.to_ndarray(format="bgr24")
+            #     frame_buffer.append(img)
 
-                # Once we've accumulated enough frames, run inference.
-                if len(frame_buffer) >= buffer_size:
-                    # Offload inference to a thread so as not to block the event loop.
-                    # forward_buffer() is the custom method that processes the list of frames.
-                    prediction = await asyncio.to_thread(self.pipeline.forward_buffer, frame_buffer)
-                    if prediction is not None:
-                        logging.info(f"Model Prediction: {prediction}")
-                        # Here you can send the prediction back to the client or process it further.
-                    else:
-                        logging.debug("Insufficient data for a complete prediction, accumulating frames...")
-                    # Clear the buffer (or implement a sliding window if desired).
-                    frame_buffer = []
+            #     # Once we've accumulated enough frames, run inference.
+            #     if len(frame_buffer) >= buffer_size:
+            #         # Offload inference to a thread so as not to block the event loop.
+            #         # forward_buffer() is the custom method that processes the list of frames.
+            #         prediction = await asyncio.to_thread(self.pipeline.forward_buffer, frame_buffer)
+            #         if prediction is not None:
+            #             logging.info(f"Model Prediction: {prediction}")
+            #             # Here you can send the prediction back to the client or process it further.
+            #         else:
+            #             logging.debug("Insufficient data for a complete prediction, accumulating frames...")
+            #         # Clear the buffer (or implement a sliding window if desired).
+            #         frame_buffer = []
 
-                # Yield control to the event loop.
-                await asyncio.sleep(0)
-            # except Exception as e:
-            #     logging.error(f"Error processing video track from {self.sender}: {e}")
-            # finally:
-            #     # Release the VideoWriter when done
-            #     if self.video_writer is not None:
-            #         self.video_writer.release()
-            #         logging.info(f"Released video writer for {self.sender}")
+            #     # Yield control to the event loop.
+            #     await asyncio.sleep(0)
+            # # except Exception as e:
+            # #     logging.error(f"Error processing video track from {self.sender}: {e}")
         elif track.kind == "audio":
-            # Here you could pass the audio frames to a playback library (e.g., PyAudio)
             logging.info(f"Received an audio track from {self.sender}")
+            
 
     async def on_icecandidate(self, candidate):
         if candidate is None:
@@ -152,7 +147,7 @@ async def handle_offer(websocket, data):
     """
     sender = data.get("from")
     target = data.get("target")
-    logging.info("Received offer from %s to %s", sender, target)
+    logging.info(f"Received offer from {sender} to {target}")
 
     if target == "server":
         await handle_server_offer(websocket, data)
@@ -175,7 +170,7 @@ async def handle_answer(websocket, data):
     """
     sender = data.get("from")
     target = data.get("target")
-    logging.info("Relaying answer from %s to %s", sender, target)
+    logging.info(f"Relaying answer from {sender} to {target}")
 
     if target == "server":
         await handle_server_answer(websocket, data)
@@ -197,7 +192,7 @@ async def handle_ice_candidate(websocket, data):
     """
     sender = data.get("from")
     target = data.get("target")
-    logging.info("Relaying ICE candidate from %s to %s", sender, target)
+    logging.info(f"Relaying ICE candidate from {sender} to {target}")
 
     if target == "server":
         await handle_server_ice_candidate(websocket, data)
@@ -219,12 +214,12 @@ async def handle_server_offer(websocket, data):
     """
     sender = data.get("from")
     offer_data = data.get("payload")
-    logging.info("Handling server offer from %s", sender)
+    logging.info(f"Handling server offer from {sender}")
 
     server_connection = WebRTCServer(websocket, sender)
     response = await server_connection.handle_offer(offer_data)
     await websocket.send(json.dumps(response))
-    logging.info("Server sent answer to %s", sender)
+    logging.info(f"Server sent answer to {sender}")
 
 async def handle_server_answer(websocket, data):
     """
@@ -232,7 +227,7 @@ async def handle_server_answer(websocket, data):
     """
     sender = data.get("from")
     answer_data = data.get("payload")
-    logging.info("Handling server answer from %s", sender)
+    logging.info(f"Handling server answer from {sender}")
 
     if sender not in clients or "pc" not in clients[sender]:
         await websocket.send(json.dumps({
@@ -251,7 +246,7 @@ async def handle_server_ice_candidate(websocket, data):
     """
     sender = data.get("from")
     candidate_dict = data.get("payload")
-    logging.info("Handling server ICE candidate from %s", sender)
+    logging.info(f"Handling server ICE candidate from {sender}")
 
     if sender not in clients or "pc" not in clients[sender]:
         await websocket.send(json.dumps({

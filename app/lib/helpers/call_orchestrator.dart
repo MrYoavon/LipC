@@ -1,39 +1,49 @@
 // File: call_orchestrator.dart
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+
 import 'server_helper.dart';
 import 'video_call_manager.dart';
 import 'call_control_manager.dart';
-import '../models/connection_target.dart'; // Shared enum
+import '../models/lip_c_user.dart';
+import '../models/connection_target.dart';
 
 class CallOrchestrator {
+  final LipCUser localUser;
+  LipCUser? remoteUser;
   final ServerHelper serverHelper;
-  final String localUsername;
-  String remoteUsername = ""; // The username of the remote peer.
+  List<LipCUser> contacts;
   final BuildContext context;
 
   late final VideoCallManager videoCallManager;
   late final CallControlManager callControlManager;
 
   CallOrchestrator({
-    required this.serverHelper,
-    required this.localUsername,
     required this.context,
+    required this.localUser,
+    required this.serverHelper,
+    required this.contacts,
   }) {
     // Initialize the managers.
     videoCallManager = VideoCallManager(
       serverHelper: serverHelper,
-      localUsername: localUsername,
-      remoteUsername: remoteUsername,
+      localUser: localUser,
+      remoteUser: remoteUser,
     );
 
     callControlManager = CallControlManager(
-      serverHelper: serverHelper,
-      localUsername: localUsername,
       context: context,
+      serverHelper: serverHelper,
+      localUser: localUser,
+      contacts: contacts,
       onCallAccepted: (data) async {
+        remoteUser = contacts.firstWhereOrNull(
+          (contact) => contact.userId == data["from"],
+        );
+        videoCallManager.setRemoteUser(remoteUser!);
+
         // Send the user to the call page.
         callControlManager.onCallEstablished(data, videoCallManager);
 
@@ -51,101 +61,103 @@ class CallOrchestrator {
     // Listen to signaling messages and route them appropriately.
     serverHelper.messages.listen((message) async {
       final data = jsonDecode(message);
+      print(data);
 
       final String messageType = data["type"];
-      final String messageTarget = data["target"] ?? "";
       final String messageFrom = data["from"] ?? "";
 
       switch (messageType) {
         case "call_invite":
           // Call invites are for peer connections.
-          if (messageTarget == localUsername) {
-            print(
-                "CallOrchestrator: Received call invite from ${data["from"]}");
-            videoCallManager.remoteUsername =
-                data["from"]; // Set remote username.
-            callControlManager.onCallInvite(data);
-          }
+          print("CallOrchestrator: Received call invite from $messageFrom");
+          callControlManager.onCallInvite(data);
+
           break;
         case "call_accept":
           // Accept messages for peer connection.
-          if (messageTarget == localUsername) {
-            print(
-                "CallOrchestrator: Received call accept from ${data["from"]}");
-            callControlManager.onCallEstablished(data, videoCallManager);
+          print("CallOrchestrator: Received call accept from $messageFrom");
+          callControlManager.onCallEstablished(data, videoCallManager);
 
-            await videoCallManager.setupCallEnvironment(ConnectionTarget.peer);
-            await videoCallManager.negotiateCall(ConnectionTarget.peer,
-                isCaller: true);
+          await videoCallManager.setupCallEnvironment(ConnectionTarget.peer);
+          await videoCallManager.negotiateCall(ConnectionTarget.peer,
+              isCaller: true);
 
-            await videoCallManager
-                .setupCallEnvironment(ConnectionTarget.server);
-            await videoCallManager.negotiateCall(ConnectionTarget.server,
-                isCaller: true);
-          }
+          await videoCallManager.setupCallEnvironment(ConnectionTarget.server);
+          await videoCallManager.negotiateCall(ConnectionTarget.server,
+              isCaller: true);
+
           break;
         case "call_reject":
-          if (messageTarget == localUsername) {
+          print("CallOrchestrator: Received call reject from $messageFrom");
+          callControlManager.onCallReject(data);
+          break;
+        case "video_state":
+          // Handle video state changes.
+          if (!data["success"]) {
             print(
-                "CallOrchestrator: Received call reject from ${data["from"]}");
-            callControlManager.onCallReject(data);
+                "CallOrchestrator: Failed to update video state for $messageFrom because: ${data["reason"]}");
+          } else {
+            // Handle the video status update.
+            bool isVideoOn = data["video"];
+            print(
+                "CallOrchestrator: Received video state ($isVideoOn) from $messageFrom");
+            videoCallManager.updateRemoteVideoStatus(isVideoOn);
           }
           break;
         case "ice_candidate":
+          print("CallOrchestrator: Received ICE candidate from $messageFrom");
           // Route ICE candidates based on target.
           if (messageFrom == "server") {
-            print(
-                "CallOrchestrator: Received server ICE candidate from ${data["from"]}");
             await videoCallManager.onReceiveIceCandidate(
                 ConnectionTarget.server, data["payload"]);
           } else {
-            print(
-                "CallOrchestrator: Received ICE candidate from ${data["from"]}");
             await videoCallManager.onReceiveIceCandidate(
                 ConnectionTarget.peer, data["payload"]);
           }
           break;
         case "offer":
+          print("CallOrchestrator: Received offer from $messageFrom");
           // Handle SDP offers.
           if (messageFrom == "server") {
-            print(
-                "CallOrchestrator: Received server offer from ${data["from"]}");
             await videoCallManager.onReceiveOffer(
                 ConnectionTarget.server, data["payload"]);
           } else {
-            print("CallOrchestrator: Received offer from ${data["from"]}");
             await videoCallManager.onReceiveOffer(
                 ConnectionTarget.peer, data["payload"]);
+            // We need to initiate a call with the server ourselves.
             await videoCallManager.negotiateCall(ConnectionTarget.server,
                 isCaller: true);
           }
           break;
         case "answer":
+          print("CallOrchestrator: Received answer from $messageFrom");
           // Handle SDP answers.
           if (messageFrom == "server") {
-            print(
-                "CallOrchestrator: Received server answer from ${data["from"]}");
             await videoCallManager.onReceiveAnswer(
                 ConnectionTarget.server, data["payload"]);
           } else {
-            print("CallOrchestrator: Received answer from ${data["from"]}");
             await videoCallManager.onReceiveAnswer(
                 ConnectionTarget.peer, data["payload"]);
           }
           break;
         default:
-          print("CallOrchestrator: Unhandled message type: ${data["type"]}");
+          print("CallOrchestrator: Unhandled message type: $messageType");
       }
     });
   }
 
   /// Starts the call by initializing the peer connection.
-  Future<void> callUser(String remoteUsername) async {
-    this.remoteUsername = remoteUsername;
-    videoCallManager.remoteUsername = remoteUsername;
+  Future<void> callUser(LipCUser remoteUser) async {
+    print("CallOrchestrator: Calling ${remoteUser.userId}");
+    this.remoteUser = remoteUser;
+    videoCallManager.setRemoteUser(remoteUser);
     // Send the call invite.
-    callControlManager.sendCallInvite(remoteUsername);
-    print("CallOrchestrator: Sent call invite to $remoteUsername");
+    callControlManager.sendCallInvite(remoteUser);
+  }
+
+  void updateContacts(List<LipCUser> newContacts) {
+    contacts = newContacts;
+    callControlManager.updateContacts(newContacts);
   }
 
   /// Dispose of the orchestrator and its underlying managers.

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'pages/login_page.dart';
 import 'constants.dart';
 
 void main() {
-  runApp(const LipC());
+  runApp(const ProviderScope(child: LipC()));
 }
 
 class LipC extends StatelessWidget {

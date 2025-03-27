@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/lip_c_user.dart';
+import '../providers/contacts_provider.dart';
+import '../providers/current_user_provider.dart';
+import '../providers/server_helper_provider.dart';
 import 'contacts_page.dart';
 import '../constants.dart';
-import '../helpers/server_helper.dart';
+import 'register_page.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final ServerHelper _serverHelper =
-      ServerHelper(serverUrl: 'ws://192.168.1.5:8765');
 
   bool _isLoading = false;
   bool _obscurePassword = true; // Toggle for showing/hiding password
@@ -33,24 +36,36 @@ class _LoginPageState extends State<LoginPage> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
-    bool isAuthenticated = await _serverHelper.authenticate(username, password);
+    // Access the shared ServerHelper instance using ref.read
+    final serverHelper = ref.read(serverHelperProvider);
+
+    // Await a map response with "success" and "user_id"
+    Map<String, dynamic> authResponse =
+        await serverHelper.authenticate(username, password);
     setState(() => _isLoading = false);
 
-    if (isAuthenticated) {
+    if (authResponse["success"] == true) {
+      final currentUser = LipCUser(
+          userId: authResponse["user_id"],
+          username: username,
+          name: authResponse["name"],
+          profilePic: authResponse["profile_pic"]);
+      ref.read(currentUserProvider.notifier).setUser(currentUser);
+
+      // Load the contacts list for the current user
+      ref.read(contactsProvider(currentUser.userId).notifier).loadContacts();
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => ContactsPage(
-            serverHelper: _serverHelper,
-            profileImage: "", // Add the image location here
-            username: username,
-          ),
+          builder: (context) => ContactsPage(),
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text("Invalid username or password"),
+          content:
+              Text(authResponse["reason"] ?? "Invalid username or password"),
           backgroundColor: Colors.red,
         ),
       );
@@ -181,6 +196,18 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                   ),
                 ),
+              ),
+
+              TextButton(
+                onPressed: () {
+                  // Navigate to the registration page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const RegisterPage()),
+                  );
+                },
+                child: const Text("Don't have an account? Sign Up"),
               ),
             ],
           ),

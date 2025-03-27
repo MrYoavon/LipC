@@ -10,7 +10,6 @@ class PipPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAA$localRenderer");
     return Positioned(
       top: 40,
       right: 20,
