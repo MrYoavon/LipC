@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:lip_c/models/lip_c_user.dart';
@@ -40,14 +42,6 @@ class _CallPageState extends State<CallPage> {
     super.initState();
     _initRenderers();
     _initCall();
-
-    // Listen to remote video status updates.
-    widget.videoCallManager.remoteVideoStatusStream.listen((isVideoOn) {
-      setState(() {
-        // Update a local state variable to conditionally display the video stream or profile image.
-        isRemoteCameraOn = isVideoOn;
-      });
-    });
   }
 
   // Initialize the RTCVideoRenderers.
@@ -71,6 +65,14 @@ class _CallPageState extends State<CallPage> {
     widget.videoCallManager.localStreamStream.listen((stream) {
       setState(() {
         _localRenderer.srcObject = stream;
+      });
+    });
+
+    // Listen to remote video status updates.
+    widget.videoCallManager.remoteVideoStatusStream.listen((isVideoOn) {
+      setState(() {
+        // Update a local state variable to conditionally display the video stream or profile image.
+        isRemoteCameraOn = isVideoOn;
       });
     });
 
@@ -107,8 +109,12 @@ class _CallPageState extends State<CallPage> {
 
   @override
   void dispose() {
+    // Dispose of the renderers to free up resources.
+    _localRenderer.srcObject = null;
     _localRenderer.dispose();
+    _remoteRenderer.srcObject = null;
     _remoteRenderer.dispose();
+
     super.dispose();
   }
 
@@ -139,6 +145,19 @@ class _CallPageState extends State<CallPage> {
               setState(() {});
             },
             onEndCall: () {
+              // 1. Send call end message to the server.
+              widget.videoCallManager.remoteUser?.userId != null
+                  ? widget.serverHelper.sendRawMessage({
+                      "type": "call_end",
+                      "from": widget.localUser.userId,
+                      "target": widget.remoteUser.userId,
+                    })
+                  : null;
+
+              // 2. End the call.
+              widget.videoCallManager.dispose();
+
+              // 3. Pop the call page
               Navigator.pop(context);
             },
             onToggleMute: () {

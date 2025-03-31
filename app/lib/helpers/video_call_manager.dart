@@ -9,8 +9,8 @@ import 'server_helper.dart';
 class VideoCallManager {
   RTCPeerConnection? _peerConnection;
   RTCPeerConnection? _serverConnection;
-  List<Map<String, dynamic>> _peerPendingIceCandidates = [];
-  List<Map<String, dynamic>> _serverPendingIceCandidates = [];
+  final List<Map<String, dynamic>> _peerPendingIceCandidates = [];
+  final List<Map<String, dynamic>> _serverPendingIceCandidates = [];
 
   MediaStream? _localStream;
   final LipCUser localUser;
@@ -279,18 +279,28 @@ class VideoCallManager {
     }
   }
 
-  void setRemoteUser(LipCUser remoteUser) {
-    this.remoteUser = remoteUser;
-  }
-
   // Dispose of the resources.
   void dispose() {
+    _localStream?.getTracks().forEach((track) => track.stop());
     _localStream?.dispose();
-    _peerConnection?.close();
-    _serverConnection?.close();
+    _localStream = null;
+
     _localStreamController.close();
-    _localVideoStatusController.close();
     _remoteStreamController.close();
+
+    _localVideoStatusController.close();
     _remoteVideoStatusController.close();
+
+    localStreamStream.drain();
+    remoteStreamStream.drain();
+
+    _peerConnection?.close();
+    _peerConnection = null;
+
+    _serverConnection?.close();
+    _serverConnection = null;
+
+    _peerPendingIceCandidates.clear();
+    _serverPendingIceCandidates.clear();
   }
 }

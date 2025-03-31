@@ -22,6 +22,16 @@ class CallControlManager {
     required this.onCallAccepted,
   });
 
+  // Send a call invitation.
+  void sendCallInvite(LipCUser remoteUser) {
+    print("Sending call invite to ${remoteUser.username}");
+    serverHelper.sendRawMessage({
+      "type": "call_invite",
+      "from": localUser.userId,
+      "target": remoteUser.userId,
+    });
+  }
+
   // Callback for incoming call invites.
   void onCallInvite(Map<String, dynamic> data) {
     print("Received call invite from ${data["from"]}");
@@ -60,16 +70,6 @@ class CallControlManager {
     );
   }
 
-  // Send a call invitation.
-  void sendCallInvite(LipCUser remoteUser) {
-    print("Sending call invite to ${remoteUser.username}");
-    serverHelper.sendRawMessage({
-      "type": "call_invite",
-      "from": localUser.userId,
-      "target": remoteUser.userId,
-    });
-  }
-
   // Send a call acceptance.
   void sendCallAccept(Map<String, dynamic> data) {
     print("Sending call accept to ${data["from"]}");
@@ -100,7 +100,24 @@ class CallControlManager {
     );
   }
 
-  void onCallEstablished(
+  void sendCallEnd(String targetUserId) {
+    print("Sending call end to $targetUserId");
+    serverHelper.sendRawMessage({
+      "type": "call_end",
+      "from": localUser.userId,
+      "target": targetUserId,
+    });
+  }
+
+  void onCallEnd(Map<String, dynamic> data) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Call ended by ${data["from"]}")),
+    );
+    // If you are on the CallPage, pop it:
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  void navigateToCallPage(
       Map<String, dynamic> data, VideoCallManager videoCallManager) {
     print("Call established with ${data["from"]}");
     // Navigate to the call page
