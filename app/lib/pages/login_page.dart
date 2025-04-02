@@ -62,13 +62,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              Text(authResponse["reason"] ?? "Invalid username or password"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content:
+                Text(authResponse["reason"] ?? "Invalid username or password"),
+            backgroundColor: Colors.red,
+          ),
+        );
     }
   }
 
@@ -80,8 +82,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
+              const SizedBox(height: 240),
+
               /// Logo at the top
               Image.asset(
                 'assets/logo.png',
@@ -93,7 +96,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
               /// Welcome text
               Text(
-                "Welcome to Lip-C",
+                "Welcome to LipC",
                 style: GoogleFonts.fredoka(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -197,17 +200,28 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   ),
                 ),
               ),
+              const SizedBox(height: 220),
 
-              TextButton(
-                onPressed: () {
-                  // Navigate to the registration page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const RegisterPage()),
-                  );
-                },
-                child: const Text("Don't have an account? Sign Up"),
+              /// Don't have an account? Sign Up
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Not a member?"),
+                  TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.only(left: 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      onPressed: () {
+                        // Navigate to the registration page
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const RegisterPage()),
+                        );
+                      },
+                      child: const Text("Sign Up")),
+                ],
               ),
             ],
           ),

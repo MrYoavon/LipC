@@ -98,15 +98,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       );
     } else {
       // Registration failed; display the reason.
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            registrationResponse["reason"] ??
-                "Registration failed. Username might be taken.",
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              registrationResponse["reason"] ??
+                  "Registration failed. Username might be taken.",
+            ),
+            backgroundColor: Colors.red,
           ),
-          backgroundColor: Colors.red,
-        ),
-      );
+        );
     }
   }
 
@@ -120,6 +122,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const SizedBox(height: 160),
               // Logo at the top
               Image.asset(
                 'assets/logo.png',
@@ -303,17 +306,28 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 160),
 
               // Link to login page
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
-                },
-                child: const Text("Already have an account? Login"),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Already have an account?"),
+                  TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.only(left: 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      onPressed: () {
+                        // Navigate to the login page
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                        );
+                      },
+                      child: const Text("Login")),
+                ],
               ),
             ],
           ),
