@@ -25,6 +25,11 @@ class _ServerConnectionIndicatorState
 
     // When data is available, check if the status has changed.
     connectionStatusAsync.whenData((status) {
+      if (_previousStatus == null) {
+        _previousStatus = status;
+        return; // Skip the first build.
+      }
+
       if (_previousStatus != status) {
         _previousStatus = status;
         // Schedule side effects after the build is complete.
