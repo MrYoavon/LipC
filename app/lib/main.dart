@@ -6,7 +6,11 @@ import 'pages/login_page.dart';
 import 'constants.dart';
 
 void main() {
-  runApp(const ProviderScope(child: LipC()));
+  runApp(
+    const ProviderScope(
+      child: LipC(),
+    ),
+  );
 }
 
 class LipC extends StatelessWidget {

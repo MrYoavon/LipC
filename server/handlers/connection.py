@@ -1,7 +1,10 @@
 # server/handlers/connection.py
+import asyncio
 import json
 import logging
+import time
 import traceback
+
 from services.state import clients
 from handlers.auth_handler import handle_authentication, handle_signup
 from handlers.contacts_handler import handle_get_contacts, handle_add_contact
@@ -12,18 +15,48 @@ from handlers.call_handler import (
 from handlers.signaling_handler import handle_offer, handle_answer, handle_ice_candidate
 from handlers.call_history_handler import handle_log_call, handle_fetch_call_history
 
+
 async def handle_connection(websocket):
     """
-    Handle a new WebSocket connection, reading messages and dispatching them.
+    Handle a new WebSocket connection with heartbeat monitoring.
     """
     logging.info("New connection established.")
+    last_ping = time.time()
+
+    async def heartbeat_check():
+        """Periodically check if a ping has been received recently."""
+        while True:
+            await asyncio.sleep(10)
+            if time.time() - last_ping > 15:
+                logging.warning("No ping received from client in threshold; closing connection.")
+                await websocket.close()
+                break
+
+    # Start the heartbeat checker as a background task.
+    heartbeat_task = asyncio.create_task(heartbeat_check())
+
     try:
         async for message in websocket:
-            await dispatch_message(websocket, message)
+            try:
+                data = json.loads(message)
+                message_type = data.get("type")
+                
+                if message_type == "ping":
+                    # Update the last ping timestamp.
+                    last_ping = time.time()
+                    # Respond with a pong.
+                    await websocket.send(json.dumps({"type": "pong"}))
+                else:
+                    # Dispatch other message types as usual.
+                    await dispatch_message(websocket, message)
+            except json.JSONDecodeError:
+                await websocket.send(json.dumps({"error": "Invalid JSON format"}))
     except Exception as e:
         logging.error(f"Connection error: {e}\n{traceback.format_exc()}")
     finally:
+        heartbeat_task.cancel()  # Cancel the heartbeat check when done.
         await handle_disconnection(websocket)
+
 
 async def dispatch_message(websocket, message):
     """
@@ -66,6 +99,7 @@ async def dispatch_message(websocket, message):
             await websocket.send(json.dumps({"error": "Unknown message type"}))
     except json.JSONDecodeError:
         await websocket.send(json.dumps({"error": "Invalid JSON format"}))
+
 
 async def handle_disconnection(websocket):
     """

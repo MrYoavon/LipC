@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lip_c/widgets/server_connection_indicator.dart';
 
 import '../constants.dart';
 import '../helpers/call_orchestrator.dart';
@@ -195,137 +196,139 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
     final contacts = contactsState.contacts;
     final isLoading = contactsState.isLoading;
 
-    return GestureDetector(
-      onTap: _onTapOutside,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppColors.background,
-          leading: IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: _onSearchTap,
-            padding: const EdgeInsets.only(left: 16),
-          ),
-          title: _isSearching
-              ? TextField(
-                  focusNode: _searchFocusNode,
-                  onChanged: (query) {
-                    setState(() {
-                      _searchQuery = query;
-                    });
-                  },
-                  autofocus: true,
-                  style: const TextStyle(color: AppColors.textPrimary),
-                  decoration: const InputDecoration(
-                    hintText: 'Search contacts...',
-                    hintStyle: TextStyle(color: AppColors.textPrimary),
-                    border: InputBorder.none,
-                  ),
-                )
-              : const Center(
-                  child: Text('Lip-C',
-                      style: TextStyle(color: AppColors.textPrimary)),
-                ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.history),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CallHistoryPage(
-                      service: callHistoryService,
-                      userId: currentUser.userId,
-                    ),
-                  ),
-                );
-              },
+    return ServerConnectionIndicator(
+      child: GestureDetector(
+        onTap: _onTapOutside,
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: AppColors.background,
+            leading: IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: _onSearchTap,
+              padding: const EdgeInsets.only(left: 16),
             ),
-            PopupMenuButton<String>(
-              onSelected: (value) {
-                if (value == 'settings') {
-                  // Navigate to settings page if needed.
-                }
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem<String>(
-                  value: 'settings',
-                  child: Text('Settings'),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'preferences',
-                  child: Text('Preferences'),
-                ),
-              ],
-              icon: CircleAvatar(
-                backgroundImage: currentUser.profilePic.isNotEmpty
-                    ? AssetImage(currentUser.profilePic) as ImageProvider
-                    : null,
-                backgroundColor: AppColors.accent,
-                foregroundColor: AppColors.background,
-                child: currentUser.profilePic.isEmpty
-                    ? Text(
-                        _getInitials(currentUser.username),
-                        style: const TextStyle(
-                          color: AppColors.background,
-                          fontSize: 20,
-                        ),
-                      )
-                    : null,
-              ),
-              padding: const EdgeInsets.only(right: 16),
-            ),
-          ],
-        ),
-        body: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : contacts.isEmpty
-                ? const Center(child: Text("No contacts found."))
-                : ListView.builder(
-                    itemCount: contacts.length,
-                    itemBuilder: (context, index) {
-                      final contact = contacts[index];
-                      final color = AppColors().getUserColor(contact.userId);
-                      if (_searchQuery.isNotEmpty &&
-                          (!contact.name
-                                  .toLowerCase()
-                                  .contains(_searchQuery.toLowerCase()) ||
-                              !contact.username
-                                  .toLowerCase()
-                                  .contains(_searchQuery.toLowerCase()))) {
-                        return Container(); // Skip contacts that don't match search.
-                      }
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: color,
-                          foregroundColor: AppColors.background,
-                          child: Text(contact.name[0]),
-                        ),
-                        title: Row(
-                          children: [
-                            Text(contact.name),
-                            Text(" @${contact.username}",
-                                style: const TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 12,
-                                )),
-                          ],
-                        ),
-                        subtitle: const Text('Status: Online'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.video_call),
-                          onPressed: () {
-                            callOrchestrator.callUser(contact);
-                          },
-                        ),
-                      );
+            title: _isSearching
+                ? TextField(
+                    focusNode: _searchFocusNode,
+                    onChanged: (query) {
+                      setState(() {
+                        _searchQuery = query;
+                      });
                     },
+                    autofocus: true,
+                    style: const TextStyle(color: AppColors.textPrimary),
+                    decoration: const InputDecoration(
+                      hintText: 'Search contacts...',
+                      hintStyle: TextStyle(color: AppColors.textPrimary),
+                      border: InputBorder.none,
+                    ),
+                  )
+                : const Center(
+                    child: Text('Lip-C',
+                        style: TextStyle(color: AppColors.textPrimary)),
                   ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: AppColors.accent,
-          foregroundColor: AppColors.background,
-          onPressed: _showAddContactDialog,
-          tooltip: 'Add Contact',
-          child: const Icon(Icons.add),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.history),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CallHistoryPage(
+                        service: callHistoryService,
+                        userId: currentUser.userId,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'settings') {
+                    // Navigate to settings page if needed.
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem<String>(
+                    value: 'settings',
+                    child: Text('Settings'),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'preferences',
+                    child: Text('Preferences'),
+                  ),
+                ],
+                icon: CircleAvatar(
+                  backgroundImage: currentUser.profilePic.isNotEmpty
+                      ? AssetImage(currentUser.profilePic) as ImageProvider
+                      : null,
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: AppColors.background,
+                  child: currentUser.profilePic.isEmpty
+                      ? Text(
+                          _getInitials(currentUser.username),
+                          style: const TextStyle(
+                            color: AppColors.background,
+                            fontSize: 20,
+                          ),
+                        )
+                      : null,
+                ),
+                padding: const EdgeInsets.only(right: 16),
+              ),
+            ],
+          ),
+          body: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : contacts.isEmpty
+                  ? const Center(child: Text("No contacts found."))
+                  : ListView.builder(
+                      itemCount: contacts.length,
+                      itemBuilder: (context, index) {
+                        final contact = contacts[index];
+                        final color = AppColors().getUserColor(contact.userId);
+                        if (_searchQuery.isNotEmpty &&
+                            (!contact.name
+                                    .toLowerCase()
+                                    .contains(_searchQuery.toLowerCase()) ||
+                                !contact.username
+                                    .toLowerCase()
+                                    .contains(_searchQuery.toLowerCase()))) {
+                          return Container(); // Skip contacts that don't match search.
+                        }
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: color,
+                            foregroundColor: AppColors.background,
+                            child: Text(contact.name[0]),
+                          ),
+                          title: Row(
+                            children: [
+                              Text(contact.name),
+                              Text(" @${contact.username}",
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                  )),
+                            ],
+                          ),
+                          subtitle: const Text('Status: Online'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.video_call),
+                            onPressed: () {
+                              callOrchestrator.callUser(contact);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: AppColors.accent,
+            foregroundColor: AppColors.background,
+            onPressed: _showAddContactDialog,
+            tooltip: 'Add Contact',
+            child: const Icon(Icons.add),
+          ),
         ),
       ),
     );

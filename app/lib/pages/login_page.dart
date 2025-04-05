@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lip_c/widgets/server_connection_indicator.dart';
 
 import '../models/lip_c_user.dart';
 import '../providers/contacts_provider.dart';
@@ -76,154 +77,158 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 240),
+    return ServerConnectionIndicator(
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 240),
 
-              /// Logo at the top
-              Image.asset(
-                'assets/logo.png',
-                width: 80,
-                height: 80,
-                color: AppColors.accent,
-              ),
-              const SizedBox(height: 20),
-
-              /// Welcome text
-              Text(
-                "Welcome to LipC",
-                style: GoogleFonts.fredoka(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                /// Logo at the top
+                Image.asset(
+                  'assets/logo.png',
+                  width: 80,
+                  height: 80,
                   color: AppColors.accent,
                 ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              /// Username field
-              TextField(
-                controller: _usernameController,
-                autocorrect: false,
-                enableSuggestions: false,
-                decoration: InputDecoration(
-                  labelText: "Username",
-                  labelStyle: TextStyle(color: AppColors.textSecondary),
-                  prefixIcon:
-                      Icon(Icons.person, color: AppColors.textSecondary),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: AppColors.textSecondary, width: 2),
-                    borderRadius: BorderRadius.circular(12),
+                /// Welcome text
+                Text(
+                  "Welcome to LipC",
+                  style: GoogleFonts.fredoka(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.accent,
                   ),
                 ),
-              ),
-              const SizedBox(height: 15),
+                const SizedBox(height: 20),
 
-              /// Password field (with eye icon)
-              TextField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                autocorrect: false,
-                enableSuggestions: false,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  labelStyle: TextStyle(color: AppColors.textSecondary),
-                  prefixIcon: Icon(Icons.lock, color: AppColors.textSecondary),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      color: AppColors.textSecondary,
+                /// Username field
+                TextField(
+                  controller: _usernameController,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: InputDecoration(
+                    labelText: "Username",
+                    labelStyle: TextStyle(color: AppColors.textSecondary),
+                    prefixIcon:
+                        Icon(Icons.person, color: AppColors.textSecondary),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppColors.accent, width: 2),
-                    borderRadius: BorderRadius.circular(12),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: AppColors.textSecondary, width: 2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 15),
 
-              /// Gradient Login Button
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        const Color.fromARGB(255, 17, 37, 77), // Lighter berry
-                        AppColors.accent, // Deeper berry
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _login,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      disabledBackgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0, // Let the gradient stand out
-                    ),
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            "Login",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 220),
-
-              /// Don't have an account? Sign Up
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Not a member?"),
-                  TextButton(
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.only(left: 0),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                /// Password field (with eye icon)
+                TextField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: InputDecoration(
+                    labelText: "Password",
+                    labelStyle: TextStyle(color: AppColors.textSecondary),
+                    prefixIcon:
+                        Icon(Icons.lock, color: AppColors.textSecondary),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: AppColors.textSecondary,
                       ),
                       onPressed: () {
-                        // Navigate to the registration page
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const RegisterPage()),
-                        );
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
                       },
-                      child: const Text("Sign Up")),
-                ],
-              ),
-            ],
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppColors.accent, width: 2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                /// Gradient Login Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color.fromARGB(
+                              255, 17, 37, 77), // Lighter berry
+                          AppColors.accent, // Deeper berry
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        disabledBackgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0, // Let the gradient stand out
+                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              "Login",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 220),
+
+                /// Don't have an account? Sign Up
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Not a member?"),
+                    TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.only(left: 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        onPressed: () {
+                          // Navigate to the registration page
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const RegisterPage()),
+                          );
+                        },
+                        child: const Text("Sign Up")),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

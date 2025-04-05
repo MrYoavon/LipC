@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:lip_c/models/lip_c_user.dart';
+import 'package:lip_c/widgets/server_connection_indicator.dart';
 import '../helpers/server_helper.dart';
 import '../helpers/video_call_manager.dart';
 import '../widgets/call_controls.dart';
@@ -120,52 +121,54 @@ class _CallPageState extends State<CallPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          // Main Feed: Full-screen image view.
-          MainFeed(
-            remoteRenderer: _remoteRenderer,
-            isRemoteCameraOn: isRemoteCameraOn,
-            placeholder: _buildRemotePlaceholder(),
-          ),
-          // Picture-in-Picture preview.
-          PipPreview(localRenderer: _localRenderer),
-          // Subtitles overlay.
-          SubtitlesDisplay(subtitles: subtitles),
-          // Call Controls.
-          CallControls(
-            onFlipCamera: () {
-              widget.videoCallManager.flipCamera();
-              setState(() {});
-            },
-            onToggleCamera: () {
-              widget.videoCallManager.toggleCamera();
-              setState(() {});
-            },
-            onEndCall: () {
-              // 1. Send call end message to the server.
-              widget.videoCallManager.remoteUser?.userId != null
-                  ? widget.serverHelper.sendRawMessage({
-                      "type": "call_end",
-                      "from": widget.localUser.userId,
-                      "target": widget.remoteUser.userId,
-                    })
-                  : null;
+    return ServerConnectionIndicator(
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            // Main Feed: Full-screen image view.
+            MainFeed(
+              remoteRenderer: _remoteRenderer,
+              isRemoteCameraOn: isRemoteCameraOn,
+              placeholder: _buildRemotePlaceholder(),
+            ),
+            // Picture-in-Picture preview.
+            PipPreview(localRenderer: _localRenderer),
+            // Subtitles overlay.
+            SubtitlesDisplay(subtitles: subtitles),
+            // Call Controls.
+            CallControls(
+              onFlipCamera: () {
+                widget.videoCallManager.flipCamera();
+                setState(() {});
+              },
+              onToggleCamera: () {
+                widget.videoCallManager.toggleCamera();
+                setState(() {});
+              },
+              onEndCall: () {
+                // 1. Send call end message to the server.
+                widget.videoCallManager.remoteUser?.userId != null
+                    ? widget.serverHelper.sendRawMessage({
+                        "type": "call_end",
+                        "from": widget.localUser.userId,
+                        "target": widget.remoteUser.userId,
+                      })
+                    : null;
 
-              // 2. End the call.
-              widget.videoCallManager.dispose();
+                // 2. End the call.
+                widget.videoCallManager.dispose();
 
-              // 3. Pop the call page
-              Navigator.pop(context);
-            },
-            onToggleMute: () {
-              widget.videoCallManager.toggleMicrophone();
-              setState(() {});
-            },
-          ),
-        ],
+                // 3. Pop the call page
+                Navigator.pop(context);
+              },
+              onToggleMute: () {
+                widget.videoCallManager.toggleMicrophone();
+                setState(() {});
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
