@@ -19,7 +19,10 @@ class RegisterPage extends ConsumerStatefulWidget {
 }
 
 class _RegisterPageState extends ConsumerState<RegisterPage> {
-  final TextEditingController _nameController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -32,7 +35,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -40,299 +44,376 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     super.dispose();
   }
 
+  // Validator that ensures the name contains only English letters.
+  String? _validateName(String? value, String fieldName) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    final RegExp validName = RegExp(r'^[A-Za-z]+$');
+    if (!validName.hasMatch(value.trim())) {
+      return '$fieldName must only contain English letters';
+    }
+    return null;
+  }
+
+  String? _validateUsername(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Username is required';
+    }
+    // Allow only alphanumeric characters and underscores.
+    final validCharacters = RegExp(r'^[a-zA-Z0-9_]+$');
+    if (!validCharacters.hasMatch(value.trim())) {
+      return 'Username contains invalid characters';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Password is required';
+    }
+    if (value.trim().length < 6) {
+      return 'Password must be at least 6 characters long';
+    }
+    return null;
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Confirm your password';
+    }
+    if (value.trim() != _passwordController.text.trim()) {
+      return 'Passwords do not match';
+    }
+    return null;
+  }
+
   void _register() async {
-    final name = _nameController.text.trim();
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text.trim();
-    final confirmPassword = _confirmPasswordController.text.trim();
-    final profilePic = _profilePicController.text.trim();
+    if (_formKey.currentState?.validate() ?? false) {
+      final firstName = _firstNameController.text.trim();
+      final lastName = _lastNameController.text.trim();
+      final fullName = '$firstName $lastName';
+      final username = _usernameController.text.trim();
+      final password = _passwordController.text.trim();
+      final profilePic = _profilePicController.text.trim();
 
-    // Access the shared ServerHelper instance using ref.read
-    final serverHelper = ref.read(serverHelperProvider);
+      final serverHelper = ref.read(serverHelperProvider);
 
-    if (username.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("Username and password are required."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+      setState(() => _isLoading = true);
 
-    if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text("Passwords do not match."),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+      // Await the registration response.
+      Map<String, dynamic> registrationResponse =
+          await serverHelper.register(username, password, fullName, profilePic);
+      setState(() => _isLoading = false);
 
-    setState(() => _isLoading = true);
+      if (registrationResponse["success"] == true) {
+        final currentUser = LipCUser(
+          userId: registrationResponse["user_id"],
+          username: username,
+          name: fullName,
+          profilePic: profilePic,
+        );
+        ref.read(currentUserProvider.notifier).setUser(currentUser);
 
-    // Await the registration response which is now a Map.
-    Map<String, dynamic> registrationResponse =
-        await serverHelper.register(username, password, name, profilePic);
-    setState(() => _isLoading = false);
+        // Load the contacts list for the current user
+        ref.read(contactsProvider(currentUser.userId).notifier).loadContacts();
 
-    if (registrationResponse["success"] == true) {
-      // Registration successful; consider the user authenticated.
-      // Navigate to ContactsPage using the returned user_id.
-      final currentUser = LipCUser(
-        userId: registrationResponse["user_id"],
-        username: username,
-        name: name,
-        profilePic: profilePic,
-      );
-      ref.read(currentUserProvider.notifier).setUser(currentUser);
-
-      // Load the contacts list for the current user
-      ref.read(contactsProvider(currentUser.userId).notifier).loadContacts();
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ContactsPage(),
-        ),
-      );
-    } else {
-      // Registration failed; display the reason.
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              registrationResponse["reason"] ??
-                  "Registration failed. Username might be taken.",
-            ),
-            backgroundColor: Colors.red,
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ContactsPage(),
           ),
         );
+      } else {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(
+                registrationResponse["reason"] ??
+                    "Registration failed. Username might be taken.",
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return ServerConnectionIndicator(
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 160),
-                // Logo at the top
-                Image.asset(
-                  'assets/logo.png',
-                  width: 80,
-                  height: 80,
-                  color: AppColors.accent,
-                ),
-                const SizedBox(height: 20),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(), // Dismiss the keyboard
+      child: ServerConnectionIndicator(
+        child: Scaffold(
+          backgroundColor: AppColors.background,
+          body: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 40),
 
-                // Header Text
-                Text(
-                  "Create Your Account",
-                  style: GoogleFonts.fredoka(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.accent,
-                  ),
-                ),
-                const SizedBox(height: 20),
+                    // Logo at the top
+                    Image.asset(
+                      'assets/logo.png',
+                      width: 80,
+                      height: 80,
+                      color: AppColors.accent,
+                    ),
+                    const SizedBox(height: 20),
 
-                // Full Name field
-                TextField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: "Full Name",
-                    labelStyle: TextStyle(color: AppColors.textSecondary),
-                    prefixIcon:
-                        Icon(Icons.person, color: AppColors.textSecondary),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: AppColors.textSecondary, width: 2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15),
-
-                // Username field
-                TextField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    labelText: "Username",
-                    labelStyle: TextStyle(color: AppColors.textSecondary),
-                    prefixIcon: Icon(Icons.alternate_email,
-                        color: AppColors.textSecondary),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          BorderSide(color: AppColors.textSecondary, width: 2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15),
-
-                // Password field
-                TextField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    labelStyle: TextStyle(color: AppColors.textSecondary),
-                    prefixIcon:
-                        Icon(Icons.lock, color: AppColors.textSecondary),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: AppColors.textSecondary,
+                    // Header Text
+                    Text(
+                      "Create Your Account",
+                      style: GoogleFonts.fredoka(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.accent,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: AppColors.accent, width: 2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15),
+                    const SizedBox(height: 20),
 
-                // Confirm Password field
-                TextField(
-                  controller: _confirmPasswordController,
-                  obscureText: _obscureConfirmPassword,
-                  decoration: InputDecoration(
-                    labelText: "Confirm Password",
-                    labelStyle: TextStyle(color: AppColors.textSecondary),
-                    prefixIcon: Icon(Icons.lock_outline,
-                        color: AppColors.textSecondary),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirmPassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: AppColors.textSecondary,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureConfirmPassword = !_obscureConfirmPassword;
-                        });
-                      },
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: AppColors.accent, width: 2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 15),
-
-                // // Profile Picture URL field (optional)
-                // TextField(
-                //   controller: _profilePicController,
-                //   decoration: InputDecoration(
-                //     labelText: "Profile Picture URL (optional)",
-                //     labelStyle: TextStyle(color: AppColors.textSecondary),
-                //     prefixIcon: Icon(Icons.image, color: AppColors.textSecondary),
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(12),
-                //     ),
-                //     focusedBorder: OutlineInputBorder(
-                //       borderSide:
-                //           BorderSide(color: AppColors.textSecondary, width: 2),
-                //       borderRadius: BorderRadius.circular(12),
-                //     ),
-                //   ),
-                // ),
-                // const SizedBox(height: 20),
-
-                // Gradient Register Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color.fromARGB(255, 17, 37, 77),
-                          AppColors.accent,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _register,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        disabledBackgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: _isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
+                    // First Name & Last Name side by side
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _firstNameController,
+                            maxLength: 30,
+                            decoration: InputDecoration(
+                              labelText: "First Name",
+                              labelStyle:
+                                  TextStyle(color: AppColors.textSecondary),
+                              prefixIcon: Icon(Icons.person,
+                                  color: AppColors.textSecondary),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: AppColors.textSecondary, width: 2),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 160),
-
-                // Link to login page
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Already have an account?"),
-                    TextButton(
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.only(left: 0),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            validator: (value) =>
+                                _validateName(value, "First name"),
+                          ),
                         ),
-                        onPressed: () {
-                          // Navigate to the login page
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const LoginPage()),
-                          );
-                        },
-                        child: const Text("Login")),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _lastNameController,
+                            maxLength: 30,
+                            decoration: InputDecoration(
+                              labelText: "Last Name",
+                              labelStyle:
+                                  TextStyle(color: AppColors.textSecondary),
+                              prefixIcon: Icon(Icons.person_outline,
+                                  color: AppColors.textSecondary),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: AppColors.textSecondary, width: 2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            validator: (value) =>
+                                _validateName(value, "Last name"),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Username field
+                    TextFormField(
+                      controller: _usernameController,
+                      maxLength: 20,
+                      decoration: InputDecoration(
+                        labelText: "Username",
+                        labelStyle: TextStyle(color: AppColors.textSecondary),
+                        prefixIcon: Icon(Icons.alternate_email,
+                            color: AppColors.textSecondary),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: AppColors.textSecondary, width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      validator: _validateUsername,
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Password field
+                    TextFormField(
+                      controller: _passwordController,
+                      maxLength: 128,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        labelText: "Password",
+                        labelStyle: TextStyle(color: AppColors.textSecondary),
+                        prefixIcon:
+                            Icon(Icons.lock, color: AppColors.textSecondary),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: AppColors.textSecondary,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: AppColors.accent, width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      validator: _validatePassword,
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Confirm Password field
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      maxLength: 128,
+                      obscureText: _obscureConfirmPassword,
+                      decoration: InputDecoration(
+                        labelText: "Confirm Password",
+                        labelStyle: TextStyle(color: AppColors.textSecondary),
+                        prefixIcon: Icon(Icons.lock_outline,
+                            color: AppColors.textSecondary),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: AppColors.textSecondary,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureConfirmPassword =
+                                  !_obscureConfirmPassword;
+                            });
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: AppColors.accent, width: 2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      validator: _validateConfirmPassword,
+                    ),
+                    // const SizedBox(height: 15),
+
+                    // // Optional: Profile Picture URL field | Disabled for now
+                    // TextFormField(
+                    //   controller: _profilePicController,
+                    //   maxLength: 256,
+                    //   decoration: InputDecoration(
+                    //     labelText: "Profile Picture URL (optional)",
+                    //     labelStyle: TextStyle(color: AppColors.textSecondary),
+                    //     prefixIcon:
+                    //         Icon(Icons.image, color: AppColors.textSecondary),
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(12),
+                    //     ),
+                    //     focusedBorder: OutlineInputBorder(
+                    //       borderSide: BorderSide(
+                    //           color: AppColors.textSecondary, width: 2),
+                    //       borderRadius: BorderRadius.circular(12),
+                    //     ),
+                    //   ),
+                    // ),
+                    const SizedBox(height: 12),
+
+                    // Gradient Register Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color.fromARGB(255, 17, 37, 77),
+                              AppColors.accent,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _register,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            disabledBackgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : const Text(
+                                  "Sign Up",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+
+                    // Link to login page
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Already have an account?"),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.only(left: 0),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginPage()),
+                            );
+                          },
+                          child: const Text("Login"),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

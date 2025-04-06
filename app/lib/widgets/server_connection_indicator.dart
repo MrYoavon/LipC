@@ -72,6 +72,8 @@ class _ServerConnectionIndicatorState
                 const SnackBar(
                   content: Text('Disconnected from server'),
                   backgroundColor: Colors.red,
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  behavior: SnackBarBehavior.floating,
                   duration: Duration(seconds: 2),
                 ),
               );
