@@ -1,8 +1,10 @@
 // File: helpers/call_control_manager.dart
 import 'package:flutter/material.dart';
+import 'package:lip_c/constants.dart';
 import 'package:lip_c/helpers/video_call_manager.dart';
 import 'package:lip_c/models/lip_c_user.dart';
 import 'package:collection/collection.dart';
+import 'package:lip_c/pages/incoming_call_page.dart';
 
 import '../pages/call_page.dart';
 import 'server_helper.dart';
@@ -37,36 +39,25 @@ class CallControlManager {
     print("Received call invite from ${data["from"]}");
 
     // Find the remote user in the contacts list.
-    final remoteUser = contacts.firstWhereOrNull(
-      (contact) => contact.userId == data["from"],
-    );
+    final LipCUser? remoteUser = findContact(data["from"]);
 
-    // You can now show a dialog to accept/reject the call.
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent dismissing by tapping outside
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Incoming Call"),
-          content: Text("Call from ${remoteUser?.username ?? data["from"]}"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                sendCallReject(data);
-              },
-              child: Text("Reject"),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // Close dialog
-                await onCallAccepted(data); // Delegate to orchestrator.
-              },
-              child: Text("Accept"),
-            ),
-          ],
-        );
-      },
+    // Navigate to the IncomingCallScreen instead of showing a dialog.
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => IncomingCallPage(
+          remoteUser: remoteUser!,
+          callData: data,
+          onReject: () {
+            Navigator.pop(context);
+            sendCallReject(data);
+          },
+          onAccept: () async {
+            Navigator.pop(context);
+            await onCallAccepted(data);
+          },
+        ),
+      ),
     );
   }
 
@@ -91,13 +82,25 @@ class CallControlManager {
   }
 
   void onCallReject(Map<String, dynamic> data) {
-    print("Call rejected by ${data["from"]}");
+    final LipCUser? callee = findContact(data["from"]);
+
+    print("Call rejected by ${callee?.username ?? data["from"]}");
     // Show a message to the user
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Call rejected by ${data["from"]}"),
+        content: Text("Call rejected by ${callee?.username ?? data["from"]}"),
+        backgroundColor: AppColors.accent,
+        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
     );
+
+    // If you are on the CallingPage, pop it:
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   void sendCallEnd(String targetUserId) {
@@ -110,16 +113,26 @@ class CallControlManager {
   }
 
   void onCallEnd(Map<String, dynamic> data) {
+    final LipCUser? disconnectingUser = findContact(data["from"]);
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Call ended by ${data["from"]}")),
+      SnackBar(
+          content:
+              Text("Call ended by ${disconnectingUser?.name ?? data["from"]}")),
     );
     // If you are on the CallPage, pop it:
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   void navigateToCallPage(
-      Map<String, dynamic> data, VideoCallManager videoCallManager) {
+      Map<String, dynamic> data, VideoCallManager videoCallManager,
+      {bool isCaller = false}) {
     print("Call established with ${data["from"]}");
+    // Pop out of the calling page if caller
+    if (isCaller) {
+      Navigator.pop(context);
+    }
+
     // Navigate to the call page
     Navigator.push(
       context,

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../pages/outgoing_call_page.dart';
 import 'server_helper.dart';
 import 'video_call_manager.dart';
 import 'call_control_manager.dart';
@@ -56,7 +57,11 @@ class CallOrchestrator {
         );
 
         // 1. Send the user to the call page.
-        callControlManager.navigateToCallPage(data, videoCallManager!);
+        callControlManager.navigateToCallPage(
+          data,
+          videoCallManager!,
+          isCaller: false,
+        );
 
         // 2. When the call is accepted, first establish the peer connection.
         await videoCallManager?.setupCallEnvironment(ConnectionTarget.peer);
@@ -87,7 +92,11 @@ class CallOrchestrator {
           // Accept messages for peer connection.
           print("CallOrchestrator: Received call accept from $messageFrom");
 
-          callControlManager.navigateToCallPage(data, videoCallManager!);
+          callControlManager.navigateToCallPage(
+            data,
+            videoCallManager!,
+            isCaller: true,
+          );
           sleep(Duration(milliseconds: 1000));
 
           await videoCallManager?.setupCallEnvironment(ConnectionTarget.peer);
@@ -171,6 +180,14 @@ class CallOrchestrator {
       serverHelper: serverHelper,
       localUser: localUser,
       remoteUser: remoteUser,
+    );
+
+    // Navigate to the CallingPage.
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OutgoingCallPage(remoteUser: remoteUser),
+      ),
     );
 
     // Proceed with the invite
