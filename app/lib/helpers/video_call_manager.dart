@@ -100,7 +100,7 @@ class VideoCallManager {
     if (isCaller) {
       RTCSessionDescription offer = await createOffer(target);
       print("Created offer: ${offer.sdp}");
-      serverHelper.sendRawMessage({
+      serverHelper.sendEncryptedMessage({
         "type": "offer",
         "from": localUser.userId,
         "target": connection == _peerConnection ? remoteUser!.userId : 'server',
@@ -109,7 +109,7 @@ class VideoCallManager {
     } else {
       RTCSessionDescription answer = await createAnswer(target);
       print("Created answer to $target | $remoteUser- ${answer.sdp}");
-      serverHelper.sendRawMessage({
+      serverHelper.sendEncryptedMessage({
         "type": "answer",
         "from": localUser.userId,
         "target": connection == _peerConnection ? remoteUser!.userId : 'server',
@@ -129,7 +129,7 @@ class VideoCallManager {
           'sdpMLineIndex': candidate.sdpMLineIndex,
         }}");
 
-        serverHelper.sendRawMessage({
+        serverHelper.sendEncryptedMessage({
           'type': 'ice_candidate',
           'from': localUser.userId,
           'target':

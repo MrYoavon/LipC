@@ -1,11 +1,13 @@
-# utils/call_history.py
+# handlers/call_history.py
 import json
 from database.call_history import add_call_history, get_call_history
+from services.crypto_utils import send_encrypted
 
-async def handle_log_call(websocket, data):
+async def handle_log_call(websocket, data, aes_key):
     """
     Handle a 'log_call' message by saving the call details.
     Expects data to contain: user_id, contact_id, contact_name, call_type, and duration_seconds.
+    The response is encrypted using the provided AES key.
     """
     try:
         entry = {
@@ -27,12 +29,13 @@ async def handle_log_call(websocket, data):
             "success": False,
             "error": str(e)
         }
-    await websocket.send(json.dumps(response))
+    await send_encrypted(websocket, json.dumps(response), aes_key)
 
-async def handle_fetch_call_history(websocket, data):
+async def handle_fetch_call_history(websocket, data, aes_key):
     """
     Handle a 'fetch_call_history' message by retrieving the user's call history.
     Expects data to contain the user_id and an optional limit.
+    The response is encrypted using the provided AES key.
     """
     user_id = data.get("user_id")
     limit = data.get("limit", 50)
@@ -51,4 +54,4 @@ async def handle_fetch_call_history(websocket, data):
             "type": "call_history",
             "error": str(e)
         }
-    await websocket.send(json.dumps(response))
+    await send_encrypted(websocket, json.dumps(response), aes_key)

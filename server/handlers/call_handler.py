@@ -1,12 +1,13 @@
-# utils/call_control.py
+# handlers/call_control.py
 import json
 import logging
 from services.state import clients
+from services.crypto_utils import send_encrypted
 
-async def handle_call_invite(websocket, data):
+async def handle_call_invite(websocket, data, aes_key):
     """
     Forward a call invitation from the caller to the target (callee).
-    Data should contain "from" (caller) and "target" (callee).
+    Encrypts the message using the target's AES key if available.
     """
     caller = data.get("from")
     target = data.get("target")
@@ -14,25 +15,30 @@ async def handle_call_invite(websocket, data):
     
     if target in clients:
         target_ws = clients[target]["ws"]
+        target_aes_key = clients[target].get("aes_key")
+        logging.info(f"CALL INVITE: Target AES key: {target_aes_key}")
+        if not target_aes_key:
+            logging.warning(f"No AES key found for target {target}; falling back to sender's key.")
+            target_aes_key = aes_key
         invite_msg = {
             "type": "call_invite",
             "from": caller,
             "target": target
         }
-        await target_ws.send(json.dumps(invite_msg))
+        await send_encrypted(target_ws, json.dumps(invite_msg), target_aes_key)
     else:
-        # Inform caller that the target isn't available.
+        # Inform the caller that the target isn't available.
         error_msg = {
             "type": "call_reject",
             "success": False,
             "message": f"{target} is not available."
         }
-        await websocket.send(json.dumps(error_msg))
+        await send_encrypted(websocket, json.dumps(error_msg), aes_key)
 
-async def handle_call_accept(websocket, data):
+async def handle_call_accept(websocket, data, aes_key):
     """
     Forward a call acceptance from the target (callee) back to the caller.
-    Data should contain "from" (callee) and "target" (caller).
+    Encrypts the message using the caller's AES key if available.
     """
     callee = data.get("from")
     caller = data.get("target")
@@ -40,25 +46,29 @@ async def handle_call_accept(websocket, data):
     
     if caller in clients:
         caller_ws = clients[caller]["ws"]
+        caller_aes_key = clients[caller].get("aes_key")
+        if not caller_aes_key:
+            logging.warning(f"No AES key found for caller {caller}; falling back to sender's key.")
+            caller_aes_key = aes_key
         accept_msg = {
             "type": "call_accept",
             "from": callee,
             "target": caller,
             "success": True
         }
-        await caller_ws.send(json.dumps(accept_msg))
+        await send_encrypted(caller_ws, json.dumps(accept_msg), caller_aes_key)
     else:
         error_msg = {
             "type": "call_accept",
             "success": False,
             "message": f"{caller} not connected."
         }
-        await websocket.send(json.dumps(error_msg))
+        await send_encrypted(websocket, json.dumps(error_msg), aes_key)
 
-async def handle_call_reject(websocket, data):
+async def handle_call_reject(websocket, data, aes_key):
     """
     Forward a call rejection from the target (callee) back to the caller.
-    Data should contain "from" (callee) and "target" (caller).
+    Encrypts the message using the caller's AES key if available.
     """
     callee = data.get("from")
     caller = data.get("target")
@@ -66,6 +76,10 @@ async def handle_call_reject(websocket, data):
     
     if caller in clients:
         caller_ws = clients[caller]["ws"]
+        caller_aes_key = clients[caller].get("aes_key")
+        if not caller_aes_key:
+            logging.warning(f"No AES key found for caller {caller}; falling back to sender's key.")
+            caller_aes_key = aes_key
         reject_msg = {
             "type": "call_reject",
             "from": callee,
@@ -73,19 +87,19 @@ async def handle_call_reject(websocket, data):
             "success": False,
             "message": f"Call rejected by {callee}."
         }
-        await caller_ws.send(json.dumps(reject_msg))
+        await send_encrypted(caller_ws, json.dumps(reject_msg), caller_aes_key)
     else:
         error_msg = {
             "type": "call_reject",
             "success": False,
             "message": f"{caller} not connected."
         }
-        await websocket.send(json.dumps(error_msg))
+        await send_encrypted(websocket, json.dumps(error_msg), aes_key)
 
-async def handle_call_end(websocket, data):
+async def handle_call_end(websocket, data, aes_key):
     """
     Forward a call end request from either party to the other.
-    Data should contain "from" and "target".
+    Encrypts the message using the target's AES key if available.
     """
     sender = data.get("from")
     target = data.get("target")
@@ -93,24 +107,28 @@ async def handle_call_end(websocket, data):
     
     if target in clients:
         target_ws = clients[target]["ws"]
+        target_aes_key = clients[target].get("aes_key")
+        if not target_aes_key:
+            logging.warning(f"No AES key found for target {target}; falling back to sender's key.")
+            target_aes_key = aes_key
         end_msg = {
             "type": "call_end",
             "from": sender,
             "target": target
         }
-        await target_ws.send(json.dumps(end_msg))
+        await send_encrypted(target_ws, json.dumps(end_msg), target_aes_key)
     else:
         error_msg = {
             "type": "call_end",
             "success": False,
             "message": f"{target} not connected."
         }
-        await websocket.send(json.dumps(error_msg))
+        await send_encrypted(websocket, json.dumps(error_msg), aes_key)
 
-async def handle_video_state(websocket, data):
+async def handle_video_state(websocket, data, aes_key):
     """
     Forward video state updates between caller and target.
-    Data should contain "from" and "target" with "video" boolean.
+    Encrypts the message using the target's AES key if available.
     """
     sender = data.get("from")
     target = data.get("target")
@@ -119,17 +137,21 @@ async def handle_video_state(websocket, data):
     
     if target in clients:
         target_ws = clients[target]["ws"]
+        target_aes_key = clients[target].get("aes_key")
+        if not target_aes_key:
+            logging.warning(f"No AES key found for target {target}; falling back to sender's key.")
+            target_aes_key = aes_key
         state_msg = {
             "type": "video_state",
             "success": True,
             "from": sender,
             "video": video_state
         }
-        await target_ws.send(json.dumps(state_msg))
+        await send_encrypted(target_ws, json.dumps(state_msg), target_aes_key)
     else:
         error_msg = {
             "type": "video_state",
             "success": False,
             "message": f"{target} not connected."
         }
-        await websocket.send(json.dumps(error_msg))
+        await send_encrypted(websocket, json.dumps(error_msg), aes_key)

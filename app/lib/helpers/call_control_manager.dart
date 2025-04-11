@@ -27,7 +27,7 @@ class CallControlManager {
   // Send a call invitation.
   void sendCallInvite(LipCUser remoteUser) {
     print("Sending call invite to ${remoteUser.username}");
-    serverHelper.sendRawMessage({
+    serverHelper.sendEncryptedMessage({
       "type": "call_invite",
       "from": localUser.userId,
       "target": remoteUser.userId,
@@ -64,7 +64,7 @@ class CallControlManager {
   // Send a call acceptance.
   void sendCallAccept(Map<String, dynamic> data) {
     print("Sending call accept to ${data["from"]}");
-    serverHelper.sendRawMessage({
+    serverHelper.sendEncryptedMessage({
       "type": "call_accept",
       "from": localUser.userId,
       "target": data["from"],
@@ -74,7 +74,7 @@ class CallControlManager {
   // Send a call rejection.
   void sendCallReject(Map<String, dynamic> data) {
     print("Sending call reject to ${data["from"]}");
-    serverHelper.sendRawMessage({
+    serverHelper.sendEncryptedMessage({
       "type": "call_reject",
       "from": localUser.userId,
       "target": data["from"],
@@ -105,7 +105,7 @@ class CallControlManager {
 
   void sendCallEnd(String targetUserId) {
     print("Sending call end to $targetUserId");
-    serverHelper.sendRawMessage({
+    serverHelper.sendEncryptedMessage({
       "type": "call_end",
       "from": localUser.userId,
       "target": targetUserId,

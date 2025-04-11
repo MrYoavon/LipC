@@ -15,7 +15,7 @@ class CallHistoryService {
       'user_id': userId,
       'limit': limit,
     };
-    serverHelper.sendRawMessage(request);
+    serverHelper.sendEncryptedMessage(request);
   }
 
   Stream<List<CallHistoryEntry>> get callHistoryStream {

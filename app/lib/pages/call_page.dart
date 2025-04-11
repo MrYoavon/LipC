@@ -149,7 +149,7 @@ class _CallPageState extends State<CallPage> {
               onEndCall: () {
                 // 1. Send call end message to the server.
                 widget.videoCallManager.remoteUser?.userId != null
-                    ? widget.serverHelper.sendRawMessage({
+                    ? widget.serverHelper.sendEncryptedMessage({
                         "type": "call_end",
                         "from": widget.localUser.userId,
                         "target": widget.remoteUser.userId,

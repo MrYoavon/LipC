@@ -5,39 +5,25 @@ import os
 from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription
 import cv2
 
-# from mpc001.pipelines.pipeline import InferencePipeline
 from services.state import clients  # clients is assumed to be a dict holding websocket and peer connection info
-# from .lip_reader import LipReadingPipeline
-# from .mouth_detection import MouthDetector
-
+from services.crypto_utils import send_encrypted  # Import the helper to encrypt outgoing messages
 
 class WebRTCServer:
     """
     Encapsulates a server-side WebRTC connection.
     Creates an RTCPeerConnection, registers event handlers, and manages the SDP offer/answer exchange.
     """
-    def __init__(self, websocket, sender):
+    def __init__(self, websocket, sender, aes_key):
         self.websocket = websocket
         self.sender = sender
+        self.aes_key = aes_key
         self.pc = RTCPeerConnection()
         # Store the connection for later ICE/answer handling.
         clients[sender]["pc"] = self.pc
 
         # Register event handlers
         self.pc.on("track", self.on_track)
-        # self.pc.on("icecandidate", self.on_icecandidate)  # ICE trickle isn't implemented as of the time of writing in aiortc.
-
-        # # Initialize the lip reading pipeline (update the model_path as needed).
-        # print(f"Does model exist? {os.path.exists('models/final_model.keras')}")
-        # self.pipeline = LipReadingPipeline(model_path="models/cp-0029.keras")
-
-        # self.detector = MouthDetector()
-
-        # self.pipeline = InferencePipeline(
-        #     config_filename="mpc001/configs/LRS3_V_WER19.1.ini",
-        #     detector="mediapipe",
-        #     face_track=True,
-        # )
+        # self.pc.on("icecandidate", self.on_icecandidate)  # ICE trickle isn't implemented in aiortc by default.
 
     async def on_track(self, track):
         logging.info(f"Received {track.kind} track from {self.sender}")
@@ -45,41 +31,15 @@ class WebRTCServer:
 
         if track.kind == "video":
             logging.info(f"Received a video track from {self.sender}")
-            # frame_buffer = []         # Buffer to accumulate frames.
-            # buffer_size = 30          # Adjust this to the number of frames you want per inference run.
-            # # try:
-            # while True:
-            #     # Receive a frame from the video track.
-            #     frame = await track.recv()
-            #     img = frame.to_ndarray(format="bgr24")
-            #     frame_buffer.append(img)
-
-            #     # Once we've accumulated enough frames, run inference.
-            #     if len(frame_buffer) >= buffer_size:
-            #         # Offload inference to a thread so as not to block the event loop.
-            #         # forward_buffer() is the custom method that processes the list of frames.
-            #         prediction = await asyncio.to_thread(self.pipeline.forward_buffer, frame_buffer)
-            #         if prediction is not None:
-            #             logging.info(f"Model Prediction: {prediction}")
-            #             # Here you can send the prediction back to the client or process it further.
-            #         else:
-            #             logging.debug("Insufficient data for a complete prediction, accumulating frames...")
-            #         # Clear the buffer (or implement a sliding window if desired).
-            #         frame_buffer = []
-
-            #     # Yield control to the event loop.
-            #     await asyncio.sleep(0)
-            # # except Exception as e:
-            # #     logging.error(f"Error processing video track from {self.sender}: {e}")
+            # Video handling/inference code could go here.
         elif track.kind == "audio":
             logging.info(f"Received an audio track from {self.sender}")
-            
+            # Audio handling code could go here.
 
     async def on_icecandidate(self, candidate):
         if candidate is None:
             logging.info(f"No more ICE candidates for {self.sender}")
         else:
-            print(f"ICE CANDIDATE GENERATED: {candidate}")
             candidate_payload = {
                 "candidate": candidate.candidate,
                 "sdpMid": candidate.sdpMid,
@@ -92,7 +52,7 @@ class WebRTCServer:
                 "payload": candidate_payload,
             }
             logging.info(f"Sending ICE candidate to {self.sender} | {candidate_payload}")
-            await self.websocket.send(json.dumps(message))
+            await send_encrypted(self.websocket, json.dumps(message), self.aes_key)
 
     async def handle_offer(self, offer_data):
         """
@@ -107,7 +67,7 @@ class WebRTCServer:
 
         answer = await self.pc.createAnswer()
         await self.pc.setLocalDescription(answer)
-        print(f"ANSWER GENERATED: {answer}")
+        logging.info(f"ANSWER GENERATED: {answer}")
 
         return {
             "type": "answer",
@@ -138,9 +98,9 @@ class WebRTCServer:
         return "\r\n".join(filtered_lines) + "\r\n"
 
 
-# Message handling functions
+# ----- Message handling functions follow. These are called by the main handler -----
 
-async def handle_offer(websocket, data):
+async def handle_offer(websocket, data, aes_key):
     """
     Handle an SDP offer from a client.
     Data should include "from", "target", and "payload" (the SDP).
@@ -150,21 +110,22 @@ async def handle_offer(websocket, data):
     logging.info(f"Received offer from {sender} to {target}")
 
     if target == "server":
-        await handle_server_offer(websocket, data)
+        await handle_server_offer(websocket, data, aes_key)
         return
 
     if sender not in clients:
-        await websocket.send(json.dumps({
+        await send_encrypted(websocket, json.dumps({
             "type": "error",
             "message": "Sender not authenticated."
-        }))
+        }), aes_key)
         return
 
-    # Relay offer to the target client
-    target_websocket = clients[target]["ws"]
-    await target_websocket.send(json.dumps(data))
+    target_ws = clients[target]["ws"]
+    target_aes_key = clients[target].get("aes_key", aes_key)
+    await send_encrypted(target_ws, json.dumps(data), target_aes_key)
 
-async def handle_answer(websocket, data):
+
+async def handle_answer(websocket, data, aes_key):
     """
     Handle an SDP answer from a client.
     """
@@ -173,20 +134,22 @@ async def handle_answer(websocket, data):
     logging.info(f"Relaying answer from {sender} to {target}")
 
     if target == "server":
-        await handle_server_answer(websocket, data)
+        await handle_server_answer(websocket, data, aes_key)
         return
 
     if target not in clients:
-        await websocket.send(json.dumps({
+        await send_encrypted(websocket, json.dumps({
             "type": "error",
             "message": "Target not connected."
-        }))
+        }), aes_key)
         return
 
-    target_websocket = clients[target]["ws"]
-    await target_websocket.send(json.dumps(data))
+    target_ws = clients[target]["ws"]
+    target_aes_key = clients[target].get("aes_key", aes_key)
+    await send_encrypted(target_ws, json.dumps(data), target_aes_key)
 
-async def handle_ice_candidate(websocket, data):
+
+async def handle_ice_candidate(websocket, data, aes_key):
     """
     Handle an ICE candidate from a client.
     """
@@ -195,20 +158,22 @@ async def handle_ice_candidate(websocket, data):
     logging.info(f"Relaying ICE candidate from {sender} to {target}")
 
     if target == "server":
-        await handle_server_ice_candidate(websocket, data)
+        await handle_server_ice_candidate(websocket, data, aes_key)
         return
 
     if target not in clients:
-        await websocket.send(json.dumps({
+        await send_encrypted(websocket, json.dumps({
             "type": "error",
             "message": "Target not connected."
-        }))
+        }), aes_key)
         return
 
-    target_websocket = clients[target]["ws"]
-    await target_websocket.send(json.dumps(data))
+    target_ws = clients[target]["ws"]
+    target_aes_key = clients[target].get("aes_key", aes_key)
+    await send_encrypted(target_ws, json.dumps(data), target_aes_key)
 
-async def handle_server_offer(websocket, data):
+
+async def handle_server_offer(websocket, data, aes_key):
     """
     Handle an SDP offer from a client that is intended for the server.
     """
@@ -216,12 +181,13 @@ async def handle_server_offer(websocket, data):
     offer_data = data.get("payload")
     logging.info(f"Handling server offer from {sender}")
 
-    server_connection = WebRTCServer(websocket, sender)
+    server_connection = WebRTCServer(websocket, sender, aes_key)
     response = await server_connection.handle_offer(offer_data)
-    await websocket.send(json.dumps(response))
+    await send_encrypted(websocket, json.dumps(response), aes_key)
     logging.info(f"Server sent answer to {sender}")
 
-async def handle_server_answer(websocket, data):
+
+async def handle_server_answer(websocket, data, aes_key):
     """
     Handle an SDP answer from a client for a server-initiated connection.
     """
@@ -230,17 +196,18 @@ async def handle_server_answer(websocket, data):
     logging.info(f"Handling server answer from {sender}")
 
     if sender not in clients or "pc" not in clients[sender]:
-        await websocket.send(json.dumps({
+        await send_encrypted(websocket, json.dumps({
             "type": "error",
             "message": "No active server connection for sender."
-        }))
+        }), aes_key)
         return
 
     pc = clients[sender]["pc"]
     answer = RTCSessionDescription(sdp=answer_data["sdp"], type=answer_data["type"])
     await pc.setRemoteDescription(answer)
 
-async def handle_server_ice_candidate(websocket, data):
+
+async def handle_server_ice_candidate(websocket, data, aes_key):
     """
     Handle an ICE candidate intended for the server's peer connection.
     """
@@ -249,10 +216,10 @@ async def handle_server_ice_candidate(websocket, data):
     logging.info(f"Handling server ICE candidate from {sender}")
 
     if sender not in clients or "pc" not in clients[sender]:
-        await websocket.send(json.dumps({
+        await send_encrypted(websocket, json.dumps({
             "type": "error",
             "message": "No active server connection for sender."
-        }))
+        }), aes_key)
         return
 
     pc = clients[sender]["pc"]
@@ -267,13 +234,11 @@ async def handle_server_ice_candidate(websocket, data):
         port=candidate_data["port"],
         type=candidate_data["type"],
         tcpType=candidate_data["tcpType"],
-        # generation=candidate_data["generation"],
-        # ufrag=candidate_data["ufrag"],
-        # network_id=candidate_data["network_id"],
         sdpMid=candidate_dict.get("sdpMid"),
         sdpMLineIndex=candidate_dict.get("sdpMLineIndex"),
     )
     await pc.addIceCandidate(candidate)
+
 
 def parse_candidate(candidate_str):
     candidate_parts = candidate_str.split()
@@ -285,7 +250,7 @@ def parse_candidate(candidate_str):
         "priority": int(candidate_parts[3]),
         "ip": candidate_parts[4],
         "port": int(candidate_parts[5]),
-        "type": None,  # To be set later
+        "type": None,
         "tcpType": None,
         "generation": None,
         "ufrag": None,
