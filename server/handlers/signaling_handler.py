@@ -5,8 +5,9 @@ import os
 from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription
 import cv2
 
-from services.state import clients  # clients is assumed to be a dict holding websocket and peer connection info
-from services.crypto_utils import send_encrypted  # Import the helper to encrypt outgoing messages
+from services.state import clients
+from services.crypto_utils import send_encrypted
+
 
 class WebRTCServer:
     """
@@ -23,7 +24,6 @@ class WebRTCServer:
 
         # Register event handlers
         self.pc.on("track", self.on_track)
-        # self.pc.on("icecandidate", self.on_icecandidate)  # ICE trickle isn't implemented in aiortc by default.
 
     async def on_track(self, track):
         logging.info(f"Received {track.kind} track from {self.sender}")
@@ -35,24 +35,6 @@ class WebRTCServer:
         elif track.kind == "audio":
             logging.info(f"Received an audio track from {self.sender}")
             # Audio handling code could go here.
-
-    async def on_icecandidate(self, candidate):
-        if candidate is None:
-            logging.info(f"No more ICE candidates for {self.sender}")
-        else:
-            candidate_payload = {
-                "candidate": candidate.candidate,
-                "sdpMid": candidate.sdpMid,
-                "sdpMLineIndex": candidate.sdpMLineIndex,
-            }
-            message = {
-                "type": "ice_candidate",
-                "from": "server",
-                "target": self.sender,
-                "payload": candidate_payload,
-            }
-            logging.info(f"Sending ICE candidate to {self.sender} | {candidate_payload}")
-            await send_encrypted(self.websocket, json.dumps(message), self.aes_key)
 
     async def handle_offer(self, offer_data):
         """
