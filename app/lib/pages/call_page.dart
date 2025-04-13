@@ -92,11 +92,7 @@ class _CallPageState extends State<CallPage> {
       );
     } else {
       // Build initials from the remote user's name.
-      String initials = widget.remoteUser.name
-          .split(' ')
-          .map((e) => e.isNotEmpty ? e[0] : '')
-          .take(2)
-          .join();
+      String initials = widget.remoteUser.name.split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join();
       return CircleAvatar(
         radius: 50,
         backgroundColor: Colors.blue,
@@ -149,11 +145,13 @@ class _CallPageState extends State<CallPage> {
               onEndCall: () {
                 // 1. Send call end message to the server.
                 widget.videoCallManager.remoteUser?.userId != null
-                    ? widget.serverHelper.sendEncryptedMessage({
-                        "type": "call_end",
-                        "from": widget.localUser.userId,
-                        "target": widget.remoteUser.userId,
-                      })
+                    ? widget.serverHelper.sendMessage(
+                        msgType: "call_end",
+                        payload: {
+                          "from": widget.localUser.userId,
+                          "target": widget.remoteUser.userId,
+                        },
+                      )
                     : null;
 
                 // 2. End the call.

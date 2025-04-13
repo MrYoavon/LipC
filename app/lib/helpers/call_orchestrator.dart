@@ -41,8 +41,9 @@ class CallOrchestrator {
       localUser: localUser,
       contacts: contacts,
       onCallAccepted: (data) async {
+        final payload = data["payload"];
         remoteUser = contacts.firstWhereOrNull(
-          (contact) => contact.userId == data["from"],
+          (contact) => contact.userId == payload["from"],
         );
         if (remoteUser == null) {
           print("CallOrchestrator: Remote user not found in contacts.");
@@ -79,8 +80,9 @@ class CallOrchestrator {
       final data = jsonDecode(message);
       print(data);
 
-      final String messageType = data["type"];
-      final String messageFrom = data["from"] ?? "";
+      final String messageType = data["msg_type"];
+      final payload = data["payload"];
+      final String messageFrom = payload["from"] ?? "";
 
       switch (messageType) {
         case "call_invite":
@@ -102,10 +104,8 @@ class CallOrchestrator {
           await videoCallManager?.setupCallEnvironment(ConnectionTarget.peer);
           await videoCallManager?.setupCallEnvironment(ConnectionTarget.server);
 
-          await videoCallManager?.negotiateCall(ConnectionTarget.peer,
-              isCaller: true);
-          await videoCallManager?.negotiateCall(ConnectionTarget.server,
-              isCaller: true);
+          await videoCallManager?.negotiateCall(ConnectionTarget.peer, isCaller: true);
+          await videoCallManager?.negotiateCall(ConnectionTarget.server, isCaller: true);
 
           break;
         case "call_reject":
@@ -115,13 +115,11 @@ class CallOrchestrator {
         case "video_state":
           // Handle video state changes.
           if (!data["success"]) {
-            print(
-                "CallOrchestrator: Failed to update video state for $messageFrom because: ${data["reason"]}");
+            print("CallOrchestrator: Failed to update video state for $messageFrom because: ${data["error_message"]}");
           } else {
             // Handle the video status update.
-            bool isVideoOn = data["video"];
-            print(
-                "CallOrchestrator: Received video state ($isVideoOn) from $messageFrom");
+            bool isVideoOn = payload["video"];
+            print("CallOrchestrator: Received video state ($isVideoOn) from $messageFrom");
             videoCallManager?.updateRemoteVideoStatus(isVideoOn);
           }
           break;
@@ -134,36 +132,29 @@ class CallOrchestrator {
           print("CallOrchestrator: Received ICE candidate from $messageFrom");
           // Route ICE candidates based on target.
           if (messageFrom == "server") {
-            await videoCallManager?.onReceiveIceCandidate(
-                ConnectionTarget.server, data["payload"]);
+            await videoCallManager?.onReceiveIceCandidate(ConnectionTarget.server, data["payload"]["candidate"]);
           } else {
-            await videoCallManager?.onReceiveIceCandidate(
-                ConnectionTarget.peer, data["payload"]);
+            await videoCallManager?.onReceiveIceCandidate(ConnectionTarget.peer, data["payload"]["candidate"]);
           }
           break;
         case "offer":
           print("CallOrchestrator: Received offer from $messageFrom");
           // Handle SDP offers.
           if (messageFrom == "server") {
-            await videoCallManager?.onReceiveOffer(
-                ConnectionTarget.server, data["payload"]);
+            await videoCallManager?.onReceiveOffer(ConnectionTarget.server, data["payload"]["offer"]);
           } else {
-            await videoCallManager?.onReceiveOffer(
-                ConnectionTarget.peer, data["payload"]);
+            await videoCallManager?.onReceiveOffer(ConnectionTarget.peer, data["payload"]["offer"]);
             // We need to initiate a call with the server ourselves.
-            await videoCallManager?.negotiateCall(ConnectionTarget.server,
-                isCaller: true);
+            await videoCallManager?.negotiateCall(ConnectionTarget.server, isCaller: true);
           }
           break;
         case "answer":
           print("CallOrchestrator: Received answer from $messageFrom");
           // Handle SDP answers.
           if (messageFrom == "server") {
-            await videoCallManager?.onReceiveAnswer(
-                ConnectionTarget.server, data["payload"]);
+            await videoCallManager?.onReceiveAnswer(ConnectionTarget.server, data["payload"]["answer"]);
           } else {
-            await videoCallManager?.onReceiveAnswer(
-                ConnectionTarget.peer, data["payload"]);
+            await videoCallManager?.onReceiveAnswer(ConnectionTarget.peer, data["payload"]["answer"]);
           }
           break;
         default:

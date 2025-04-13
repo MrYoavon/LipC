@@ -27,19 +27,41 @@ class CallControlManager {
   // Send a call invitation.
   void sendCallInvite(LipCUser remoteUser) {
     print("Sending call invite to ${remoteUser.username}");
-    serverHelper.sendEncryptedMessage({
-      "type": "call_invite",
-      "from": localUser.userId,
-      "target": remoteUser.userId,
-    });
+    serverHelper.sendMessage(
+      msgType: "call_invite",
+      payload: {
+        "from": localUser.userId,
+        "target": remoteUser.userId,
+      },
+    );
   }
 
   // Callback for incoming call invites.
   void onCallInvite(Map<String, dynamic> data) {
-    print("Received call invite from ${data["from"]}");
+    if (data["success"] == false) {
+      print("Call invite failed: ${data["error_code"]} | ${data["error_message"]}");
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Call invite failed: ${data["error_message"]}"),
+          backgroundColor: AppColors.accent,
+          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      );
+      return;
+    }
+
+    final payload = data["payload"];
+    final String invitingUserId = payload["from"];
+    print("Received call invite from $invitingUserId");
 
     // Find the remote user in the contacts list.
-    final LipCUser? remoteUser = findContact(data["from"]);
+    final LipCUser? remoteUser = findContact(invitingUserId);
 
     // Navigate to the IncomingCallScreen instead of showing a dialog.
     Navigator.push(
@@ -63,32 +85,41 @@ class CallControlManager {
 
   // Send a call acceptance.
   void sendCallAccept(Map<String, dynamic> data) {
-    print("Sending call accept to ${data["from"]}");
-    serverHelper.sendEncryptedMessage({
-      "type": "call_accept",
-      "from": localUser.userId,
-      "target": data["from"],
-    });
+    final payload = data["payload"];
+    final String invitingUserId = payload["from"];
+    print("Sending call accept to $invitingUserId");
+    serverHelper.sendMessage(
+      msgType: "call_accept",
+      payload: {
+        "from": localUser.userId,
+        "target": invitingUserId,
+      },
+    );
   }
 
   // Send a call rejection.
   void sendCallReject(Map<String, dynamic> data) {
-    print("Sending call reject to ${data["from"]}");
-    serverHelper.sendEncryptedMessage({
-      "type": "call_reject",
-      "from": localUser.userId,
-      "target": data["from"],
-    });
+    final payload = data["payload"];
+    final String invitingUserId = payload["from"];
+    print("Sending call reject to $invitingUserId");
+    serverHelper.sendMessage(
+      msgType: "call_reject",
+      payload: {
+        "from": localUser.userId,
+        "target": invitingUserId,
+      },
+    );
   }
 
   void onCallReject(Map<String, dynamic> data) {
-    final LipCUser? callee = findContact(data["from"]);
+    final payload = data["payload"];
+    final LipCUser? callee = findContact(payload["from"]);
 
-    print("Call rejected by ${callee?.username ?? data["from"]}");
+    print("Call rejected by ${callee?.username ?? payload["from"]}"); // Display the userId if not found
     // Show a message to the user
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Call rejected by ${callee?.username ?? data["from"]}"),
+        content: Text("Call rejected by ${callee?.username ?? payload["from"]}"),
         backgroundColor: AppColors.accent,
         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         behavior: SnackBarBehavior.floating,
@@ -105,29 +136,31 @@ class CallControlManager {
 
   void sendCallEnd(String targetUserId) {
     print("Sending call end to $targetUserId");
-    serverHelper.sendEncryptedMessage({
-      "type": "call_end",
-      "from": localUser.userId,
-      "target": targetUserId,
-    });
+    serverHelper.sendMessage(
+      msgType: "call_end",
+      payload: {
+        "from": localUser.userId,
+        "target": targetUserId,
+      },
+    );
   }
 
   void onCallEnd(Map<String, dynamic> data) {
-    final LipCUser? disconnectingUser = findContact(data["from"]);
+    final payload = data["payload"];
+    final String disconnectingUserId = payload["from"];
+    final LipCUser? disconnectingUser = findContact(disconnectingUserId);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content:
-              Text("Call ended by ${disconnectingUser?.name ?? data["from"]}")),
+      SnackBar(content: Text("Call ended by ${disconnectingUser?.name ?? disconnectingUserId}")),
     );
     // If you are on the CallPage, pop it:
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
-  void navigateToCallPage(
-      Map<String, dynamic> data, VideoCallManager videoCallManager,
-      {bool isCaller = false}) {
-    print("Call established with ${data["from"]}");
+  void navigateToCallPage(Map<String, dynamic> data, VideoCallManager videoCallManager, {bool isCaller = false}) {
+    final payload = data["payload"];
+    final String callingUserId = payload["from"];
+    print("Call established with $callingUserId");
     // Pop out of the calling page if caller
     if (isCaller) {
       Navigator.pop(context);
@@ -139,7 +172,7 @@ class CallControlManager {
       MaterialPageRoute(
         builder: (context) => CallPage(
           localUser: localUser,
-          remoteUser: findContact(data["from"])!,
+          remoteUser: findContact(callingUserId)!,
           serverHelper: serverHelper,
           videoCallManager: videoCallManager,
         ),

@@ -69,16 +69,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       final serverHelper = ref.read(serverHelperProvider);
 
       // Await a map response with "success" and "user_id"
-      Map<String, dynamic> authResponse =
-          await serverHelper.authenticate(username, password);
+      Map<String, dynamic> authResponse = await serverHelper.authenticate(username, password);
       setState(() => _isLoading = false);
+      print("Auth Response: $authResponse");
 
       if (authResponse["success"] == true) {
+        final userId = authResponse["user_id"];
         final currentUser = LipCUser(
-            userId: authResponse["user_id"],
-            username: username,
-            name: authResponse["name"],
-            profilePic: authResponse["profile_pic"]);
+          userId: userId,
+          username: username,
+          name: authResponse["name"],
+          profilePic: authResponse["profile_pic"],
+        );
         ref.read(currentUserProvider.notifier).setUser(currentUser);
 
         // Load the contacts list for the current user
@@ -95,8 +97,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ..hideCurrentSnackBar()
           ..showSnackBar(
             SnackBar(
-              content: Text(
-                  authResponse["reason"] ?? "Invalid username or password"),
+              content: Text(authResponse["error_message"] ?? "Invalid username or password"),
               backgroundColor: Colors.red,
             ),
           );
@@ -114,8 +115,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           body: Center(
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -152,14 +152,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       decoration: InputDecoration(
                         labelText: "Username",
                         labelStyle: TextStyle(color: AppColors.textSecondary),
-                        prefixIcon:
-                            Icon(Icons.person, color: AppColors.textSecondary),
+                        prefixIcon: Icon(Icons.person, color: AppColors.textSecondary),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: AppColors.textSecondary, width: 2),
+                          borderSide: BorderSide(color: AppColors.textSecondary, width: 2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
@@ -177,13 +175,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       decoration: InputDecoration(
                         labelText: "Password",
                         labelStyle: TextStyle(color: AppColors.textSecondary),
-                        prefixIcon:
-                            Icon(Icons.lock, color: AppColors.textSecondary),
+                        prefixIcon: Icon(Icons.lock, color: AppColors.textSecondary),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
+                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
                             color: AppColors.textSecondary,
                           ),
                           onPressed: () {
@@ -196,8 +191,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: AppColors.accent, width: 2),
+                          borderSide: BorderSide(color: AppColors.accent, width: 2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
@@ -232,8 +226,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             elevation: 0,
                           ),
                           child: _isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white)
+                              ? const CircularProgressIndicator(color: Colors.white)
                               : const Text(
                                   "Login",
                                   style: TextStyle(
@@ -259,8 +252,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           onPressed: () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) => const RegisterPage()),
+                              MaterialPageRoute(builder: (context) => const RegisterPage()),
                             );
                           },
                           child: const Text("Sign Up"),

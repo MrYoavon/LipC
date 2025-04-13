@@ -65,7 +65,7 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
       } else {
         state = state.copyWith(
           isLoading: false,
-          errorMessage: response["reason"] ?? "Failed to add contact",
+          errorMessage: response["error_message"] ?? "Failed to add contact",
         );
       }
     } catch (e) {
@@ -77,8 +77,7 @@ class ContactsNotifier extends StateNotifier<ContactsState> {
   }
 }
 
-final contactsProvider = StateNotifierProvider.autoDispose
-    .family<ContactsNotifier, ContactsState, String>(
+final contactsProvider = StateNotifierProvider.family<ContactsNotifier, ContactsState, String>(
   (ref, userId) {
     final serverHelper = ref.watch(serverHelperProvider);
 

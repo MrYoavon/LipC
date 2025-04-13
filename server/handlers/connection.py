@@ -9,7 +9,7 @@ import time
 import traceback
 
 from services.state import clients
-from handlers.auth_handler import handle_authentication, handle_signup
+from handlers.auth_handler import handle_authentication, handle_signup, handle_token_refresh
 from handlers.contacts_handler import handle_get_contacts, handle_add_contact
 from handlers.call_handler import (
     handle_call_invite, handle_call_accept, handle_call_reject,
@@ -38,12 +38,14 @@ async def dispatch_message_encrypted(websocket, data, aes_key):
     try:
         logging.info(f"Dispatching message: {data}")
         # Retrieve the message type from the data.
-        message_type = data.get("type")
+        message_type = data.get("msg_type")
         # Based on message type, call the associated handler.
         if message_type == "authenticate":
             await handle_authentication(websocket, data, aes_key)
         elif message_type == "signup":
             await handle_signup(websocket, data, aes_key)
+        elif message_type == "refresh_token":
+            await handle_token_refresh(websocket, data, aes_key)
         elif message_type == "get_contacts":
             await handle_get_contacts(websocket, data, aes_key)
         elif message_type == "add_contact":
@@ -109,9 +111,11 @@ async def handle_connection(websocket):
 
         # 2. Prepare the handshake message to share the public key and salt with the client.
         handshake_message = json.dumps({
-            "type": "handshake",
-            "server_public_key": server_pub_serialized,
-            "salt": salt
+            "msg_type": "handshake",
+            "payload" : {
+                "server_public_key": server_pub_serialized,
+                "salt": salt,
+            }
         })
         # Send the handshake message over the WebSocket connection.
         await websocket.send(handshake_message)
@@ -120,14 +124,15 @@ async def handle_connection(websocket):
         # 3. Wait for the client's handshake response.
         client_handshake = await websocket.recv()
         handshake_data = json.loads(client_handshake)
+        handshake_payload = handshake_data.get("payload")
         # Validate that the handshake response contains the required fields.
-        if handshake_data.get("type") != "handshake" or "client_public_key" not in handshake_data:
+        if handshake_data.get("msg_type") != "handshake" or "client_public_key" not in handshake_payload:
             await websocket.send(json.dumps({"error": "Invalid handshake response"}))
             logging.error("Invalid handshake response received.")
             return
         
         # Deserialize the client's public key from its base64 encoded string.
-        client_pub_serialized = base64.b64decode(handshake_data["client_public_key"])
+        client_pub_serialized = base64.b64decode(handshake_payload["client_public_key"])
         client_public = deserialize_public_key(client_pub_serialized)
 
         # 4. Compute the shared secret using the server's private key and client's public key,
@@ -167,9 +172,9 @@ async def handle_connection(websocket):
                 continue
 
             # Process heartbeat pings to update the last_ping timestamp.
-            if data.get("type") == "ping":
+            if data.get("msg_type") == "ping":
                 last_ping = time.time()
-                await send_encrypted(websocket, json.dumps({"type": "pong"}), aes_key)
+                await send_encrypted(websocket, json.dumps({"msg_type": "pong"}), aes_key)
             else:
                 # For all other message types, dispatch to the appropriate handler.
                 await dispatch_message_encrypted(websocket, data, aes_key)

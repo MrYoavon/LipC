@@ -6,7 +6,8 @@ from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription
 import cv2
 
 from services.state import clients
-from services.crypto_utils import send_encrypted
+from services.crypto_utils import structure_encrypt_send_message
+from services.jwt_utils import verify_jwt_in_message
 
 
 class WebRTCServer:
@@ -14,6 +15,7 @@ class WebRTCServer:
     Encapsulates a server-side WebRTC connection.
     Creates an RTCPeerConnection, registers event handlers, and manages the SDP offer/answer exchange.
     """
+
     def __init__(self, websocket, sender, aes_key):
         self.websocket = websocket
         self.sender = sender
@@ -27,7 +29,8 @@ class WebRTCServer:
 
     async def on_track(self, track):
         logging.info(f"Received {track.kind} track from {self.sender}")
-        track.onended = lambda: logging.info(f"{track.kind} track from {self.sender} ended")
+        track.onended = lambda: logging.info(
+            f"{track.kind} track from {self.sender} ended")
 
         if track.kind == "video":
             logging.info(f"Received a video track from {self.sender}")
@@ -52,10 +55,9 @@ class WebRTCServer:
         logging.info(f"ANSWER GENERATED: {answer}")
 
         return {
-            "type": "answer",
             "from": "server",
             "target": self.sender,
-            "payload": {
+            "answer": {
                 "sdp": answer.sdp,
                 "type": answer.type,
             },
@@ -71,7 +73,7 @@ class WebRTCServer:
                 rtx_payloads.add(payload_type)
                 continue
             filtered_lines.append(line)
-        
+
         # Remove fmtp and rtcp-fb lines related to RTX payloads
         filtered_lines = [
             line for line in filtered_lines
@@ -85,10 +87,27 @@ class WebRTCServer:
 async def handle_offer(websocket, data, aes_key):
     """
     Handle an SDP offer from a client.
-    Data should include "from", "target", and "payload" (the SDP).
+    Data should include "from", "target", and "offer" inside the payload.
     """
-    sender = data.get("from")
-    target = data.get("target")
+    user_id = data.get("user_id")
+    payload = data.get("payload")
+    sender = payload.get("from")
+    target = payload.get("target")
+
+    # Verify JWT for the sender.
+    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    if not valid:
+        logging.warning(f"Invalid JWT for sender {sender}: {result}")
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="offer",
+            success=False,
+            error_code=result.get("error", "INVALID_JWT"),
+            error_message=result.get("message", "JWT verification failed.")
+        )
+        return
+
     logging.info(f"Received offer from {sender} to {target}")
 
     if target == "server":
@@ -96,23 +115,62 @@ async def handle_offer(websocket, data, aes_key):
         return
 
     if sender not in clients:
-        await send_encrypted(websocket, json.dumps({
-            "type": "error",
-            "message": "Sender not authenticated."
-        }), aes_key)
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="offer",
+            success=False,
+            error_code="SENDER_NOT_AUTHENTICATED",
+            error_message="Sender not authenticated."
+        )
+        return
+
+    # Relay offer to the target.
+    if target not in clients:
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="offer",
+            success=False,
+            error_code="TARGET_NOT_CONNECTED",
+            error_message="Target not connected."
+        )
         return
 
     target_ws = clients[target]["ws"]
     target_aes_key = clients[target].get("aes_key", aes_key)
-    await send_encrypted(target_ws, json.dumps(data), target_aes_key)
+    await structure_encrypt_send_message(
+        websocket=target_ws,
+        aes_key=target_aes_key,
+        msg_type="offer",
+        success=True,
+        payload=payload
+    )
 
 
 async def handle_answer(websocket, data, aes_key):
     """
     Handle an SDP answer from a client.
     """
-    sender = data.get("from")
-    target = data.get("target")
+    user_id = data.get("user_id")
+    payload = data.get("payload")
+    sender = payload.get("from")
+    target = payload.get("target")
+
+    # Verify JWT for the sender.
+    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    if not valid:
+        logging.warning(f"Invalid JWT for sender {sender}: {result}")
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="answer",
+            success=False,
+            error_code=result.get("error", "INVALID_JWT"),
+            error_message=result.get("message", "JWT verification failed.")
+        )
+        return
+
     logging.info(f"Relaying answer from {sender} to {target}")
 
     if target == "server":
@@ -120,23 +178,50 @@ async def handle_answer(websocket, data, aes_key):
         return
 
     if target not in clients:
-        await send_encrypted(websocket, json.dumps({
-            "type": "error",
-            "message": "Target not connected."
-        }), aes_key)
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="answer",
+            success=False,
+            error_code="TARGET_NOT_CONNECTED",
+            error_message="Target not connected."
+        )
         return
 
     target_ws = clients[target]["ws"]
     target_aes_key = clients[target].get("aes_key", aes_key)
-    await send_encrypted(target_ws, json.dumps(data), target_aes_key)
+    await structure_encrypt_send_message(
+        websocket=target_ws,
+        aes_key=target_aes_key,
+        msg_type="answer",
+        success=True,
+        payload=payload
+    )
 
 
 async def handle_ice_candidate(websocket, data, aes_key):
     """
     Handle an ICE candidate from a client.
     """
-    sender = data.get("from")
-    target = data.get("target")
+    user_id = data.get("user_id")
+    payload = data.get("payload")
+    sender = payload.get("from")
+    target = payload.get("target")
+
+    # Verify JWT for the sender.
+    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    if not valid:
+        logging.warning(f"Invalid JWT for sender {sender}: {result}")
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="ice_candidate",
+            success=False,
+            error_code=result.get("error", "INVALID_JWT"),
+            error_message=result.get("message", "JWT verification failed.")
+        )
+        return
+
     logging.info(f"Relaying ICE candidate from {sender} to {target}")
 
     if target == "server":
@@ -144,28 +229,61 @@ async def handle_ice_candidate(websocket, data, aes_key):
         return
 
     if target not in clients:
-        await send_encrypted(websocket, json.dumps({
-            "type": "error",
-            "message": "Target not connected."
-        }), aes_key)
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="ice_candidate",
+            success=False,
+            error_code="TARGET_NOT_CONNECTED",
+            error_message="Target not connected."
+        )
         return
 
     target_ws = clients[target]["ws"]
     target_aes_key = clients[target].get("aes_key", aes_key)
-    await send_encrypted(target_ws, json.dumps(data), target_aes_key)
+    await structure_encrypt_send_message(
+        websocket=target_ws,
+        aes_key=target_aes_key,
+        msg_type="ice_candidate",
+        success=True,
+        payload=payload
+    )
 
 
 async def handle_server_offer(websocket, data, aes_key):
     """
     Handle an SDP offer from a client that is intended for the server.
     """
-    sender = data.get("from")
-    offer_data = data.get("payload")
+    user_id = data.get("user_id")
+    payload = data.get("payload")
+    sender = payload.get("from")
+    offer_data = payload.get("offer")
+
+    # Verify JWT for the sender.
+    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    if not valid:
+        logging.warning(f"Invalid JWT for sender {sender}: {result}")
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="server_offer",
+            success=False,
+            error_code=result.get("error", "INVALID_JWT"),
+            error_message=result.get("message", "JWT verification failed.")
+        )
+        return
+
     logging.info(f"Handling server offer from {sender}")
 
     server_connection = WebRTCServer(websocket, sender, aes_key)
     response = await server_connection.handle_offer(offer_data)
-    await send_encrypted(websocket, json.dumps(response), aes_key)
+    await structure_encrypt_send_message(
+        websocket,
+        aes_key,
+        msg_type="answer",
+        success=True,
+        payload=response
+    )
     logging.info(f"Server sent answer to {sender}")
 
 
@@ -173,19 +291,41 @@ async def handle_server_answer(websocket, data, aes_key):
     """
     Handle an SDP answer from a client for a server-initiated connection.
     """
-    sender = data.get("from")
-    answer_data = data.get("payload")
+    user_id = data.get("user_id")
+    payload = data.get("payload")
+    sender = payload.get("from")
+    answer_data = payload.get("answer")
+
+    # Verify JWT for the sender.
+    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    if not valid:
+        logging.warning(f"Invalid JWT for sender {sender}: {result}")
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="answer",
+            success=False,
+            error_code=result.get("error", "INVALID_JWT"),
+            error_message=result.get("message", "JWT verification failed.")
+        )
+        return
+
     logging.info(f"Handling server answer from {sender}")
 
     if sender not in clients or "pc" not in clients[sender]:
-        await send_encrypted(websocket, json.dumps({
-            "type": "error",
-            "message": "No active server connection for sender."
-        }), aes_key)
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="answer",
+            success=False,
+            error_code="NO_ACTIVE_CONNECTION",
+            error_message="No active server connection for sender."
+        )
         return
 
     pc = clients[sender]["pc"]
-    answer = RTCSessionDescription(sdp=answer_data["sdp"], type=answer_data["type"])
+    answer = RTCSessionDescription(
+        sdp=answer_data["sdp"], type=answer_data["type"])
     await pc.setRemoteDescription(answer)
 
 
@@ -193,15 +333,36 @@ async def handle_server_ice_candidate(websocket, data, aes_key):
     """
     Handle an ICE candidate intended for the server's peer connection.
     """
-    sender = data.get("from")
-    candidate_dict = data.get("payload")
+    user_id = data.get("user_id")
+    payload = data.get("payload")
+    sender = payload.get("from")
+    candidate_dict = payload.get("candidate")
+
+    # Verify JWT for the sender.
+    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    if not valid:
+        logging.warning(f"Invalid JWT for sender {sender}: {result}")
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="ice_candidate",
+            success=False,
+            error_code=result.get("error", "INVALID_JWT"),
+            error_message=result.get("message", "JWT verification failed.")
+        )
+        return
+
     logging.info(f"Handling server ICE candidate from {sender}")
 
     if sender not in clients or "pc" not in clients[sender]:
-        await send_encrypted(websocket, json.dumps({
-            "type": "error",
-            "message": "No active server connection for sender."
-        }), aes_key)
+        await structure_encrypt_send_message(
+            websocket,
+            aes_key,
+            msg_type="ice_candidate",
+            success=False,
+            error_code="NO_ACTIVE_CONNECTION",
+            error_message="No active server connection for sender."
+        )
         return
 
     pc = clients[sender]["pc"]
@@ -224,7 +385,7 @@ async def handle_server_ice_candidate(websocket, data, aes_key):
 
 def parse_candidate(candidate_str):
     candidate_parts = candidate_str.split()
-    
+
     candidate_data = {
         "foundation": candidate_parts[0],
         "component": int(candidate_parts[1]),

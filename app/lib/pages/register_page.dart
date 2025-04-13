@@ -25,8 +25,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _profilePicController = TextEditingController();
 
   bool _isLoading = false;
@@ -102,8 +101,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       setState(() => _isLoading = true);
 
       // Await the registration response.
-      Map<String, dynamic> registrationResponse =
-          await serverHelper.register(username, password, fullName, profilePic);
+      Map<String, dynamic> registrationResponse = await serverHelper.register(username, password, fullName, profilePic);
       setState(() => _isLoading = false);
 
       if (registrationResponse["success"] == true) {
@@ -130,8 +128,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           ..showSnackBar(
             SnackBar(
               content: Text(
-                registrationResponse["reason"] ??
-                    "Registration failed. Username might be taken.",
+                registrationResponse["error_message"] ?? "Registration failed. Username might be taken.",
               ),
               backgroundColor: Colors.red,
             ),
@@ -186,21 +183,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             maxLength: 30,
                             decoration: InputDecoration(
                               labelText: "First Name",
-                              labelStyle:
-                                  TextStyle(color: AppColors.textSecondary),
-                              prefixIcon: Icon(Icons.person,
-                                  color: AppColors.textSecondary),
+                              labelStyle: TextStyle(color: AppColors.textSecondary),
+                              prefixIcon: Icon(Icons.person, color: AppColors.textSecondary),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: AppColors.textSecondary, width: 2),
+                                borderSide: BorderSide(color: AppColors.textSecondary, width: 2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            validator: (value) =>
-                                _validateName(value, "First name"),
+                            validator: (value) => _validateName(value, "First name"),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -210,21 +203,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             maxLength: 30,
                             decoration: InputDecoration(
                               labelText: "Last Name",
-                              labelStyle:
-                                  TextStyle(color: AppColors.textSecondary),
-                              prefixIcon: Icon(Icons.person_outline,
-                                  color: AppColors.textSecondary),
+                              labelStyle: TextStyle(color: AppColors.textSecondary),
+                              prefixIcon: Icon(Icons.person_outline, color: AppColors.textSecondary),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: AppColors.textSecondary, width: 2),
+                                borderSide: BorderSide(color: AppColors.textSecondary, width: 2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            validator: (value) =>
-                                _validateName(value, "Last name"),
+                            validator: (value) => _validateName(value, "Last name"),
                           ),
                         ),
                       ],
@@ -238,14 +227,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       decoration: InputDecoration(
                         labelText: "Username",
                         labelStyle: TextStyle(color: AppColors.textSecondary),
-                        prefixIcon: Icon(Icons.alternate_email,
-                            color: AppColors.textSecondary),
+                        prefixIcon: Icon(Icons.alternate_email, color: AppColors.textSecondary),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: AppColors.textSecondary, width: 2),
+                          borderSide: BorderSide(color: AppColors.textSecondary, width: 2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
@@ -261,13 +248,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       decoration: InputDecoration(
                         labelText: "Password",
                         labelStyle: TextStyle(color: AppColors.textSecondary),
-                        prefixIcon:
-                            Icon(Icons.lock, color: AppColors.textSecondary),
+                        prefixIcon: Icon(Icons.lock, color: AppColors.textSecondary),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
+                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
                             color: AppColors.textSecondary,
                           ),
                           onPressed: () {
@@ -280,8 +264,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: AppColors.accent, width: 2),
+                          borderSide: BorderSide(color: AppColors.accent, width: 2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
@@ -297,19 +280,15 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       decoration: InputDecoration(
                         labelText: "Confirm Password",
                         labelStyle: TextStyle(color: AppColors.textSecondary),
-                        prefixIcon: Icon(Icons.lock_outline,
-                            color: AppColors.textSecondary),
+                        prefixIcon: Icon(Icons.lock_outline, color: AppColors.textSecondary),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _obscureConfirmPassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
+                            _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
                             color: AppColors.textSecondary,
                           ),
                           onPressed: () {
                             setState(() {
-                              _obscureConfirmPassword =
-                                  !_obscureConfirmPassword;
+                              _obscureConfirmPassword = !_obscureConfirmPassword;
                             });
                           },
                         ),
@@ -317,8 +296,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: AppColors.accent, width: 2),
+                          borderSide: BorderSide(color: AppColors.accent, width: 2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
@@ -403,8 +381,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           onPressed: () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LoginPage()),
+                              MaterialPageRoute(builder: (context) => const LoginPage()),
                             );
                           },
                           child: const Text("Login"),

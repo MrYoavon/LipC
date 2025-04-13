@@ -6,16 +6,16 @@ import 'server_helper.dart';
 class CallHistoryService {
   final ServerHelper serverHelper;
 
-  CallHistoryService({required ServerHelper serverHelper})
-      : this.serverHelper = serverHelper;
+  CallHistoryService({required this.serverHelper});
 
   void requestCallHistory(String userId, {int limit = 50}) {
-    final request = {
-      'type': 'fetch_call_history',
-      'user_id': userId,
-      'limit': limit,
-    };
-    serverHelper.sendEncryptedMessage(request);
+    serverHelper.sendMessage(
+      msgType: "fetch_call_history",
+      payload: {
+        'user_id': userId,
+        'limit': limit,
+      },
+    );
   }
 
   Stream<List<CallHistoryEntry>> get callHistoryStream {
