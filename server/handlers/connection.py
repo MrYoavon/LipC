@@ -16,7 +16,7 @@ from handlers.call_handler import (
     handle_call_end, handle_video_state
 )
 from handlers.signaling_handler import handle_offer, handle_answer, handle_ice_candidate
-from handlers.call_history_handler import handle_log_call, handle_fetch_call_history
+from handlers.call_history_handler import handle_fetch_call_history
 
 # Import crypto utilities for key generation, encryption, decryption, and AES key derivation.
 from services.crypto_utils import (
@@ -28,6 +28,7 @@ from services.crypto_utils import (
     send_encrypted,
     decrypt_message
 )
+
 
 async def dispatch_message_encrypted(websocket, data, aes_key):
     """
@@ -66,8 +67,6 @@ async def dispatch_message_encrypted(websocket, data, aes_key):
             await handle_answer(websocket, data, aes_key)
         elif message_type == "ice_candidate":
             await handle_ice_candidate(websocket, data, aes_key)
-        elif message_type == "log_call":
-            await handle_log_call(websocket, data, aes_key)
         elif message_type == "fetch_call_history":
             await handle_fetch_call_history(websocket, data, aes_key)
         else:
@@ -78,6 +77,7 @@ async def dispatch_message_encrypted(websocket, data, aes_key):
         # Log any error that occurs during the dispatch.
         logging.error("Error in dispatch: " + str(e))
         await send_encrypted(websocket, json.dumps({"error": "Dispatch error"}), aes_key)
+
 
 async def handle_connection(websocket):
     """
@@ -93,7 +93,8 @@ async def handle_connection(websocket):
             await asyncio.sleep(10)  # Check every 10 seconds.
             if time.time() - last_ping > 15:
                 # If no ping has been received in the last 15 seconds, close the connection.
-                logging.warning("No ping received from client in threshold; closing connection.")
+                logging.warning(
+                    "No ping received from client in threshold; closing connection.")
                 await websocket.close()
                 break
 
@@ -105,14 +106,15 @@ async def handle_connection(websocket):
         # 1. Generate server ephemeral key pair.
         server_private, server_public = generate_ephemeral_key()
         # Serialize the server's public key using base64-encoded format.
-        server_pub_serialized = base64.b64encode(serialize_public_key(server_public)).decode('utf-8')
+        server_pub_serialized = base64.b64encode(
+            serialize_public_key(server_public)).decode('utf-8')
         # Generate a unique salt (128-bit) for AES key derivation.
         salt = base64.b64encode(os.urandom(16)).decode('utf-8')
 
         # 2. Prepare the handshake message to share the public key and salt with the client.
         handshake_message = json.dumps({
             "msg_type": "handshake",
-            "payload" : {
+            "payload": {
                 "server_public_key": server_pub_serialized,
                 "salt": salt,
             }
@@ -130,9 +132,10 @@ async def handle_connection(websocket):
             await websocket.send(json.dumps({"error": "Invalid handshake response"}))
             logging.error("Invalid handshake response received.")
             return
-        
+
         # Deserialize the client's public key from its base64 encoded string.
-        client_pub_serialized = base64.b64decode(handshake_payload["client_public_key"])
+        client_pub_serialized = base64.b64decode(
+            handshake_payload["client_public_key"])
         client_public = deserialize_public_key(client_pub_serialized)
 
         # 4. Compute the shared secret using the server's private key and client's public key,
@@ -156,10 +159,12 @@ async def handle_connection(websocket):
                 # Check if the message contains encryption metadata.
                 if all(k in encrypted_payload for k in ("nonce", "ciphertext", "tag")):
                     nonce = base64.b64decode(encrypted_payload['nonce'])
-                    ciphertext = base64.b64decode(encrypted_payload['ciphertext'])
+                    ciphertext = base64.b64decode(
+                        encrypted_payload['ciphertext'])
                     tag = base64.b64decode(encrypted_payload['tag'])
                     # Decrypt the message using the derived AES key.
-                    decrypted_bytes = decrypt_message(aes_key, nonce, ciphertext, tag)
+                    decrypted_bytes = decrypt_message(
+                        aes_key, nonce, ciphertext, tag)
                     decrypted_text = decrypted_bytes.decode('utf-8')
                     data = json.loads(decrypted_text)
                 else:
@@ -185,6 +190,7 @@ async def handle_connection(websocket):
         # Cancel the heartbeat task and cleanup resources.
         heartbeat_task.cancel()
         await handle_disconnection(websocket)
+
 
 async def handle_disconnection(websocket):
     """

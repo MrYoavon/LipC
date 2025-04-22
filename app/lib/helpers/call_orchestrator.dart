@@ -4,8 +4,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../pages/outgoing_call_page.dart';
+import '../providers/subtitles_provider.dart';
 import 'server_helper.dart';
 import 'video_call_manager.dart';
 import 'call_control_manager.dart';
@@ -156,6 +158,12 @@ class CallOrchestrator {
           } else {
             await videoCallManager?.onReceiveAnswer(ConnectionTarget.peer, data["payload"]["answer"]);
           }
+          break;
+        case "lip_reading_prediction":
+          // Handle lip reading predictions.
+          print("CallOrchestrator: Received lip reading prediction from $messageFrom");
+          final String prediction = data["payload"]["prediction"] ?? "";
+          ProviderScope.containerOf(context).read(subtitlesProvider.notifier).update(prediction);
           break;
         default:
           print("CallOrchestrator: Unhandled message type: $messageType");

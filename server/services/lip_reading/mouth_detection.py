@@ -16,7 +16,8 @@ from constants import VIDEO_WIDTH, VIDEO_HEIGHT
 
 class MouthDetector:
     def __init__(self, model_path='models/face_landmarker.task', num_faces=1):
-        base_options = python.BaseOptions(model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.GPU)
+        base_options = python.BaseOptions(
+            model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.GPU)
         # base_options = python.BaseOptions(model_asset_path=model_path, delegate=mp.tasks.BaseOptions.Delegate.CPU)
         options = vision.FaceLandmarkerOptions(base_options=base_options,
                                                output_face_blendshapes=True,
@@ -81,12 +82,17 @@ class MouthDetector:
                                    78, 191, 80, 81, 82, 13, 312, 311, 310, 415,
                                    95, 88, 178, 87, 14, 317, 402, 318, 324, 308]
 
-                x_coords = [face_landmarks[landmark].x for landmark in mouth_landmarks]
-                y_coords = [face_landmarks[landmark].y for landmark in mouth_landmarks]
-                xmin, xmax = int(min(x_coords) * rgb_image.shape[1]), int(max(x_coords) * rgb_image.shape[1])
-                ymin, ymax = int(min(y_coords) * rgb_image.shape[0]), int(max(y_coords) * rgb_image.shape[0])
+                x_coords = [
+                    face_landmarks[landmark].x for landmark in mouth_landmarks]
+                y_coords = [
+                    face_landmarks[landmark].y for landmark in mouth_landmarks]
+                xmin, xmax = int(
+                    min(x_coords) * rgb_image.shape[1]), int(max(x_coords) * rgb_image.shape[1])
+                ymin, ymax = int(
+                    min(y_coords) * rgb_image.shape[0]), int(max(y_coords) * rgb_image.shape[0])
 
-                xmin, ymin, xmax, ymax = self.expand_bounding_box(xmin, ymin, xmax, ymax)
+                xmin, ymin, xmax, ymax = self.expand_bounding_box(
+                    xmin, ymin, xmax, ymax)
                 cropped_mouth = rgb_image[ymin:ymax, xmin:xmax]
                 return cv2.resize(cropped_mouth, target_size, interpolation=cv2.INTER_AREA)
             except cv2.error:
@@ -95,21 +101,23 @@ class MouthDetector:
 
     def detect_and_crop_mouth(self, frame, target_size=(VIDEO_WIDTH, VIDEO_HEIGHT)):
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        mp_image_input = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+        mp_image_input = mp.Image(
+            image_format=mp.ImageFormat.SRGB, data=rgb_frame)
         detection_result = self.detector.detect(mp_image_input)
         return self.crop_mouth_from_landmarks(mp_image_input.numpy_view(), detection_result, target_size=target_size)
 
     def detect_face_landmarks(self, frame):
         """
         Uses the face mesh model to detect facial landmarks.
-        
+
         Args:
             frame: A BGR image (numpy array) from OpenCV.
-        
+
         Returns:
             detection_result: The output from the face mesh model containing landmark data.
         """
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        mp_image_input = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+        mp_image_input = mp.Image(
+            image_format=mp.ImageFormat.SRGB, data=rgb_frame)
         detection_result = self.detector.detect(mp_image_input)
         return detection_result

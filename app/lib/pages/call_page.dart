@@ -131,7 +131,7 @@ class _CallPageState extends State<CallPage> {
             // Picture-in-Picture preview.
             PipPreview(localRenderer: _localRenderer),
             // Subtitles overlay.
-            SubtitlesDisplay(subtitles: subtitles),
+            SubtitlesDisplay(),
             // Call Controls.
             CallControls(
               onFlipCamera: () {

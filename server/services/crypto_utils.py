@@ -186,7 +186,7 @@ async def structure_encrypt_send_message(
     Parameters:
       websocket: The websocket connection object.
       aes_key: The AES key for encryption.
-      msg_type (str): A string indicating the type of response (e.g., "updateProfileResponse").
+      msg_type (str): A string indicating the type of response.
       success (bool): True if the server process was successful.
       payload (dict, optional): Operation-specific response data; defaults to an empty dict if None.
       error_code (str, optional): An error identifier code, used when success is False.

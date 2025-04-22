@@ -96,6 +96,7 @@ class VideoCallManager {
         payload: {
           "from": localUser.userId,
           "target": connection == _peerConnection ? remoteUser!.userId : 'server',
+          "other_user": remoteUser!.userId,
           "offer": offer.toMap(),
         },
       );
@@ -107,6 +108,7 @@ class VideoCallManager {
         payload: {
           "from": localUser.userId,
           "target": connection == _peerConnection ? remoteUser!.userId : 'server',
+          "other_user": remoteUser!.userId,
           "answer": answer.toMap(),
         },
       );
