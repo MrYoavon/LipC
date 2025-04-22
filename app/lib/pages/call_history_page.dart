@@ -1,9 +1,15 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:lip_c/widgets/server_connection_indicator.dart';
+
 import '../models/call_history_entry.dart';
 import '../helpers/call_history_service.dart';
+import '../providers/contacts_provider.dart';
+import 'call_transcript_page.dart';
 
-class CallHistoryPage extends StatelessWidget {
+class CallHistoryPage extends ConsumerWidget {
   final CallHistoryService service;
   final String userId;
 
@@ -14,7 +20,7 @@ class CallHistoryPage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     service.requestCallHistory(userId);
 
     return ServerConnectionIndicator(
@@ -39,18 +45,36 @@ class CallHistoryPage extends StatelessWidget {
               itemCount: entries.length,
               itemBuilder: (context, index) {
                 final entry = entries[index];
+                final bool isCaller = entry.callerId == userId;
+                final String contactId = isCaller ? entry.calleeId : entry.callerId;
+                final contacts = ref.read(contactsProvider(userId)).contacts;
+                final contact = contacts.firstWhereOrNull(
+                  (contact) => contact.userId == contactId,
+                );
+                entry.type = isCaller ? CallType.outgoing : CallType.incoming;
+
                 return ListTile(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CallTranscriptPage(
+                          entry: entry,
+                          localUserId: userId,
+                        ),
+                      ),
+                    );
+                  },
                   leading: Icon(_callTypeIcon(entry.type)),
-                  title: Text(entry.contactName),
+                  title: Text(contact?.name ?? 'Unknown'),
                   subtitle: Text(
-                    '${entry.timestamp.toLocal()} (${_formatDuration(entry.duration)})',
+                    '${DateFormat.yMMMd().add_Hm().format(entry.startedAt)} '
+                    '(${_formatDuration(entry.duration)})',
                   ),
                   trailing: Text(
                     entry.type.name.toUpperCase(),
                     style: TextStyle(
-                      color: entry.type == CallType.missed
-                          ? Colors.red
-                          : Colors.grey,
+                      color: entry.type == CallType.missed ? Colors.red : Colors.grey,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -71,6 +95,8 @@ class CallHistoryPage extends StatelessWidget {
         return Icons.call_made;
       case CallType.missed:
         return Icons.call_missed;
+      case CallType.unknown:
+        return Icons.call;
     }
   }
 

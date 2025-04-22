@@ -1,39 +1,47 @@
 class CallHistoryEntry {
   final String id;
-  final String contactName;
-  final String contactId;
-  final DateTime timestamp;
-  final CallType type; // incoming, outgoing, missed
+  final String callerId;
+  final String calleeId;
+  final DateTime startedAt;
+  final DateTime endedAt;
+  CallType type;
   final Duration duration;
+  final List<dynamic> transcripts;
 
   CallHistoryEntry({
     required this.id,
-    required this.contactName,
-    required this.contactId,
-    required this.timestamp,
+    required this.callerId,
+    required this.calleeId,
+    required this.startedAt,
+    required this.endedAt,
     required this.type,
     required this.duration,
+    required this.transcripts,
   });
 
   factory CallHistoryEntry.fromJson(Map<String, dynamic> json) {
     return CallHistoryEntry(
       id: json['_id'],
-      contactName: json['contactName'],
-      contactId: json['contactId'],
-      timestamp: DateTime.parse(json['timestamp']),
-      type: CallType.values.byName(json['type']),
-      duration: Duration(seconds: json['durationSeconds']),
+      callerId: json['caller_id'],
+      calleeId: json['callee_id'],
+      startedAt: DateTime.parse(json['started_at']),
+      endedAt: DateTime.parse(json['ended_at']),
+      type: CallType.unknown,
+      duration: Duration(seconds: json['duration_seconds'].toInt()),
+      transcripts: json['transcripts'] ?? [],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
-      'contactName': contactName,
-      'contactId': contactId,
-      'timestamp': timestamp.toIso8601String(),
+      'caller_id': callerId,
+      'callee_id': calleeId,
+      'started_at': startedAt.toIso8601String(),
+      'ended_at': endedAt.toIso8601String(),
       'type': type.name,
-      'durationSeconds': duration.inSeconds,
+      'duration': duration.inSeconds,
+      'transcripts': transcripts,
     };
   }
 }
@@ -42,4 +50,5 @@ enum CallType {
   incoming,
   outgoing,
   missed,
+  unknown,
 }

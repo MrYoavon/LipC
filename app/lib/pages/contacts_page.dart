@@ -76,8 +76,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
   }
 
   void _showAddContactDialog() {
-    final TextEditingController _contactNameController =
-        TextEditingController();
+    final TextEditingController _contactNameController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) {
@@ -102,8 +101,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                 decoration: InputDecoration(
                   hintText: "Contact username",
                   prefixIcon: const Icon(Icons.person),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -152,8 +150,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                     const SnackBar(content: Text("You cannot add yourself")),
                   );
                   return;
-                } else if (contactsState.contacts
-                    .any((contact) => contact.username == contactName)) {
+                } else if (contactsState.contacts.any((contact) => contact.username == contactName)) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Contact already exists")),
                   );
@@ -175,8 +172,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
   Widget build(BuildContext context) {
     final currentUser = ref.watch(currentUserProvider);
     // Listen for changes in the contacts provider and update the orchestrator.
-    ref.listen<ContactsState>(contactsProvider(currentUser!.userId),
-        (previous, next) {
+    ref.listen<ContactsState>(contactsProvider(currentUser!.userId), (previous, next) {
       // If an error occurs, show it as a SnackBar at the bottom.
       if (next.errorMessage != null && next.errorMessage!.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -224,24 +220,23 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                     ),
                   )
                 : const Center(
-                    child: Text('Lip-C',
-                        style: TextStyle(color: AppColors.textPrimary)),
+                    child: Text('Lip-C', style: TextStyle(color: AppColors.textPrimary)),
                   ),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.history),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CallHistoryPage(
-                        service: callHistoryService,
-                        userId: currentUser.userId,
-                      ),
-                    ),
-                  );
-                },
-              ),
+              // IconButton(
+              //   icon: const Icon(Icons.history),
+              //   onPressed: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) => CallHistoryPage(
+              //           service: callHistoryService,
+              //           userId: currentUser.userId,
+              //         ),
+              //       ),
+              //     );
+              //   },
+              // ),
               PopupMenuButton<String>(
                 onSelected: (value) {
                   if (value == 'settings') {
@@ -259,9 +254,8 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                   ),
                 ],
                 icon: CircleAvatar(
-                  backgroundImage: currentUser.profilePic.isNotEmpty
-                      ? AssetImage(currentUser.profilePic) as ImageProvider
-                      : null,
+                  backgroundImage:
+                      currentUser.profilePic.isNotEmpty ? AssetImage(currentUser.profilePic) as ImageProvider : null,
                   backgroundColor: AppColors.accent,
                   foregroundColor: AppColors.background,
                   child: currentUser.profilePic.isEmpty
@@ -282,53 +276,90 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
               ? const Center(child: CircularProgressIndicator())
               : contacts.isEmpty
                   ? const Center(child: Text("No contacts found."))
-                  : ListView.builder(
-                      itemCount: contacts.length,
-                      itemBuilder: (context, index) {
-                        final contact = contacts[index];
-                        final color = AppColors().getUserColor(contact.userId);
-                        if (_searchQuery.isNotEmpty &&
-                            (!contact.name
-                                    .toLowerCase()
-                                    .contains(_searchQuery.toLowerCase()) ||
-                                !contact.username
-                                    .toLowerCase()
-                                    .contains(_searchQuery.toLowerCase()))) {
-                          return Container(); // Skip contacts that don't match search.
-                        }
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: color,
+                  : Stack(
+                      children: [
+                        ListView.builder(
+                          itemCount: contacts.length,
+                          itemBuilder: (context, index) {
+                            final contact = contacts[index];
+                            final color = AppColors().getUserColor(contact.userId);
+                            if (_searchQuery.isNotEmpty &&
+                                (!contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                                    !contact.username.toLowerCase().contains(_searchQuery.toLowerCase()))) {
+                              return Container(); // Skip contacts that don't match search.
+                            }
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: color,
+                                foregroundColor: AppColors.background,
+                                child: Text(contact.name[0]),
+                              ),
+                              title: Row(
+                                children: [
+                                  Text(contact.name),
+                                  Text(" @${contact.username}",
+                                      style: const TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 12,
+                                      )),
+                                ],
+                              ),
+                              subtitle: const Text('Status: Online'),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.video_call),
+                                onPressed: () {
+                                  callOrchestrator.callUser(contact);
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                        // bottom right FAB (add contact)
+                        Positioned(
+                          bottom: 24,
+                          right: 24,
+                          child: FloatingActionButton(
+                            backgroundColor: AppColors.accent,
                             foregroundColor: AppColors.background,
-                            child: Text(contact.name[0]),
+                            onPressed: _showAddContactDialog,
+                            tooltip: 'Add Contact',
+                            heroTag: 'add_contact',
+                            child: const Icon(Icons.add),
                           ),
-                          title: Row(
-                            children: [
-                              Text(contact.name),
-                              Text(" @${contact.username}",
-                                  style: const TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12,
-                                  )),
-                            ],
-                          ),
-                          subtitle: const Text('Status: Online'),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.video_call),
+                        ),
+
+                        // bottom left FAB (call history)
+                        Positioned(
+                          bottom: 24,
+                          left: 24,
+                          child: FloatingActionButton(
+                            backgroundColor: AppColors.accent,
+                            foregroundColor: AppColors.background,
                             onPressed: () {
-                              callOrchestrator.callUser(contact);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CallHistoryPage(
+                                    service: callHistoryService,
+                                    userId: currentUser.userId,
+                                  ),
+                                ),
+                              );
                             },
+                            tooltip: 'Call History',
+                            heroTag: 'call_history',
+                            child: const Icon(Icons.history),
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: AppColors.accent,
-            foregroundColor: AppColors.background,
-            onPressed: _showAddContactDialog,
-            tooltip: 'Add Contact',
-            child: const Icon(Icons.add),
-          ),
+          // floatingActionButton: FloatingActionButton(
+          //   backgroundColor: AppColors.accent,
+          //   foregroundColor: AppColors.background,
+          //   onPressed: _showAddContactDialog,
+          //   tooltip: 'Add Contact',
+          //   child: const Icon(Icons.add),
+          // ),
         ),
       ),
     );

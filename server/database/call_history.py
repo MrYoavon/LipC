@@ -1,29 +1,93 @@
 # database/call_history.py
 from datetime import datetime
+from bson import ObjectId
+from pymongo import ReturnDocument
 from database.db import get_collection
 
-call_history_collection = get_collection("call_history")
+calls = get_collection("calls")
 
-def add_call_history(entry):
-    """
-    Insert a call history entry into the database.
-    Expected entry keys:
-      - user_id: The ID of the user making or receiving the call.
-      - contact_id: The contact's ID.
-      - contact_name: Name of the contact.
-      - call_type: 'incoming', 'outgoing', or 'missed'.
-      - duration_seconds: Call duration (defaults to 0 if not provided).
-    If no timestamp is provided, the current time is used.
-    """
-    if "timestamp" not in entry:
-        entry["timestamp"] = datetime.now()
-    result = call_history_collection.insert_one(entry)
-    return result.inserted_id
 
-def get_call_history(user_id, limit=50):
+def start_call(caller_id: str, callee_id: str) -> ObjectId:
     """
-    Retrieve call history for a given user, sorted by the most recent call.
+    Create a new call document and return its _id.
     """
-    cursor = call_history_collection.find({"user_id": user_id}).sort("timestamp", -1).limit(limit)
-    entries = list(cursor)
-    return entries
+    doc = {
+        "caller_id": ObjectId(caller_id),
+        "callee_id": ObjectId(callee_id),
+        "started_at": datetime.now(),
+        "ended_at": None,
+        "duration_seconds": None,
+        # each item: {"t": <datetime>, "speaker": ObjectId, "text": str, "source": "lip"|"stt"}
+        "transcripts": [],
+        # room for future stats (frame counts, WER, …)
+        "meta": {}
+    }
+    return calls.insert_one(doc).inserted_id
+
+
+def append_line(call_id: ObjectId, speaker_id: str, text: str,
+                source: str = "lip") -> None:
+    calls.update_one(
+        {"_id": ObjectId(call_id)},
+        {"$push": {"transcripts": {
+            "t": datetime.now(),
+            "speaker": ObjectId(speaker_id),
+            "text": text,
+            "source": source
+        }}}
+    )
+
+
+def finish_call(call_id: ObjectId) -> None:
+    """
+    Mark call finished and store the duration.
+    """
+    now = datetime.now()
+    calls.update_one(
+        {"_id": ObjectId(call_id)},
+        [{"$set": {
+            "ended_at": now,
+            "duration_seconds": {
+                "$divide": [{"$subtract": [now, "$started_at"]}, 1000]
+            }}
+          }]
+    )
+
+
+def get_call_history(user_id: str, limit: int = 50):
+    """
+    Return the most recent calls *involving* this user (no transcript payload).
+    """
+    cursor = (calls
+              .find({"$or": [
+                  {"caller_id": ObjectId(user_id)},
+                  {"callee_id": ObjectId(user_id)}
+              ]},
+              )
+              .sort("started_at", -1)
+              .limit(limit))
+    # stringify ObjectIds for JSON serialisation
+    out = []
+    for doc in cursor:
+        doc["_id"] = str(doc["_id"])
+        doc["caller_id"] = str(doc["caller_id"])
+        doc["callee_id"] = str(doc["callee_id"])
+        out.append(doc)
+    return out
+
+
+def get_call_transcript(call_id: str):
+    """
+    Full record including transcript ready to render as a chat.
+    """
+    doc = calls.find_one({"_id": ObjectId(call_id)})
+    if not doc:
+        return None
+    # string‑ify for transport
+    doc["_id"] = str(doc["_id"])
+    doc["caller_id"] = str(doc["caller_id"])
+    doc["callee_id"] = str(doc["callee_id"])
+    for line in doc["transcripts"]:
+        line["t"] = line["t"].isoformat() + "Z"
+        line["speaker"] = str(line["speaker"])
+    return doc

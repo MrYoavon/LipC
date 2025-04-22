@@ -21,9 +21,9 @@ class CallHistoryService {
   Stream<List<CallHistoryEntry>> get callHistoryStream {
     return serverHelper.messages
         .map((event) => jsonDecode(event))
-        .where((event) => event['type'] == 'call_history')
+        .where((event) => event['msg_type'] == 'fetch_call_history')
         .map((event) {
-      final entries = event['entries'] as List<dynamic>;
+      final entries = event["payload"]['entries'] as List<dynamic>;
       return entries.map((e) => CallHistoryEntry.fromJson(e)).toList();
     });
   }
