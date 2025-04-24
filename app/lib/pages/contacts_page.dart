@@ -9,6 +9,7 @@ import '../providers/current_user_provider.dart';
 import '../providers/server_helper_provider.dart';
 import '../providers/contacts_provider.dart';
 import 'call_history_page.dart';
+import 'login_page.dart';
 
 class ContactsPage extends ConsumerStatefulWidget {
   const ContactsPage({super.key});
@@ -223,24 +224,23 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                     child: Text('Lip-C', style: TextStyle(color: AppColors.textPrimary)),
                   ),
             actions: [
-              // IconButton(
-              //   icon: const Icon(Icons.history),
-              //   onPressed: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(
-              //         builder: (context) => CallHistoryPage(
-              //           service: callHistoryService,
-              //           userId: currentUser.userId,
-              //         ),
-              //       ),
-              //     );
-              //   },
-              // ),
               PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == 'settings') {
-                    // Navigate to settings page if needed.
+                onSelected: (value) async {
+                  if (value == "logout") {
+                    // 1) Clear tokens from secure storage
+                    final serverHelper = ref.read(serverHelperProvider);
+                    await serverHelper.jwtTokenService?.clearTokens();
+
+                    // 2) Reset your in-memory user state
+                    ref.read(currentUserProvider.notifier).clearUser();
+
+                    // 3) Navigate to the login page, removing all back routes
+                    if (!mounted) return;
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                      (route) => false,
+                    );
+                    return;
                   }
                 },
                 itemBuilder: (context) => [
@@ -248,9 +248,10 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                     value: 'settings',
                     child: Text('Settings'),
                   ),
+                  const PopupMenuDivider(),
                   const PopupMenuItem<String>(
-                    value: 'preferences',
-                    child: Text('Preferences'),
+                    value: 'logout',
+                    child: Text('Logout', style: TextStyle(color: Colors.red)),
                   ),
                 ],
                 icon: CircleAvatar(

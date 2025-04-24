@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'pages/login_page.dart';
 import 'constants.dart';
+import 'pages/startup_page.dart';
 
 void main() {
   runApp(
@@ -56,7 +56,7 @@ class LipC extends StatelessWidget {
           ),
         ),
       ),
-      home: const LoginPage(),
+      home: const StartupPage(),
     );
   }
 }

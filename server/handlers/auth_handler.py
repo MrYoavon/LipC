@@ -1,12 +1,12 @@
 # handlers/auth_handler.py
-import json
 import logging
 import bcrypt
-from database.users import create_user, get_user_by_username
+from database.users import create_user, get_user_by_id, get_user_by_username
 from services.jwt_utils import (
     create_access_token,
     create_refresh_token,
-    refresh_access_token
+    refresh_access_token,
+    verify_jwt
 )
 from services.state import clients
 from services.crypto_utils import structure_encrypt_send_message
@@ -163,7 +163,7 @@ async def handle_token_refresh(websocket, data, aes_key):
     Expects the incoming payload to contain the refresh token.
     On success, generates and returns a new access token.
     """
-    payload = data.get("payload")
+    payload = data.get("payload", {})
     refresh_token = payload.get("refresh_jwt")
 
     if not refresh_token:
@@ -178,9 +178,18 @@ async def handle_token_refresh(websocket, data, aes_key):
         return
 
     try:
+        token_data = verify_jwt(refresh_token, expected_type="refresh")
+        user_id = token_data.get("sub")
+        logging.info(f"User ID: {user_id} | Refresh token: {refresh_token}")
+
         new_access_token = refresh_access_token(refresh_token)
+        user_data = get_user_by_id(user_id)
         response_data = {
-            "access_token": new_access_token
+            "access_token": new_access_token,
+            "user_id": user_id,
+            "username": user_data.get("username", ""),
+            "name": user_data.get("name", ""),
+            "profile_pic": user_data.get("profile_pic", "")
         }
         await structure_encrypt_send_message(
             websocket=websocket,
@@ -190,7 +199,7 @@ async def handle_token_refresh(websocket, data, aes_key):
             payload=response_data
         )
         logging.info(
-            f"{data.get("user_id")} access token refreshed successfully.")
+            f"{user_id} access token refreshed successfully.")
     except Exception as e:
         logging.error("Failed to refresh access token: " + str(e))
         await structure_encrypt_send_message(

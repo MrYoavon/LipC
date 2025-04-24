@@ -175,7 +175,7 @@ class ServerHelper {
     );
 
     // Check if msgType is different from 'authenticate', 'signup' or 'ping'
-    if (msgType != 'authenticate' && msgType != 'signup' && msgType != 'ping') {
+    if (!(["authenticate", "signup", "ping", "refresh_token"].contains(msgType))) {
       // We don't want to add jwt token and userId to these messages
       // Ensure jwtTokenService and userId are set
       if (jwtTokenService == null || userId == null) {
@@ -468,6 +468,61 @@ class ServerHelper {
         "error_message": data['error_message'] ?? "Registration failed",
       };
     }
+  }
+
+  Future<Map<String, dynamic>> tryAutoLogin() async {
+    // jwtTokenService is created the first time you call authenticate/register,
+    // but on a cold start it’s still null → create it now.
+    jwtTokenService ??= JWTTokenService();
+
+    final refreshToken = await jwtTokenService!.getRefreshToken();
+    print("Trying to auto-login with refresh token: $refreshToken");
+    if (refreshToken == null) {
+      return {"success": false, "reason": "NO_REFRESH_TOKEN"};
+    }
+
+    // Send the same message the LoginPage would trigger.
+    await sendMessage(
+      msgType: 'refresh_token',
+      payload: {'refresh_jwt': refreshToken},
+    );
+
+    // Wait for the server’s answer (same pattern as in refreshAccessToken()).
+    final response = await messages.firstWhere((msg) {
+      final data = jsonDecode(msg);
+      return data['msg_type'] == 'refresh_token';
+    }).timeout(const Duration(seconds: 5), onTimeout: () {
+      throw TimeoutException("Refresh token response timeout");
+    });
+
+    final data = jsonDecode(response);
+
+    if (data['success'] == true) {
+      final newAccess = data['payload']['access_token'];
+      // Keep the SAME refresh token, per your server design.
+      await jwtTokenService!.saveTokens(newAccess, refreshToken);
+      userId = data['payload']['user_id']; // so subsequent calls attach it
+      // Re-schedule automatic refresh
+      scheduleTokenRefresh();
+
+      return {
+        "success": true,
+        "user_id": data['payload']['user_id'],
+        "username": data['payload']['username'],
+        "name": data['payload']['name'],
+        "profile_pic": data['payload']['profile_pic'],
+        "access_token": newAccess,
+        "refresh_token": refreshToken,
+      };
+    }
+
+    // Refresh token was expired / revoked
+    await jwtTokenService!.clearTokens();
+    return {
+      "success": false,
+      "reason": data['error_code'] ?? "EXPIRED",
+      "error_message": data['error_message'],
+    };
   }
 
   /// Fetches the list of contacts associated with a particular user.

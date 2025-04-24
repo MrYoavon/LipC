@@ -1,9 +1,13 @@
 # services/jwt_utils.py
+import hashlib
 import os
 import datetime
+import uuid
 import jwt
 import logging
 from dotenv import load_dotenv
+
+from database.refresh_tokens import find_valid_token, revoke_previous_token, revoke_token, save_refresh_token
 
 load_dotenv()
 
@@ -52,15 +56,28 @@ def create_refresh_token(user_id: str, additional_claims: dict = None) -> str:
     """
     now = datetime.datetime.now(datetime.timezone.utc)
     exp = now + datetime.timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    jti = str(uuid.uuid4())  # Unique identifier for the token
+
+    # Revoke the previous token (if any) and tag it
+    revoke_previous_token(user_id, replaced_by_jti=jti)
+
     payload = {
         "sub": user_id,
         "iat": now,
         "exp": exp,
+        "jti": jti,
         "type": "refresh"
     }
     if additional_claims:
         payload.update(additional_claims)
     token = jwt.encode(payload, RSA_PRIVATE_KEY, algorithm=JWT_ALGORITHM)
+
+    save_refresh_token(
+        user_id=user_id,
+        jti=jti,
+        token_hash=_hash(token),
+        expires_at=exp
+    )
     return token
 
 
@@ -118,16 +135,51 @@ def verify_jwt_in_message(token: str, expected_type: str, user_id: str) -> dict:
 
 def refresh_access_token(refresh_token: str) -> str:
     """
-    Validate a refresh token and generate a new access token.
-    The refresh token must be valid, unexpired, and explicitly marked as a refresh token.
+    Validate the *existing* refresh token and, if valid,
+    return a new short-lived access token.  The same refresh
+    token remains usable until it naturally expires.
     """
     try:
         payload = verify_jwt(refresh_token, expected_type="refresh")
-        user_id = payload.get("sub")
-        if not user_id:
-            raise Exception("Invalid refresh token: missing subject.")
-        # Additional checks (for token revocation, etc.) could be added here.
+        jti = payload["jti"]
+        token_hash = _hash(refresh_token)
+
+        # 1) Must exist in DB, not revoked, not past its DB expiry timestamp
+        if not find_valid_token(jti, token_hash):
+            raise jwt.InvalidTokenError("Refresh token revoked or unknown.")
+
+        # 2) Still good – issue a new access token
+        user_id = payload["sub"]
         return create_access_token(user_id)
-    except Exception as e:
-        logging.error("Failed to refresh access token: " + str(e))
+
+    except jwt.ExpiredSignatureError:
+        # Token passed its exp: revoke record & bubble error so caller logs user out
+        try:
+            decoded = jwt.decode(
+                refresh_token,
+                RSA_PUBLIC_KEY,
+                algorithms=[JWT_ALGORITHM],
+                options={"verify_exp": False}  # ignore exp for decoding only
+            )
+            revoke_token(decoded["jti"], reason="expired")
+        except Exception:
+            pass  # token may be corrupt – ignore
         raise
+
+    except jwt.InvalidTokenError as exc:
+        # Further hardening: revoke on bad signature or tamper detection
+        try:
+            decoded = jwt.decode(
+                refresh_token,
+                RSA_PUBLIC_KEY,
+                algorithms=[JWT_ALGORITHM],
+                options={"verify_signature": False, "verify_exp": False}
+            )
+            revoke_token(decoded.get("jti", "unknown"), reason="invalid")
+        except Exception:
+            pass
+        raise
+
+
+def _hash(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
