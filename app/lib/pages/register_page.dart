@@ -144,6 +144,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         );
       } else {
         _log.w('❌ Registration failed: ${registrationResponse["error_message"]}');
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(

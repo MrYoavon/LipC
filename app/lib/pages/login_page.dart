@@ -84,7 +84,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       Map<String, dynamic> authResponse = await serverHelper.authenticate(username, password);
       _log.d('🛰️ Auth response: $authResponse');
       setState(() => _isLoading = false);
-      print("Auth Response: $authResponse");
 
       if (authResponse["success"] == true) {
         final userId = authResponse["user_id"];
@@ -108,6 +107,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         );
       } else {
         _log.w('❌ Login failed: ${authResponse["error_message"]}');
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(

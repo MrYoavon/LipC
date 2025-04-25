@@ -361,60 +361,82 @@ class ServerHelper {
   /// Authenticates the user by sending an encrypted authentication message with username and password.
   /// Awaits the server response and returns a map with the authentication result.
   Future<Map<String, dynamic>> authenticate(String username, String password) async {
-    // Send an authentication request message.
-    await sendMessage(
-      msgType: 'authenticate',
-      payload: {"username": username, "password": password},
-    );
+    try {
+      // Send an authentication request message.
+      await sendMessage(
+        msgType: 'authenticate',
+        payload: {"username": username, "password": password},
+      );
 
-    // Wait for the first response message of type 'authenticate'.
-    final response = await messages
-        .firstWhere(
-      (msg) => jsonDecode(msg)['msg_type'] == 'authenticate',
-    )
-        .timeout(const Duration(seconds: 5), onTimeout: () {
-      // If no authentication response is received within 5 seconds, update connection status and throw a timeout exception.
-      _connectionStatusController.add(ServerConnectionStatus.timeout);
-      throw TimeoutException("Server response timeout");
-    });
+      // Wait for the first response message of type 'authenticate'.
+      final response = await messages
+          .firstWhere(
+        (msg) => jsonDecode(msg)['msg_type'] == 'authenticate',
+      )
+          .timeout(const Duration(seconds: 5), onTimeout: () {
+        // If no authentication response is received within 5 seconds, update connection status and throw a timeout exception.
+        _connectionStatusController.add(ServerConnectionStatus.timeout);
+        throw TimeoutException("Server response timeout");
+      });
 
-    // Parse the authentication response.
-    final data = jsonDecode(response);
-    final payload = data['payload'];
-    if (data['success'] == true && payload.containsKey('user_id')) {
-      final accessToken = payload["access_token"];
-      final refreshToken = payload["refresh_token"];
+      // Parse the authentication response.
+      final data = jsonDecode(response);
+      final payload = data['payload'];
+      if (data['success'] == true && payload.containsKey('user_id')) {
+        final accessToken = payload["access_token"];
+        final refreshToken = payload["refresh_token"];
 
-      // Set the userId in ServerHelper.
-      userId = payload['user_id'];
+        // Set the userId in ServerHelper.
+        userId = payload['user_id'];
 
-      // Initialize jwtTokenService if not already set.
-      jwtTokenService ??= JWTTokenService();
+        // Initialize jwtTokenService if not already set.
+        jwtTokenService ??= JWTTokenService();
 
-      // Save the tokens locally via JWTTokenService.
-      await jwtTokenService!.saveTokens(accessToken, refreshToken);
+        // Save the tokens locally via JWTTokenService.
+        await jwtTokenService!.saveTokens(accessToken, refreshToken);
 
-      // Start scheduling token refresh.
-      scheduleTokenRefresh();
+        // Start scheduling token refresh.
+        scheduleTokenRefresh();
 
-      _log.i('✅ Authentication succeeded for $username');
+        _log.i('✅ Authentication succeeded for $username');
 
-      // Return the user details on successful authentication.
-      return {
-        "success": true,
-        "user_id": payload['user_id'],
-        "name": payload['name'],
-        "profile_pic": payload['profile_pic'],
-        "access_token": payload['access_token'],
-        "refresh_token": payload['refresh_token'],
-      };
-    } else {
-      _log.w('❌ Authentication failed: ${data['error_message']}');
-      // Return error details if authentication fails.
+        // Return the user details on successful authentication.
+        return {
+          "success": true,
+          "user_id": payload['user_id'],
+          "name": payload['name'],
+          "profile_pic": payload['profile_pic'],
+          "access_token": payload['access_token'],
+          "refresh_token": payload['refresh_token'],
+        };
+      } else {
+        _log.w('❌ Authentication failed: ${data['error_message']}');
+        // Return error details if authentication fails.
+        return {
+          "success": false,
+          "error_code": data['error_code'] ?? "UNKNOWN_ERROR",
+          "error_message": data['error_message'] ?? "Authentication failed",
+        };
+      }
+    } on TimeoutException {
       return {
         "success": false,
-        "error_code": data['error_code'] ?? "UNKNOWN_ERROR",
-        "error_message": data['error_message'] ?? "Authentication failed",
+        "error_code": "TIMEOUT",
+        "error_message": "Server did not respond in time",
+      };
+    } on StateError {
+      // Stream closed before any matching element
+      _connectionStatusController.add(ServerConnectionStatus.disconnected);
+      return {
+        "success": false,
+        "error_code": "STATE_ERROR",
+        "error_message": "Connection was closed before login could complete",
+      };
+    } catch (e) {
+      return {
+        "success": false,
+        "error_code": "UNKNOWN_ERROR",
+        "error_message": "An unknown error occurred: $e",
       };
     }
   }
@@ -426,56 +448,78 @@ class ServerHelper {
     String name,
     String profilePic,
   ) async {
-    // Send a signup request with user registration details.
-    await sendMessage(
-      msgType: 'signup',
-      payload: {
-        "username": username,
-        "password": password,
-        "name": name,
-        "profile_pic": profilePic,
-      },
-    );
+    try {
+      // Send a signup request with user registration details.
+      await sendMessage(
+        msgType: 'signup',
+        payload: {
+          "username": username,
+          "password": password,
+          "name": name,
+          "profile_pic": profilePic,
+        },
+      );
 
-    // Wait for the signup response message.
-    final response = await messages.firstWhere(
-      (msg) => jsonDecode(msg)['msg_type'] == 'signup',
-    );
-    // Parse the signup response.
-    final data = jsonDecode(response);
-    final payload = data['payload'];
-    if (data['success'] == true && payload.containsKey('user_id')) {
-      final accessToken = payload["access_token"];
-      final refreshToken = payload["refresh_token"];
+      // Wait for the signup response message.
+      final response = await messages.firstWhere(
+        (msg) => jsonDecode(msg)['msg_type'] == 'signup',
+      );
+      // Parse the signup response.
+      final data = jsonDecode(response);
+      final payload = data['payload'];
+      if (data['success'] == true && payload.containsKey('user_id')) {
+        final accessToken = payload["access_token"];
+        final refreshToken = payload["refresh_token"];
 
-      // Set the userId in ServerHelper.
-      userId = payload['user_id'];
+        // Set the userId in ServerHelper.
+        userId = payload['user_id'];
 
-      // Initialize jwtTokenService if not already set.
-      jwtTokenService ??= JWTTokenService();
+        // Initialize jwtTokenService if not already set.
+        jwtTokenService ??= JWTTokenService();
 
-      // Save the tokens locally via JWTTokenService.
-      await jwtTokenService!.saveTokens(accessToken, refreshToken);
+        // Save the tokens locally via JWTTokenService.
+        await jwtTokenService!.saveTokens(accessToken, refreshToken);
 
-      // Start scheduling token refresh.
-      scheduleTokenRefresh();
+        // Start scheduling token refresh.
+        scheduleTokenRefresh();
 
-      _log.i('✅ Registration succeeded for $username');
+        _log.i('✅ Registration succeeded for $username');
 
-      // Return the registered user ID on success.
-      return {
-        "success": true,
-        "user_id": payload['user_id'],
-        "access_token": payload['access_token'],
-        "refresh_token": payload['refresh_token'],
-      };
-    } else {
-      _log.w('❌ Registration failed: ${data['error_message']}');
-      // Return error information if the signup process fails.
+        // Return the registered user ID on success.
+        return {
+          "success": true,
+          "user_id": payload['user_id'],
+          "access_token": payload['access_token'],
+          "refresh_token": payload['refresh_token'],
+        };
+      } else {
+        _log.w('❌ Registration failed: ${data['error_message']}');
+        // Return error information if the signup process fails.
+        return {
+          "success": false,
+          "error_code": data['error_code'] ?? "UNKNOWN_ERROR",
+          "error_message": data['error_message'] ?? "Registration failed",
+        };
+      }
+    } on TimeoutException {
       return {
         "success": false,
-        "error_code": data['error_code'] ?? "UNKNOWN_ERROR",
-        "error_message": data['error_message'] ?? "Registration failed",
+        "error_code": "TIMEOUT",
+        "error_message": "Server did not respond in time",
+      };
+    } on StateError {
+      // Stream closed before any matching element
+      _connectionStatusController.add(ServerConnectionStatus.disconnected);
+      return {
+        "success": false,
+        "error_code": "STATE_ERROR",
+        "error_message": "Connection was closed before registration could complete",
+      };
+    } catch (e) {
+      return {
+        "success": false,
+        "error_code": "UNKNOWN_ERROR",
+        "error_message": "An unknown error occurred: $e",
       };
     }
   }
