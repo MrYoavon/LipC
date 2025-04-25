@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:uuid/uuid.dart';
@@ -60,7 +62,13 @@ class ServerHelper {
   /// Establishes the WebSocket connection to the server and sets up listeners.
   void _connect() {
     _log.i('🔗 Attempting to connect to $serverUrl');
-    _channel = WebSocketChannel.connect(Uri.parse(serverUrl));
+    final client = HttpClient()
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true; // Accept all certificates for development.
+    _channel = IOWebSocketChannel.connect(
+      serverUrl,
+      customClient: client,
+    );
     // Initialize the stream controller for broadcasting messages.
     _controller = StreamController<String>.broadcast();
     // Reset the last pong received time.

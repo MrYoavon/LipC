@@ -31,5 +31,5 @@ class AppConstants {
   // Add other constants such as font sizes, durations, etc.
 }
 
-const String serverUrl = "ws://192.168.1.5:8765";
+const String serverUrl = "wss://192.168.1.5:8765";
 const String appName = "LipC";

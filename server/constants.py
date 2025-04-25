@@ -12,3 +12,7 @@ num_to_char = tf.keras.layers.StringLookup(
 
 # Vosk
 VOSK_MODEL_PATH = "models/vosk-model-en-us-0.22"
+
+# SSL certificates
+SSL_CERT_FILE = "certs/cert.pem"
+SSL_KEY_FILE = "certs/key.pem"
