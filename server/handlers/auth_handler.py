@@ -47,8 +47,6 @@ async def handle_authentication(websocket, data, aes_key):
             clients[user_id] = {
                 "ws": websocket, "username": username, "aes_key": aes_key, "pc": None}
             logging.info(f"User '{username}' authenticated with ID {user_id}.")
-            logging.info(
-                f"{potential_user.get('name', '')} | {potential_user.get('profile_pic', '')}")
 
             response_data = {
                 "user_id": user_id,
@@ -184,10 +182,16 @@ async def handle_token_refresh(websocket, data, aes_key):
 
         new_access_token = refresh_access_token(refresh_token)
         user_data = get_user_by_id(user_id)
+        username = user_data.get("username", "")
+
+        # Save session data for the connected client.
+        clients[user_id] = {
+            "ws": websocket, "username": username, "aes_key": aes_key, "pc": None}
+
         response_data = {
             "access_token": new_access_token,
             "user_id": user_id,
-            "username": user_data.get("username", ""),
+            "username": username,
             "name": user_data.get("name", ""),
             "profile_pic": user_data.get("profile_pic", "")
         }
