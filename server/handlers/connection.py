@@ -29,6 +29,11 @@ from services.crypto_utils import (
     decrypt_message
 )
 
+from services.rate_limiter import RateLimiter
+
+# global instance – one is enough for the whole process
+rate_limiter = RateLimiter()
+
 
 async def dispatch_message_encrypted(websocket, data, aes_key):
     """
@@ -85,6 +90,8 @@ async def handle_connection(websocket):
     periodic heartbeat checking to ensure the client is still connected.
     """
     logging.info("New connection established.")
+    peer_ip, _ = websocket.remote_address  # (ip, port)
+    limit_key = peer_ip
     last_ping = time.time()  # Tracks the time of the last received ping.
 
     async def heartbeat_check():
@@ -153,6 +160,14 @@ async def handle_connection(websocket):
     try:
         # Listen for incoming messages on the WebSocket.
         async for raw_message in websocket:
+            # -------- RATE-LIMIT CHECK --------
+            if not rate_limiter.allow(limit_key):
+                logging.warning(
+                    f"Rate limit exceeded for {limit_key}. Closing connection.")
+                await websocket.close(code=4008, reason="Rate limit exceeded")
+                break
+            # -----------------------------------
+
             try:
                 # Try to interpret each message as an encrypted JSON object.
                 encrypted_payload = json.loads(raw_message)
@@ -213,3 +228,6 @@ async def handle_disconnection(websocket):
     if disconnected_username:
         logging.info(f"User {disconnected_username} disconnected.")
         del clients[disconnected_username]
+    # only forget if the client is NOT currently banned
+    if not rate_limiter.is_banned(websocket.remote_address[0]):
+        rate_limiter.forget(websocket.remote_address[0])
