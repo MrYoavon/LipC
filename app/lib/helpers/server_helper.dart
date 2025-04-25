@@ -2,15 +2,19 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:logger/logger.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:uuid/uuid.dart';
 
+import 'app_logger.dart';
 import 'crypto_service.dart';
 import 'jwt_service.dart';
 import '../models/server_connection_status.dart';
 
 class ServerHelper {
+  final Logger _log = AppLogger.instance;
+
   // -------------------------------------------------------------
   // Server connection and dependency instance variables
   // -------------------------------------------------------------
@@ -55,7 +59,7 @@ class ServerHelper {
 
   /// Establishes the WebSocket connection to the server and sets up listeners.
   void _connect() {
-    print("Attempting to connect to $serverUrl");
+    _log.i('🔗 Attempting to connect to $serverUrl');
     _channel = WebSocketChannel.connect(Uri.parse(serverUrl));
     // Initialize the stream controller for broadcasting messages.
     _controller = StreamController<String>.broadcast();
@@ -69,13 +73,14 @@ class ServerHelper {
         final data = jsonDecode(encryptedMessage);
         // If the message type is 'handshake', then process the key exchange.
         if (data['msg_type'] == 'handshake') {
-          Map<String, dynamic> payload = data['payload'];
-          String serverPublicKey = payload['server_public_key'];
-          String salt = payload['salt'];
+          _log.i('🤝 Received handshake from server');
+          final Map<String, dynamic> payload = data['payload'];
+          final String serverPublicKey = payload['server_public_key'];
+          final String salt = payload['salt'];
           // Generate the client's key pair for the key exchange.
           await cryptoService.generateKeyPair();
           // Log and send the client's public key as a handshake response.
-          print("Sending client public key: ${cryptoService.getPublicKey()}");
+          _log.d('🔐 Sending client public key: ${cryptoService.getPublicKey()}');
           final handshakeResponse = createStructuredMessage(
             msgType: 'handshake',
             payload: {'client_public_key': cryptoService.getPublicKey()},
@@ -89,7 +94,7 @@ class ServerHelper {
           );
           // Mark handshake as complete so that subsequent messages are handled as encrypted messages.
           handshakeComplete = true;
-          print("Handshake complete. Ready to send encrypted messages.");
+          _log.i('✅ Handshake complete; ready for encrypted messaging');
           // Exit early to avoid processing further logic until handshake is finalized.
           return;
         }
@@ -105,25 +110,25 @@ class ServerHelper {
             _lastPongReceived = DateTime.now();
             // Reset reconnection attempts upon successful pong reception (confirms connection has been fully established).
             _reconnectAttempts = 0;
-            print("Pong received at $_lastPongReceived");
           } else {
             // For non-pong messages, add the decrypted message to the stream for other handlers to process.
+            _log.d('📩 Received message: $decryptedData');
             _controller.add(decryptedText);
           }
         } catch (e) {
           // Log any errors encountered during decryption.
-          print("Error decrypting message: $e");
+          _log.e('❌ Error decrypting message', error: e);
         }
       }
     },
         // Callback when the WebSocket connection is closed.
         onDone: () {
-      print("WebSocket closed.");
+      _log.w('⚠️ WebSocket closed by server');
       _handleConnectionLoss();
     },
         // Callback when an error occurs on the WebSocket connection.
         onError: (error) {
-      print("WebSocket error: $error");
+      _log.e('❌ WebSocket error', error: error);
       _handleConnectionLoss();
     });
 
@@ -142,12 +147,12 @@ class ServerHelper {
     String? errorCode,
     String? errorMessage,
   }) {
-    final Map<String, dynamic> message = {
+    final Map<String, dynamic> message = <String, dynamic>{
       'message_id': Uuid().v4(),
       'timestamp': DateTime.now().toUtc().toIso8601String(),
       'msg_type': msgType,
       'success': success,
-      'payload': payload ?? {}
+      'payload': payload ?? {},
     };
 
     if (!success) {
@@ -157,7 +162,7 @@ class ServerHelper {
     return message;
   }
 
-  /// Encrypts a message and sends it over the WebSocket.
+  /// Encrypts and sends a structured message over the WebSocket.
   Future<void> sendMessage({
     required String msgType,
     Map<String, dynamic> payload = const {},
@@ -175,13 +180,13 @@ class ServerHelper {
     );
 
     // Check if msgType is different from 'authenticate', 'signup' or 'ping'
-    if (!(["authenticate", "signup", "ping", "refresh_token"].contains(msgType))) {
+    if (!['authenticate', 'signup', 'ping', 'refresh_token'].contains(msgType)) {
       // We don't want to add jwt token and userId to these messages
       // Ensure jwtTokenService and userId are set
       if (jwtTokenService == null || userId == null) {
         throw Exception("TokenService or userId is not set in ServerHelper.");
       }
-      final String? accessToken = await jwtTokenService!.getAccessToken();
+      final accessToken = await jwtTokenService!.getAccessToken();
       if (accessToken == null) {
         throw Exception("Access token not available.");
       }
@@ -191,8 +196,7 @@ class ServerHelper {
       message['user_id'] = userId;
     }
 
-    // Log the message being sent for debugging purposes.
-    print("Sending message: $message");
+    _log.d('📤 Sending message: $message');
     // Serialize the message map into a JSON string.
     final plaintext = jsonEncode(message);
     // Encrypt the plaintext message using the crypto service.
@@ -205,14 +209,14 @@ class ServerHelper {
   /// It sends an encrypted 'ping' every 10 seconds and checks if a 'pong' response is received within 15 seconds.
   void startHeartbeat() {
     _heartbeatTimer = Timer.periodic(
-      Duration(seconds: 10),
+      const Duration(seconds: 10),
       (timer) {
         sendMessage(msgType: 'ping');
         // Compute the time elapsed since the last pong was received.
         final secondsSinceLastPong = DateTime.now().difference(_lastPongReceived).inSeconds;
         // If the elapsed time exceeds 15 seconds, assume the connection is lost.
         if (secondsSinceLastPong > 15) {
-          print("No pong received within threshold ($secondsSinceLastPong seconds).");
+          _log.w('⌛ No pong for $secondsSinceLastPong seconds; closing connection.');
           closeConnection();
         }
       },
@@ -228,6 +232,7 @@ class ServerHelper {
   void _handleConnectionLoss() {
     // If already marked as disconnected, do nothing.
     if (!_isConnected) return;
+    _log.w('🔄 Handling connection loss; will attempt reconnect');
     _isConnected = false;
     // Stop the heartbeat ping.
     stopHeartbeat();
@@ -255,7 +260,7 @@ class ServerHelper {
     // Cancel any existing countdown timer.
     _countdownTimer?.cancel();
     // Start a countdown timer to update the reconnect countdown every second.
-    _countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (reconnectCountdown.value > 0) {
         reconnectCountdown.value--;
       } else {
@@ -263,7 +268,7 @@ class ServerHelper {
       }
     });
 
-    print("Attempting to reconnect in $delaySeconds seconds...");
+    _log.i('🔁 Attempting to reconnect in $delaySeconds seconds');
     // Schedule a reconnection attempt after the calculated delay.
     _reconnectTimer = Timer(Duration(seconds: delaySeconds), () {
       _countdownTimer?.cancel();
@@ -271,8 +276,9 @@ class ServerHelper {
     });
   }
 
-  /// Closes the WebSocket connection and cleans up resources.
+  /// Closes the WebSocket and notifies listeners.
   void closeConnection() {
+    _log.i('✖️ Closing connection');
     // Stop the heartbeat ping.
     stopHeartbeat();
     // Cancel any pending reconnection timers.
@@ -288,17 +294,17 @@ class ServerHelper {
   }
 
   // --------------------------------------
-  // Schedules a token refresh just before expiration.
+  // Schedules a token refresh one minute before expiry.
   // --------------------------------------
   void scheduleTokenRefresh() async {
     // Get the current access token.
-    final accessToken = await jwtTokenService!.getAccessToken();
+    final accessToken = await jwtTokenService?.getAccessToken();
     if (accessToken == null) return;
 
     // Determine the token's expiration time.
-    DateTime expirationDate = JwtDecoder.getExpirationDate(accessToken);
+    final DateTime expirationDate = JwtDecoder.getExpirationDate(accessToken);
     // For a safety margin, refresh 1 minute before actual expiry.
-    final refreshDelay = expirationDate.difference(DateTime.now().toUtc()) - Duration(minutes: 1);
+    final refreshDelay = expirationDate.difference(DateTime.now().toUtc()) - const Duration(minutes: 1);
 
     // If the delay is negative, the token is already expired or about to expire.
     if (refreshDelay.isNegative) {
@@ -309,7 +315,7 @@ class ServerHelper {
       _tokenRefreshTimer?.cancel();
       // Schedule the refresh.
       _tokenRefreshTimer = Timer(refreshDelay, refreshAccessToken);
-      print("Scheduled token refresh in ${refreshDelay.inSeconds} seconds.");
+      _log.d('⏱️ Scheduled token refresh in ${refreshDelay.inSeconds}s');
     }
   }
 
@@ -317,23 +323,19 @@ class ServerHelper {
   // Sends a refresh request to the server and updates the access token.
   // --------------------------------------
   Future<void> refreshAccessToken() async {
-    final refreshToken = await jwtTokenService!.getRefreshToken();
-    if (refreshToken == null) {
-      throw Exception("Refresh token is missing.");
-    }
+    final refreshToken = await jwtTokenService?.getRefreshToken();
+    if (refreshToken == null) throw Exception("Refresh token is missing.");
 
     try {
       // Send refresh request.
-      await sendMessage(
-        msgType: 'refresh_token',
-        payload: {'refresh_jwt': refreshToken},
-      );
+      await sendMessage(msgType: 'refresh_token', payload: {'refresh_jwt': refreshToken});
 
       // Wait for the server's refresh response message.
-      final response = await messages.firstWhere((response) {
-        final data = jsonDecode(response);
-        return data['msg_type'] == 'refresh_token';
-      }).timeout(Duration(seconds: 5), onTimeout: () {
+      final response = await messages
+          .firstWhere(
+        (msg) => jsonDecode(msg)['msg_type'] == 'refresh_token',
+      )
+          .timeout(const Duration(seconds: 5), onTimeout: () {
         throw TimeoutException("Refresh token response timeout");
       });
 
@@ -343,7 +345,7 @@ class ServerHelper {
         final newAccessToken = data['payload']['access_token'];
         // Update storage while reusing the existing refresh token.
         await jwtTokenService!.saveTokens(newAccessToken, refreshToken);
-        print("Access token refreshed successfully.");
+        _log.i('🔄 Access token refreshed');
 
         // Schedule the next token refresh based on the new token's expiration.
         scheduleTokenRefresh();
@@ -351,7 +353,7 @@ class ServerHelper {
         throw Exception("Token refresh failed: ${data['error_message']}");
       }
     } catch (e) {
-      print("Error during token refresh: $e");
+      _log.e('❌ Error during token refresh', error: e);
       // You might want to add additional error handling such as reauthentication.
     }
   }
@@ -362,17 +364,15 @@ class ServerHelper {
     // Send an authentication request message.
     await sendMessage(
       msgType: 'authenticate',
-      payload: {
-        "username": username,
-        "password": password,
-      },
+      payload: {"username": username, "password": password},
     );
 
     // Wait for the first response message of type 'authenticate'.
-    final response = await messages.firstWhere((response) {
-      final data = jsonDecode(response);
-      return data['msg_type'] == 'authenticate';
-    }).timeout(Duration(seconds: 5), onTimeout: () {
+    final response = await messages
+        .firstWhere(
+      (msg) => jsonDecode(msg)['msg_type'] == 'authenticate',
+    )
+        .timeout(const Duration(seconds: 5), onTimeout: () {
       // If no authentication response is received within 5 seconds, update connection status and throw a timeout exception.
       _connectionStatusController.add(ServerConnectionStatus.timeout);
       throw TimeoutException("Server response timeout");
@@ -397,6 +397,8 @@ class ServerHelper {
       // Start scheduling token refresh.
       scheduleTokenRefresh();
 
+      _log.i('✅ Authentication succeeded for $username');
+
       // Return the user details on successful authentication.
       return {
         "success": true,
@@ -407,6 +409,7 @@ class ServerHelper {
         "refresh_token": payload['refresh_token'],
       };
     } else {
+      _log.w('❌ Authentication failed: ${data['error_message']}');
       // Return error details if authentication fails.
       return {
         "success": false,
@@ -417,7 +420,12 @@ class ServerHelper {
   }
 
   /// Registers a new user by sending an encrypted signup message with the provided user details.
-  Future<Map<String, dynamic>> register(String username, String password, String name, String profilePic) async {
+  Future<Map<String, dynamic>> register(
+    String username,
+    String password,
+    String name,
+    String profilePic,
+  ) async {
     // Send a signup request with user registration details.
     await sendMessage(
       msgType: 'signup',
@@ -430,10 +438,9 @@ class ServerHelper {
     );
 
     // Wait for the signup response message.
-    final response = await messages.firstWhere((response) {
-      final data = jsonDecode(response);
-      return data['msg_type'] == 'signup';
-    });
+    final response = await messages.firstWhere(
+      (msg) => jsonDecode(msg)['msg_type'] == 'signup',
+    );
     // Parse the signup response.
     final data = jsonDecode(response);
     final payload = data['payload'];
@@ -453,6 +460,8 @@ class ServerHelper {
       // Start scheduling token refresh.
       scheduleTokenRefresh();
 
+      _log.i('✅ Registration succeeded for $username');
+
       // Return the registered user ID on success.
       return {
         "success": true,
@@ -461,6 +470,7 @@ class ServerHelper {
         "refresh_token": payload['refresh_token'],
       };
     } else {
+      _log.w('❌ Registration failed: ${data['error_message']}');
       // Return error information if the signup process fails.
       return {
         "success": false,
@@ -470,28 +480,27 @@ class ServerHelper {
     }
   }
 
+  /// Attempts auto-login via stored refresh token.
   Future<Map<String, dynamic>> tryAutoLogin() async {
     // jwtTokenService is created the first time you call authenticate/register,
     // but on a cold start it’s still null → create it now.
     jwtTokenService ??= JWTTokenService();
 
     final refreshToken = await jwtTokenService!.getRefreshToken();
-    print("Trying to auto-login with refresh token: $refreshToken");
+    _log.i('🔄 Trying auto-login with refresh token: $refreshToken');
     if (refreshToken == null) {
       return {"success": false, "reason": "NO_REFRESH_TOKEN"};
     }
 
     // Send the same message the LoginPage would trigger.
-    await sendMessage(
-      msgType: 'refresh_token',
-      payload: {'refresh_jwt': refreshToken},
-    );
+    await sendMessage(msgType: 'refresh_token', payload: {'refresh_jwt': refreshToken});
 
     // Wait for the server’s answer (same pattern as in refreshAccessToken()).
-    final response = await messages.firstWhere((msg) {
-      final data = jsonDecode(msg);
-      return data['msg_type'] == 'refresh_token';
-    }).timeout(const Duration(seconds: 5), onTimeout: () {
+    final response = await messages
+        .firstWhere(
+      (msg) => jsonDecode(msg)['msg_type'] == 'refresh_token',
+    )
+        .timeout(const Duration(seconds: 5), onTimeout: () {
       throw TimeoutException("Refresh token response timeout");
     });
 
@@ -504,6 +513,8 @@ class ServerHelper {
       userId = data['payload']['user_id']; // so subsequent calls attach it
       // Re-schedule automatic refresh
       scheduleTokenRefresh();
+
+      _log.i('✅ Auto-login succeeded for ${data['payload']['username']}');
 
       return {
         "success": true,
@@ -518,6 +529,7 @@ class ServerHelper {
 
     // Refresh token was expired / revoked
     await jwtTokenService!.clearTokens();
+    _log.w('⚠️ Auto-login failed: ${data['error_message']}');
     return {
       "success": false,
       "reason": data['error_code'] ?? "EXPIRED",
@@ -525,50 +537,43 @@ class ServerHelper {
     };
   }
 
-  /// Fetches the list of contacts associated with a particular user.
+  /// Fetches the list of contacts for the given user.
   Future<List<Map<String, dynamic>>> fetchContacts(String userId) async {
     // Send an encrypted request to get contacts for the given user ID.
-    await sendMessage(
-      msgType: 'get_contacts',
-      payload: {
-        "user_id": userId,
-      },
-    );
+    await sendMessage(msgType: 'get_contacts', payload: {"user_id": userId});
 
     // Wait for the response message that contains the contacts list.
-    final response = await messages.firstWhere((response) {
-      final data = jsonDecode(response);
-      return data['msg_type'] == 'get_contacts';
-    });
+    final response = await messages.firstWhere(
+      (msg) => jsonDecode(msg)['msg_type'] == 'get_contacts',
+    );
 
     // Parse and return the contacts list.
     final data = jsonDecode(response);
     if (data['success'] == false) {
+      _log.w('⚠️ fetchContacts failed for $userId');
       // If the response indicates failure, return an empty list.
       return [];
     }
-    final payload = data['payload'];
-    return List<Map<String, dynamic>>.from(payload['contacts']);
+    _log.i('📇 fetchContacts returned ${data['payload']['contacts'].length} entries');
+    return List<Map<String, dynamic>>.from(data['payload']['contacts']);
   }
 
-  /// Adds a new contact for the user.
+  /// Adds a contact and returns the server response.
   Future<Map<String, dynamic>> addContact(String userId, String contactName) async {
     // Send an encrypted request to add a contact using the user's ID and the contact's username.
-    await sendMessage(
-      msgType: 'add_contact',
-      payload: {
-        "user_id": userId,
-        "contact_username": contactName,
-      },
-    );
+    await sendMessage(msgType: 'add_contact', payload: {"user_id": userId, "contact_username": contactName});
 
     // Wait for the response message corresponding to adding a contact.
-    final response = await messages.firstWhere((response) {
-      final data = jsonDecode(response);
-      return data["msg_type"] == "add_contact";
-    });
+    final response = await messages.firstWhere(
+      (msg) => jsonDecode(msg)['msg_type'] == 'add_contact',
+    );
     // Parse and return the response.
     final data = jsonDecode(response);
+    if (data['success'] == true) {
+      _log.i('➕ addContact succeeded: $contactName added for $userId');
+    } else {
+      _log.w('⚠️ addContact failed: ${data['error_message']}');
+    }
     return data;
   }
 }

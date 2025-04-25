@@ -1,6 +1,10 @@
+// lib/pages/startup_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
+import '../helpers/app_logger.dart';
 import '../models/lip_c_user.dart';
 import '../pages/contacts_page.dart';
 import '../pages/login_page.dart';
@@ -19,16 +23,23 @@ class StartupPage extends ConsumerStatefulWidget {
 }
 
 class _StartupPageState extends ConsumerState<StartupPage> {
+  final Logger _log = AppLogger.instance;
+
   @override
   void initState() {
     super.initState();
+    _log.i('💡 StartupPage mounted');
     _attemptAutoLogin();
   }
 
   Future<void> _attemptAutoLogin() async {
+    _log.i('🔄 Attempting auto-login');
     final serverHelper = ref.read(serverHelperProvider);
+
     try {
       final result = await serverHelper.tryAutoLogin();
+      _log.d('🛰️ Auto-login response: $result');
+
       if (result['success'] == true) {
         final user = LipCUser(
           userId: result['user_id'],
@@ -36,21 +47,26 @@ class _StartupPageState extends ConsumerState<StartupPage> {
           name: result['name'],
           profilePic: result['profile_pic'],
         );
+        _log.i('✅ Auto-login succeeded for ${user.username}');
+
         // Update providers with the logged-in user
         ref.read(currentUserProvider.notifier).setUser(user);
         ref.read(contactsProvider(user.userId).notifier).loadContacts();
 
         if (!mounted) return;
+        _log.i('➡️ Navigating to ContactsPage');
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const ContactsPage()),
         );
       } else {
+        _log.w('⚠️ Auto-login failed, redirecting to LoginPage');
         if (!mounted) return;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const LoginPage()),
         );
       }
-    } catch (_) {
+    } catch (e, st) {
+      _log.e('❌ Auto-login error', error: e, stackTrace: st);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -62,5 +78,11 @@ class _StartupPageState extends ConsumerState<StartupPage> {
   Widget build(BuildContext context) {
     // Always show splash while deciding where to go
     return const SplashScreen();
+  }
+
+  @override
+  void dispose() {
+    _log.i('🗑️ StartupPage disposed');
+    super.dispose();
   }
 }

@@ -1,10 +1,12 @@
-// File: call_orchestrator.dart
+// lib/helpers/call_orchestrator.dart
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
 import '../pages/outgoing_call_page.dart';
 import '../providers/subtitles_provider.dart';
@@ -13,8 +15,10 @@ import 'video_call_manager.dart';
 import 'call_control_manager.dart';
 import '../models/lip_c_user.dart';
 import '../models/connection_target.dart';
+import 'app_logger.dart';
 
 class CallOrchestrator {
+  final Logger _log = AppLogger.instance;
   final LipCUser localUser;
   LipCUser? remoteUser;
   final ServerHelper serverHelper;
@@ -30,12 +34,7 @@ class CallOrchestrator {
     required this.serverHelper,
     required this.contacts,
   }) {
-    // // Initialize the managers.
-    // videoCallManager = VideoCallManager(
-    //   serverHelper: serverHelper,
-    //   localUser: localUser,
-    //   remoteUser: null,
-    // );
+    _log.i('🎯 CallOrchestrator initialized for ${localUser.username}');
 
     callControlManager = CallControlManager(
       context: context,
@@ -43,163 +42,135 @@ class CallOrchestrator {
       localUser: localUser,
       contacts: contacts,
       onCallAccepted: (data) async {
-        final payload = data["payload"];
-        remoteUser = contacts.firstWhereOrNull(
-          (contact) => contact.userId == payload["from"],
-        );
+        final payload = data['payload'];
+        final fromId = payload['from'];
+        remoteUser = contacts.firstWhereOrNull((c) => c.userId == fromId);
         if (remoteUser == null) {
-          print("CallOrchestrator: Remote user not found in contacts.");
+          _log.e('❌ Remote user not found: $fromId');
           return;
         }
 
-        // Create a brand-new manager for this call
         videoCallManager = VideoCallManager(
           serverHelper: serverHelper,
           localUser: localUser,
           remoteUser: remoteUser,
         );
 
-        // 1. Send the user to the call page.
-        callControlManager.navigateToCallPage(
-          data,
-          videoCallManager!,
-          isCaller: false,
-        );
+        _log.i('➡️ Navigating to CallPage as callee');
+        callControlManager.navigateToCallPage(data, videoCallManager!, isCaller: false);
 
-        // 2. When the call is accepted, first establish the peer connection.
+        _log.i('🔧 Setting up peer environment for peer');
         await videoCallManager?.setupCallEnvironment(ConnectionTarget.peer);
 
-        // 3. Send call acceptance.
+        _log.i('📤 Sending call accept');
         callControlManager.sendCallAccept(data);
 
-        // 4. Establish the server connection.
+        _log.i('🔧 Setting up peer environment for server');
         await videoCallManager?.setupCallEnvironment(ConnectionTarget.server);
       },
     );
 
-    // Listen to signaling messages and route them appropriately.
     serverHelper.messages.listen((message) async {
       final data = jsonDecode(message);
-      print(data);
+      final msgType = data['msg_type'];
+      final payload = data['payload'];
+      final fromId = payload['from'] ?? '';
+      _log.d('📩 Received message: $msgType from $fromId');
 
-      final String messageType = data["msg_type"];
-      final payload = data["payload"];
-      final String messageFrom = payload["from"] ?? "";
-
-      switch (messageType) {
-        case "call_invite":
-          // Call invites are for peer connections.
-          print("CallOrchestrator: Received call invite from $messageFrom");
+      switch (msgType) {
+        case 'call_invite':
+          _log.i('📨 Received call invite from $fromId');
           callControlManager.onCallInvite(data);
           break;
-        case "call_accept":
-          // Accept messages for peer connection.
-          print("CallOrchestrator: Received call accept from $messageFrom");
-
-          callControlManager.navigateToCallPage(
-            data,
-            videoCallManager!,
-            isCaller: true,
-          );
-          sleep(Duration(milliseconds: 1000));
-
+        case 'call_accept':
+          _log.i('✅ Received call accept from $fromId');
+          callControlManager.navigateToCallPage(data, videoCallManager!, isCaller: true);
+          sleep(const Duration(milliseconds: 1000));
           await videoCallManager?.setupCallEnvironment(ConnectionTarget.peer);
           await videoCallManager?.setupCallEnvironment(ConnectionTarget.server);
-
           await videoCallManager?.negotiateCall(ConnectionTarget.peer, isCaller: true);
           await videoCallManager?.negotiateCall(ConnectionTarget.server, isCaller: true);
-
           break;
-        case "call_reject":
-          print("CallOrchestrator: Received call reject from $messageFrom");
+        case 'call_reject':
+          _log.i('✖️ Received call reject from $fromId');
           callControlManager.onCallReject(data);
           break;
-        case "video_state":
-          // Handle video state changes.
-          if (!data["success"]) {
-            print("CallOrchestrator: Failed to update video state for $messageFrom because: ${data["error_message"]}");
+        case 'video_state':
+          if (!data['success']) {
+            final err = data['error_message'];
+            _log.w('⚠️ Video state update failed from $fromId: $err');
           } else {
-            // Handle the video status update.
-            bool isVideoOn = payload["video"];
-            print("CallOrchestrator: Received video state ($isVideoOn) from $messageFrom");
+            final isVideoOn = payload['video'] as bool;
+            _log.d('📷 Received video state from $fromId: $isVideoOn');
             videoCallManager?.updateRemoteVideoStatus(isVideoOn);
           }
           break;
-        case "call_end":
-          print("CallOrchestrator: Received call end from $messageFrom");
+        case 'call_end':
+          _log.i('📴 Received call end from $fromId');
           callControlManager.onCallEnd(data);
           videoCallManager?.dispose();
           break;
-        case "ice_candidate":
-          print("CallOrchestrator: Received ICE candidate from $messageFrom");
-          // Route ICE candidates based on target.
-          if (messageFrom == "server") {
-            await videoCallManager?.onReceiveIceCandidate(ConnectionTarget.server, data["payload"]["candidate"]);
+        case 'ice_candidate':
+          _log.d('🌐 Received ICE candidate from $fromId');
+          if (fromId == 'server') {
+            await videoCallManager?.onReceiveIceCandidate(ConnectionTarget.server, data['payload']['candidate']);
           } else {
-            await videoCallManager?.onReceiveIceCandidate(ConnectionTarget.peer, data["payload"]["candidate"]);
+            await videoCallManager?.onReceiveIceCandidate(ConnectionTarget.peer, data['payload']['candidate']);
           }
           break;
-        case "offer":
-          print("CallOrchestrator: Received offer from $messageFrom");
-          // Handle SDP offers.
-          if (messageFrom == "server") {
-            await videoCallManager?.onReceiveOffer(ConnectionTarget.server, data["payload"]["offer"]);
+        case 'offer':
+          _log.i('📨 Received offer from $fromId');
+          if (fromId == 'server') {
+            await videoCallManager?.onReceiveOffer(ConnectionTarget.server, data['payload']['offer']);
           } else {
-            await videoCallManager?.onReceiveOffer(ConnectionTarget.peer, data["payload"]["offer"]);
-            // We need to initiate a call with the server ourselves.
+            await videoCallManager?.onReceiveOffer(ConnectionTarget.peer, data['payload']['offer']);
             await videoCallManager?.negotiateCall(ConnectionTarget.server, isCaller: true);
           }
           break;
-        case "answer":
-          print("CallOrchestrator: Received answer from $messageFrom");
-          // Handle SDP answers.
-          if (messageFrom == "server") {
-            await videoCallManager?.onReceiveAnswer(ConnectionTarget.server, data["payload"]["answer"]);
+        case 'answer':
+          _log.i('📨 Received answer from $fromId');
+          if (fromId == 'server') {
+            await videoCallManager?.onReceiveAnswer(ConnectionTarget.server, data['payload']['answer']);
           } else {
-            await videoCallManager?.onReceiveAnswer(ConnectionTarget.peer, data["payload"]["answer"]);
+            await videoCallManager?.onReceiveAnswer(ConnectionTarget.peer, data['payload']['answer']);
           }
           break;
-        case "lip_reading_prediction":
-          // Handle lip reading predictions.
-          print("CallOrchestrator: Received lip reading prediction from $messageFrom");
-          final String prediction = data["payload"]["prediction"] ?? "";
-          ProviderScope.containerOf(context).read(subtitlesProvider.notifier).update(prediction);
+        case 'lip_reading_prediction':
+          _log.d('🤖 Received lip reading prediction from $fromId');
+          final prediction = payload['prediction'] as String? ?? '';
+          ProviderScope.containerOf(context, listen: false).read(subtitlesProvider.notifier).update(prediction);
           break;
         default:
-          print("CallOrchestrator: Unhandled message type: $messageType");
+          _log.w('❓ Unhandled message type: $msgType');
       }
     });
   }
 
-  /// Starts the call by initializing the peer connection.
-  Future<void> callUser(LipCUser remoteUser) async {
-    print("CallOrchestrator: Calling ${remoteUser.userId}");
-    // Create a brand-new manager for this call
+  /// Starts an outgoing call to the given user.
+  Future<void> callUser(LipCUser remote) async {
+    _log.i('📞 Calling user ${remote.userId}');
     videoCallManager = VideoCallManager(
       serverHelper: serverHelper,
       localUser: localUser,
-      remoteUser: remoteUser,
+      remoteUser: remote,
     );
-
-    // Navigate to the CallingPage.
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => OutgoingCallPage(remoteUser: remoteUser),
-      ),
+      MaterialPageRoute(builder: (_) => OutgoingCallPage(remoteUser: remote)),
     );
-
-    // Proceed with the invite
-    callControlManager.sendCallInvite(remoteUser);
+    callControlManager.sendCallInvite(remote);
   }
 
+  /// Updates the internal contacts list.
   void updateContacts(List<LipCUser> newContacts) {
+    _log.d('🔄 Contacts updated: ${newContacts.length} entries');
     contacts = newContacts;
     callControlManager.updateContacts(newContacts);
   }
 
-  /// Dispose of the orchestrator and its underlying managers.
+  /// Disposes of resources when done.
   void dispose() {
+    _log.i('🗑️ Disposing CallOrchestrator');
     videoCallManager?.dispose();
   }
 }

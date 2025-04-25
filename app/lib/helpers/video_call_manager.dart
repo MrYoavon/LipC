@@ -1,12 +1,16 @@
-// File: video_call_manager.dart
+// lib/helpers/video_call_manager.dart
+
 import 'dart:async';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:lip_c/models/lip_c_user.dart';
-
+import 'package:logger/logger.dart';
+import '../models/lip_c_user.dart';
 import '../models/connection_target.dart';
 import 'server_helper.dart';
+import 'app_logger.dart';
 
 class VideoCallManager {
+  final Logger _log = AppLogger.instance;
+
   RTCPeerConnection? _peerConnection;
   RTCPeerConnection? _serverConnection;
   final List<Map<String, dynamic>> _peerPendingIceCandidates = [];
@@ -34,117 +38,115 @@ class VideoCallManager {
     required this.serverHelper,
     required this.localUser,
     required this.remoteUser,
-  });
+  }) {
+    _log.i('💡 VideoCallManager initialized for ${localUser.username}');
+  }
 
   final _iceServers = {
     'iceServers': [
       {
         'urls': ['stun:stun.l.google.com:19302', 'stun:stun2.l.google.com:19302']
       },
-      // Optionally add TURN servers here if needed.
     ]
   };
 
   Future<void> setupCallEnvironment(ConnectionTarget target) async {
+    _log.i('🎬 Setting up call environment for $target');
     RTCPeerConnection? connection = getConnection(target);
-    print("VideoCallManager: Setting up call environment");
 
-    // Create a new RTCPeerConnection if it doesn't exist.
-    // ignore: prefer_conditional_assignment
     if (connection == null) {
       connection = await createPeerConnection(_iceServers);
-
-      target == ConnectionTarget.peer ? _peerConnection = connection : _serverConnection = connection;
+      if (target == ConnectionTarget.peer) {
+        _peerConnection = connection;
+      } else {
+        _serverConnection = connection;
+      }
+      _log.d('🔗 Created new RTCPeerConnection for $target');
     }
 
-    // Set up onTrack listener for remote streams.
     connection.onTrack = (RTCTrackEvent event) {
-      print("Received remote stream: ${event.streams[0].id}");
+      _log.d('🌐 onTrack event: stream=${event.streams[0].id}');
       if (event.streams.isNotEmpty) {
         _remoteStreamController.add(event.streams[0]);
       }
     };
 
-    // Request the local media stream using the front camera.
-    // ignore: prefer_conditional_assignment
     if (_localStream == null) {
+      _log.d('📹 Requesting local media stream');
       _localStream = await navigator.mediaDevices.getUserMedia({
         'video': {'facingMode': 'user'},
         'audio': true,
       });
-      // Notify listeners that the local stream is available.
       _localStreamController.add(_localStream!);
+      _log.i('📹 Local stream obtained and added to controller');
     }
 
-    // Add all tracks from the local stream to the peer connection.
     _localStream!.getTracks().forEach((track) {
       connection!.addTrack(track, _localStream!);
     });
+    _log.d('🔗 Local tracks added to connection for $target');
 
-    print("Finished setting up call environment for $target");
+    _log.i('✅ Call environment setup complete for $target');
   }
 
   Future<void> negotiateCall(ConnectionTarget target, {bool isCaller = false}) async {
+    _log.i('🤝 Negotiating call with target: $target (isCaller=$isCaller)');
     RTCPeerConnection? connection = getConnection(target);
+    if (connection == null) {
+      _log.e('❌ Cannot negotiate; connection for $target is null');
+      return;
+    }
 
-    print("Negotiating call with target: $target");
     if (isCaller) {
       RTCSessionDescription offer = await createOffer(target);
-      print("Created offer: ${offer.sdp}");
+      _log.d('📣 Created offer: ${offer.sdp}');
       serverHelper.sendMessage(
-        msgType: "offer",
+        msgType: 'offer',
         payload: {
-          "from": localUser.userId,
-          "target": connection == _peerConnection ? remoteUser!.userId : 'server',
-          "other_user": remoteUser!.userId,
-          "offer": offer.toMap(),
+          'from': localUser.userId,
+          'target': connection == _peerConnection ? remoteUser!.userId : 'server',
+          'other_user': remoteUser!.userId,
+          'offer': offer.toMap(),
         },
       );
     } else {
       RTCSessionDescription answer = await createAnswer(target);
-      print("Created answer to $target | $remoteUser- ${answer.sdp}");
+      _log.d('📤 Created answer: ${answer.sdp}');
       serverHelper.sendMessage(
-        msgType: "answer",
+        msgType: 'answer',
         payload: {
-          "from": localUser.userId,
-          "target": connection == _peerConnection ? remoteUser!.userId : 'server',
-          "other_user": remoteUser!.userId,
-          "answer": answer.toMap(),
+          'from': localUser.userId,
+          'target': connection == _peerConnection ? remoteUser!.userId : 'server',
+          'other_user': remoteUser!.userId,
+          'answer': answer.toMap(),
         },
       );
     }
 
-    // Process any pending ICE candidates.
     processPendingIceCandidates(target);
 
-    // Send generated ICE candidates to the remote user.
-    connection!.onIceCandidate = (RTCIceCandidate? candidate) {
+    connection.onIceCandidate = (RTCIceCandidate? candidate) {
       if (candidate != null) {
-        print("Sending candidate: ${{
+        final candMap = {
           'candidate': candidate.candidate,
           'sdpMid': candidate.sdpMid,
           'sdpMLineIndex': candidate.sdpMLineIndex,
-        }}");
-
+        };
+        _log.d('🌐 Sending ICE candidate: $candMap');
         serverHelper.sendMessage(
-          msgType: "ice_candidate",
+          msgType: 'ice_candidate',
           payload: {
             'from': localUser.userId,
             'target': connection == _peerConnection ? remoteUser!.userId : 'server',
-            'candidate': {
-              'candidate': candidate.candidate,
-              'sdpMid': candidate.sdpMid,
-              'sdpMLineIndex': candidate.sdpMLineIndex,
-            }
+            'candidate': candMap,
           },
         );
       }
     };
 
-    print("Finished negotiating call");
+    _log.i('✅ Finished negotiating call for $target');
   }
 
-  /// Create an SDP offer.
   Future<RTCSessionDescription> createOffer(ConnectionTarget target) async {
     RTCPeerConnection? connection = getConnection(target);
     RTCSessionDescription offer = await connection!.createOffer();
@@ -152,7 +154,6 @@ class VideoCallManager {
     return offer;
   }
 
-  /// Create an SDP answer.
   Future<RTCSessionDescription> createAnswer(ConnectionTarget target) async {
     RTCPeerConnection? connection = getConnection(target);
     RTCSessionDescription answer = await connection!.createAnswer();
@@ -161,18 +162,15 @@ class VideoCallManager {
   }
 
   Future<void> onReceiveIceCandidate(ConnectionTarget target, Map<String, dynamic> candidateData) async {
+    _log.d('🌐 onReceiveIceCandidate for $target: $candidateData');
     RTCPeerConnection? connection = getConnection(target);
-    List<Map<String, dynamic>> pendingCandidates =
-        connection == _peerConnection ? _peerPendingIceCandidates : _serverPendingIceCandidates;
-
-    // If the peer connection isn't ready, store the candidate and return.
+    final pending = connection == _peerConnection ? _peerPendingIceCandidates : _serverPendingIceCandidates;
     if (connection == null) {
-      print("ICE candidate received, but _peerConnection is null. Storing candidate.");
-      pendingCandidates.add(candidateData);
+      _log.d('🗄️ Storing pending ICE candidate for $target');
+      pending.add(candidateData);
       return;
     }
 
-    // Process the incoming candidate.
     if (candidateData['candidate'] != null) {
       RTCIceCandidate candidate = RTCIceCandidate(
         candidateData['candidate'],
@@ -180,48 +178,51 @@ class VideoCallManager {
         candidateData['sdpMLineIndex'],
       );
       await connection.addCandidate(candidate);
-      print("Added ICE candidate: ${candidate.candidate}");
+      _log.i('✅ Added ICE candidate for $target: ${candidate.candidate}');
     }
   }
 
-// Call this method after the peer connection has been created and initialized.
   void processPendingIceCandidates(ConnectionTarget target) {
+    _log.d('🔄 Processing pending ICE candidates for $target');
     RTCPeerConnection? connection = getConnection(target);
-    if (connection == null) {
-      return;
-    }
+    if (connection == null) return;
+    final pending = connection == _peerConnection ? _peerPendingIceCandidates : _serverPendingIceCandidates;
 
-    List<Map<String, dynamic>> pendingCandidates =
-        connection == _peerConnection ? _peerPendingIceCandidates : _serverPendingIceCandidates;
-
-    if (pendingCandidates.isNotEmpty) {
-      for (var candidateData in pendingCandidates) {
-        onReceiveIceCandidate(target, candidateData);
-      }
-      pendingCandidates.clear();
+    for (var candidateData in pending) {
+      onReceiveIceCandidate(target, candidateData);
     }
+    pending.clear();
+    _log.d('✅ Cleared pending ICE candidates for $target');
   }
 
   Future<void> onReceiveOffer(ConnectionTarget target, Map<String, dynamic> offerData) async {
+    _log.i('📥 onReceiveOffer from ${offerData['from']} for $target');
     RTCPeerConnection? connection = getConnection(target);
-    // ignore: prefer_conditional_assignment
     if (connection == null) {
-      connection = await createPeerConnection(_iceServers); // Ensure peer connection is initialized
-
-      target == ConnectionTarget.peer ? _peerConnection = connection : _serverConnection = connection;
+      connection = await createPeerConnection(_iceServers);
+      if (target == ConnectionTarget.peer) {
+        _peerConnection = connection;
+      } else {
+        _serverConnection = connection;
+      }
+      _log.d('🔗 Initialized peer connection on offer');
     }
-
-    await connection.setRemoteDescription(RTCSessionDescription(offerData['sdp'], offerData['type']));
-
+    await connection.setRemoteDescription(
+      RTCSessionDescription(offerData['sdp'], offerData['type']),
+    );
     negotiateCall(target, isCaller: false);
   }
 
   Future<void> onReceiveAnswer(ConnectionTarget target, Map<String, dynamic> answerData) async {
+    _log.i('📥 onReceiveAnswer for $target');
     RTCPeerConnection? connection = getConnection(target);
-    await connection!.setRemoteDescription(RTCSessionDescription(answerData['sdp'], answerData['type']));
+    await connection!.setRemoteDescription(
+      RTCSessionDescription(answerData['sdp'], answerData['type']),
+    );
   }
 
   void updateRemoteVideoStatus(bool isVideoOn) {
+    _log.d('📷 Remote video status changed: $isVideoOn');
     _remoteVideoStatusController.add(isVideoOn);
   }
 
@@ -234,8 +235,8 @@ class VideoCallManager {
     }
   }
 
-  // Flip the camera on the local media stream.
   Future<void> flipCamera() async {
+    _log.i('🔄 Flipping camera');
     if (_localStream != null) {
       final videoTracks = _localStream!.getVideoTracks();
       if (videoTracks.isNotEmpty) {
@@ -244,50 +245,51 @@ class VideoCallManager {
     }
   }
 
-  // Toggle the camera on the local media stream.
   Future<void> toggleCamera() async {
+    _log.i('📷 Toggling camera');
     if (_localStream != null) {
       final videoTracks = _localStream!.getVideoTracks();
       if (videoTracks.isNotEmpty) {
         final track = videoTracks[0];
         track.enabled = !track.enabled;
+        _localVideoStatusController.add(track.enabled);
+        _log.d('📷 Camera enabled: ${track.enabled}');
       }
     }
   }
 
-  // Toggle the microphone on the local media stream.
   Future<void> toggleMicrophone() async {
+    _log.i('🎤 Toggling microphone');
     if (_localStream != null) {
       final audioTracks = _localStream!.getAudioTracks();
       if (audioTracks.isNotEmpty) {
         final track = audioTracks[0];
         track.enabled = !track.enabled;
+        _log.d('🎤 Microphone enabled: ${track.enabled}');
       }
     }
   }
 
-  // Dispose of the resources.
   void dispose() {
-    _localStream?.getTracks().forEach((track) => track.stop());
+    _log.i('🗑️ Disposing VideoCallManager resources');
+    _localStream?.getTracks().forEach((track) {
+      track.stop();
+    });
     _localStream?.dispose();
     _localStream = null;
 
     _localStreamController.close();
     _remoteStreamController.close();
-
     _localVideoStatusController.close();
     _remoteVideoStatusController.close();
 
-    localStreamStream.drain();
-    remoteStreamStream.drain();
-
     _peerConnection?.close();
     _peerConnection = null;
-
     _serverConnection?.close();
     _serverConnection = null;
 
     _peerPendingIceCandidates.clear();
     _serverPendingIceCandidates.clear();
+    _log.i('✅ VideoCallManager disposed');
   }
 }

@@ -2,8 +2,13 @@
 
 import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
+import 'package:logger/logger.dart';
+
+import 'package:lip_c/helpers/app_logger.dart';
 
 class CryptoService {
+  final Logger _log = AppLogger.instance;
+
   // -------------------------------------------------------------
   // Key Exchange Algorithm
   // -------------------------------------------------------------
@@ -32,17 +37,22 @@ class CryptoService {
   /// Generates an ephemeral key pair for the client.
   /// This method initializes the client's key pair and extracts its public key.
   Future<void> generateKeyPair() async {
+    _log.i('🔑 Generating ephemeral key pair');
     _keyPair = await keyExchangeAlgorithm.newKeyPair();
     _publicKey = await _keyPair!.extractPublicKey();
+    _log.i('🔑 Ephemeral key pair generated');
   }
 
   /// Returns the client's public key as a Base64-encoded string.
   /// Throws an exception if the key pair has not been generated.
   String getPublicKey() {
     if (_publicKey == null) {
+      _log.e('⚠️ getPublicKey called before key pair generation');
       throw Exception("Key pair not generated. Call generateKeyPair() first.");
     }
-    return base64Encode(_publicKey!.bytes);
+    final key = base64Encode(_publicKey!.bytes);
+    _log.d('📤 Public key: $key');
+    return key;
   }
 
   /// Computes the shared secret using the server's Base64-encoded public key and derives an AES-256 key via HKDF.
@@ -52,12 +62,12 @@ class CryptoService {
   /// - [salt]: A list of bytes used as the salt for key derivation.
   ///
   /// The `info` parameter ("handshake data") provides context for the key derivation and can be adjusted if needed.
-  Future<void> computeSharedSecret(
-      String serverPublicKeyBase64, List<int> salt) async {
+  Future<void> computeSharedSecret(String serverPublicKeyBase64, List<int> salt) async {
+    _log.i('🔐 Computing shared secret');
     // Decode the server's public key from its Base64 representation.
-    final serverPublicKeyBytes = base64Decode(serverPublicKeyBase64);
+    final serverBytes = base64Decode(serverPublicKeyBase64);
     final serverPublicKey = SimplePublicKey(
-      serverPublicKeyBytes,
+      serverBytes,
       type: KeyPairType.x25519, // Using Curve25519
     );
 
@@ -66,6 +76,7 @@ class CryptoService {
       keyPair: _keyPair!,
       remotePublicKey: serverPublicKey,
     );
+    _log.i('🔐 Shared secret computed');
 
     // Set up the HKDF instance to derive a 256-bit (32 bytes) AES key from the shared secret.
     final hkdf = Hkdf(
@@ -79,6 +90,7 @@ class CryptoService {
       nonce: salt,
       info: utf8.encode('handshake data'),
     );
+    _log.i('🔐 AES key derived via HKDF');
   }
 
   /// Encrypts the given [plaintext] using AES-GCM with the derived AES key.
@@ -86,8 +98,10 @@ class CryptoService {
   /// Returns a map containing the Base64-encoded nonce, ciphertext, and authentication tag.
   Future<Map<String, String>> encryptMessage(String plaintext) async {
     if (_aesKey == null) {
+      _log.e('⚠️ encryptMessage called before AES key derivation');
       throw Exception("AES key not derived. Ensure key exchange is complete.");
     }
+    _log.d('🔒 Encrypting message: $plaintext');
     // Create an AES-GCM algorithm instance with 256-bit key support.
     final algorithm = AesGcm.with256bits();
     // Generate a new nonce for the encryption operation.
@@ -99,11 +113,12 @@ class CryptoService {
       nonce: nonce,
     );
     // Return the encryption results with nonce, ciphertext, and MAC encoded in Base64.
-    return {
+    final result = {
       'nonce': base64Encode(secretBox.nonce),
       'ciphertext': base64Encode(secretBox.cipherText),
       'tag': base64Encode(secretBox.mac.bytes),
     };
+    return result;
   }
 
   /// Decrypts an encrypted message.
@@ -116,8 +131,10 @@ class CryptoService {
   /// Returns the decrypted plaintext as a String.
   Future<String> decryptMessage(Map<String, dynamic> encryptedData) async {
     if (_aesKey == null) {
+      _log.e('⚠️ decryptMessage called before AES key derivation');
       throw Exception("AES key not derived. Ensure key exchange is complete.");
     }
+    _log.d('🔓 Decrypting payload: $encryptedData');
     // Create an AES-GCM algorithm instance with 256-bit key support.
     final algorithm = AesGcm.with256bits();
     // Create a SecretBox containing the ciphertext, nonce, and MAC after decoding them from Base64.
@@ -132,6 +149,8 @@ class CryptoService {
       secretKey: _aesKey!,
     );
     // Decode the decrypted bytes into a UTF-8 String.
-    return utf8.decode(clearText);
+    final plaintext = utf8.decode(clearText);
+    _log.d('🔓 Decrypted plaintext: $plaintext');
+    return plaintext;
   }
 }

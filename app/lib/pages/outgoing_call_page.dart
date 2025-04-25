@@ -1,9 +1,15 @@
+// lib/pages/outgoing_call_page.dart
+
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+
+import '../helpers/app_logger.dart';
 import '../models/lip_c_user.dart';
 import '../constants.dart';
 
 class OutgoingCallPage extends StatelessWidget {
   final LipCUser remoteUser;
+  static final Logger _log = AppLogger.instance;
 
   const OutgoingCallPage({super.key, required this.remoteUser});
 
@@ -16,11 +22,7 @@ class OutgoingCallPage extends StatelessWidget {
       );
     } else {
       // Generate initials from the remote user's name.
-      String initials = remoteUser.name
-          .split(" ")
-          .map((e) => e.isNotEmpty ? e[0].toUpperCase() : '')
-          .take(2)
-          .join();
+      String initials = remoteUser.name.split(" ").map((e) => e.isNotEmpty ? e[0].toUpperCase() : '').take(2).join();
       return CircleAvatar(
         radius: 80,
         backgroundColor: AppColors().getUserColor(remoteUser.userId),
@@ -38,6 +40,7 @@ class OutgoingCallPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _log.i('📞 OutgoingCallPage built for ${remoteUser.username}');
     return PopScope(
       canPop:
           false, // Prevents the user from going back to the previous screen yet allows us to use Navigator.pop(context).

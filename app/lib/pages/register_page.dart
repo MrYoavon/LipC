@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
+import '../helpers/app_logger.dart';
 import '../models/lip_c_user.dart';
 import '../providers/contacts_provider.dart';
 import '../providers/current_user_provider.dart';
@@ -19,6 +21,8 @@ class RegisterPage extends ConsumerStatefulWidget {
 }
 
 class _RegisterPageState extends ConsumerState<RegisterPage> {
+  final Logger _log = AppLogger.instance;
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _firstNameController = TextEditingController();
@@ -33,7 +37,14 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   bool _obscureConfirmPassword = true;
 
   @override
+  void initState() {
+    super.initState();
+    _log.i('💡 RegisterPage mounted');
+  }
+
+  @override
   void dispose() {
+    _log.i('🗑️ RegisterPage disposed');
     _firstNameController.dispose();
     _lastNameController.dispose();
     _usernameController.dispose();
@@ -88,25 +99,34 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   }
 
   void _register() async {
+    final username = _usernameController.text.trim();
+    _log.i('📝 Register attempt for user: $username');
+
     if (_formKey.currentState?.validate() ?? false) {
       final firstName = _firstNameController.text.trim();
       final lastName = _lastNameController.text.trim();
       final fullName = '$firstName $lastName';
-      final username = _usernameController.text.trim();
       final password = _passwordController.text.trim();
       final profilePic = _profilePicController.text.trim();
 
       final serverHelper = ref.read(serverHelperProvider);
-
       setState(() => _isLoading = true);
 
-      // Await the registration response.
-      Map<String, dynamic> registrationResponse = await serverHelper.register(username, password, fullName, profilePic);
+      Map<String, dynamic> registrationResponse = await serverHelper.register(
+        username,
+        password,
+        fullName,
+        profilePic,
+      );
+      _log.d('🛰️ Registration response: $registrationResponse');
       setState(() => _isLoading = false);
 
       if (registrationResponse["success"] == true) {
+        final userId = registrationResponse["user_id"];
+        _log.i('✅ Registration succeeded for userId: $userId');
+
         final currentUser = LipCUser(
-          userId: registrationResponse["user_id"],
+          userId: userId,
           username: username,
           name: fullName,
           profilePic: profilePic,
@@ -123,6 +143,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           ),
         );
       } else {
+        _log.w('❌ Registration failed: ${registrationResponse["error_message"]}');
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(
@@ -302,27 +323,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       ),
                       validator: _validateConfirmPassword,
                     ),
-                    // const SizedBox(height: 15),
-
-                    // // Optional: Profile Picture URL field | Disabled for now
-                    // TextFormField(
-                    //   controller: _profilePicController,
-                    //   maxLength: 256,
-                    //   decoration: InputDecoration(
-                    //     labelText: "Profile Picture URL (optional)",
-                    //     labelStyle: TextStyle(color: AppColors.textSecondary),
-                    //     prefixIcon:
-                    //         Icon(Icons.image, color: AppColors.textSecondary),
-                    //     border: OutlineInputBorder(
-                    //       borderRadius: BorderRadius.circular(12),
-                    //     ),
-                    //     focusedBorder: OutlineInputBorder(
-                    //       borderSide: BorderSide(
-                    //           color: AppColors.textSecondary, width: 2),
-                    //       borderRadius: BorderRadius.circular(12),
-                    //     ),
-                    //   ),
-                    // ),
                     const SizedBox(height: 12),
 
                     // Gradient Register Button
@@ -353,9 +353,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             elevation: 0,
                           ),
                           child: _isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
+                              ? const CircularProgressIndicator(color: Colors.white)
                               : const Text(
                                   "Sign Up",
                                   style: TextStyle(

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lip_c/widgets/server_connection_indicator.dart';
+import 'package:logger/logger.dart';
 
+import '../helpers/app_logger.dart';
 import '../models/lip_c_user.dart';
 import '../providers/contacts_provider.dart';
 import '../providers/current_user_provider.dart';
@@ -20,6 +22,7 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final Logger _log = AppLogger.instance;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -27,7 +30,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _obscurePassword = true;
 
   @override
+  void initState() {
+    super.initState();
+    _log.i('💡 LoginPage mounted');
+  }
+
+  @override
   void dispose() {
+    _log.i('🗑️ LoginPage disposed');
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -59,10 +69,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   void _login() async {
+    final username = _usernameController.text.trim();
+    _log.i('🔑 Login attempt for user: $username');
+
     // Validate all form fields
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
-      final username = _usernameController.text.trim();
       final password = _passwordController.text.trim();
 
       // Access the shared ServerHelper instance using ref.read
@@ -70,11 +82,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
       // Await a map response with "success" and "user_id"
       Map<String, dynamic> authResponse = await serverHelper.authenticate(username, password);
+      _log.d('🛰️ Auth response: $authResponse');
       setState(() => _isLoading = false);
       print("Auth Response: $authResponse");
 
       if (authResponse["success"] == true) {
         final userId = authResponse["user_id"];
+        _log.i('✅ Login succeeded for userId: $userId');
         final currentUser = LipCUser(
           userId: userId,
           username: username,
@@ -93,6 +107,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
         );
       } else {
+        _log.w('❌ Login failed: ${authResponse["error_message"]}');
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(

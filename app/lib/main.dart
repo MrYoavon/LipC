@@ -3,11 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'constants.dart';
+import 'helpers/app_logger.dart';
+import 'helpers/riverpod_logger.dart';
 import 'pages/startup_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppLogger.init();
+
   runApp(
-    const ProviderScope(
+    ProviderScope(
+      observers: [RiverpodLogger()],
       child: LipC(),
     ),
   );

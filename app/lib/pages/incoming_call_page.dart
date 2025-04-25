@@ -1,9 +1,13 @@
+// lib/pages/incoming_call_page.dart
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:vibration/vibration.dart';
+import 'package:logger/logger.dart';
 
+import '../helpers/app_logger.dart';
 import '../models/lip_c_user.dart';
 import '../constants.dart';
 
@@ -26,37 +30,43 @@ class IncomingCallPage extends StatefulWidget {
 }
 
 class _IncomingCallPageState extends State<IncomingCallPage> {
+  final Logger _log = AppLogger.instance;
   Timer? _stopRingtoneTimer;
 
   @override
   void initState() {
     super.initState();
+    _log.i('💡 IncomingCallPage mounted for ${widget.remoteUser.username}');
     _startVibration();
     _startRingtone();
   }
 
   void _startVibration() async {
     if (await Vibration.hasVibrator()) {
-      // Pattern: wait 0ms, vibrate for 1000ms, pause for 500ms, then vibrate for 1000ms
+      _log.d('🔔 Starting vibration pattern');
       Vibration.vibrate(pattern: [0, 1000, 500, 1000], repeat: 0);
+    } else {
+      _log.w('⚠️ Device has no vibrator');
     }
   }
 
   void _startRingtone() {
+    _log.d('🎶 Playing ringtone');
     FlutterRingtonePlayer().play(
       fromAsset: 'assets/audio/hey_now_ringtone.mp3',
       looping: true,
       volume: 1.0,
       asAlarm: true,
     );
-    // Stop the ringtone after 30 seconds.
     _stopRingtoneTimer = Timer(const Duration(seconds: 30), () {
+      _log.d('⏰ Stopping ringtone after timeout');
       FlutterRingtonePlayer().stop();
     });
   }
 
   @override
   void dispose() {
+    _log.i('🗑️ IncomingCallPage disposed, stopping alerts');
     _stopRingtoneTimer?.cancel();
     FlutterRingtonePlayer().stop();
     Vibration.cancel();
@@ -71,12 +81,8 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
         backgroundColor: Colors.transparent,
       );
     } else {
-      // Generate initials from the user's name.
-      String initials = widget.remoteUser.name
-          .split(" ")
-          .map((e) => e.isNotEmpty ? e[0].toUpperCase() : '')
-          .take(2)
-          .join();
+      String initials =
+          widget.remoteUser.name.split(" ").map((e) => e.isNotEmpty ? e[0].toUpperCase() : '').take(2).join();
       return CircleAvatar(
         radius: 80,
         backgroundColor: AppColors().getUserColor(widget.remoteUser.userId),
@@ -92,13 +98,25 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
     }
   }
 
+  void _handleReject() {
+    _log.i('❌ Incoming call from ${widget.remoteUser.username} rejected');
+    FlutterRingtonePlayer().stop();
+    Vibration.cancel();
+    widget.onReject();
+  }
+
+  void _handleAccept() {
+    _log.i('✅ Incoming call from ${widget.remoteUser.username} accepted');
+    FlutterRingtonePlayer().stop();
+    Vibration.cancel();
+    widget.onAccept();
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop:
-          false, // Prevents the user from going back to the previous screen yet allows us to use Navigator.pop(context).
+      canPop: false,
       child: Scaffold(
-        // No AppBar to remove the back arrow.
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -138,21 +156,13 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       IconButton(
-                        onPressed: () {
-                          FlutterRingtonePlayer().stop();
-                          Vibration.cancel();
-                          widget.onReject();
-                        },
+                        onPressed: _handleReject,
                         icon: const Icon(Icons.call_end),
                         color: Colors.red,
                         iconSize: 60,
                       ),
                       IconButton(
-                        onPressed: () {
-                          FlutterRingtonePlayer().stop();
-                          Vibration.cancel();
-                          widget.onAccept();
-                        },
+                        onPressed: _handleAccept,
                         icon: const Icon(Icons.call),
                         color: Colors.green,
                         iconSize: 60,

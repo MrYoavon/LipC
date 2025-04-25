@@ -1,4 +1,9 @@
+// lib/pages/splash_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+
+import '../helpers/app_logger.dart';
 import '../constants.dart';
 
 /// A simple splash screen that displays the logo in the center
@@ -11,11 +16,13 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  final Logger _log = AppLogger.instance;
   late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
+    _log.i('💡 SplashScreen mounted');
     // Rotate once every 2 seconds
     _controller = AnimationController(
       vsync: this,
@@ -25,6 +32,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   void dispose() {
+    _log.i('🗑️ SplashScreen disposed');
     _controller.dispose();
     super.dispose();
   }
