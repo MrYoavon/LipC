@@ -11,7 +11,7 @@ from typing import Deque, Dict
 
 # -------- TUNE THESE CONSTANTS --------
 WINDOW_SECONDS = 5          # length of the sliding window
-MAX_MSG_PER_WIN = 5         # how many messages are allowed in that window
+MAX_MSG_PER_WIN = 60         # how many messages are allowed in that window
 BAN_SECONDS = 30         # temporary ban once limit is exceeded
 # --------------------------------------
 
