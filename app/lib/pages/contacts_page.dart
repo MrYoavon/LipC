@@ -270,83 +270,87 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
           ),
           body: isLoading
               ? const Center(child: CircularProgressIndicator())
-              : contacts.isEmpty
-                  ? const Center(child: Text("No contacts found."))
-                  : Stack(
-                      children: [
-                        ListView.builder(
-                          itemCount: contacts.length,
-                          itemBuilder: (context, index) {
-                            final contact = contacts[index];
-                            final color = AppColors().getUserColor(contact.userId);
+              : Stack(
+                  children: [
+                    // Bottom layer: either the list or "no contacts" message
+                    contacts.isEmpty
+                        ? const Center(child: Text("No contacts found."))
+                        : ListView.builder(
+                            itemCount: contacts.length,
+                            itemBuilder: (context, index) {
+                              final contact = contacts[index];
+                              final color = AppColors().getUserColor(contact.userId);
 
-                            if (_searchQuery.isNotEmpty &&
-                                !contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) &&
-                                !contact.username.toLowerCase().contains(_searchQuery.toLowerCase())) {
-                              return const SizedBox.shrink();
-                            }
+                              if (_searchQuery.isNotEmpty &&
+                                  !contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) &&
+                                  !contact.username.toLowerCase().contains(_searchQuery.toLowerCase())) {
+                                return const SizedBox.shrink();
+                              }
 
-                            return ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: color,
-                                foregroundColor: AppColors.background,
-                                child: Text(contact.name[0]),
-                              ),
-                              title: Row(
-                                children: [
-                                  Text(contact.name),
-                                  Text(" @${contact.username}",
-                                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-                                ],
-                              ),
-                              subtitle: const Text('Status: Online'),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.video_call),
-                                onPressed: () {
-                                  _log.i('📞 Calling user: ${contact.username}');
-                                  callOrchestrator.callUser(contact);
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                        Positioned(
-                          bottom: 24,
-                          right: 24,
-                          child: FloatingActionButton(
-                            backgroundColor: AppColors.accent,
-                            foregroundColor: AppColors.background,
-                            onPressed: _showAddContactDialog,
-                            tooltip: 'Add Contact',
-                            heroTag: 'add_contact',
-                            child: const Icon(Icons.add),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 24,
-                          left: 24,
-                          child: FloatingActionButton(
-                            backgroundColor: AppColors.accent,
-                            foregroundColor: AppColors.background,
-                            onPressed: () {
-                              _log.i('📜 Opening call history');
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CallHistoryPage(
-                                    service: callHistoryService,
-                                    userId: currentUser.userId,
-                                  ),
+                              return ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: color,
+                                  foregroundColor: AppColors.background,
+                                  child: Text(contact.name[0]),
+                                ),
+                                title: Row(
+                                  children: [
+                                    Text(contact.name),
+                                    Text(" @${contact.username}",
+                                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                                  ],
+                                ),
+                                subtitle: const Text('Status: Online'),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.video_call),
+                                  onPressed: () {
+                                    _log.i('📞 Calling user: ${contact.username}');
+                                    callOrchestrator.callUser(contact);
+                                  },
                                 ),
                               );
                             },
-                            tooltip: 'Call History',
-                            heroTag: 'call_history',
-                            child: const Icon(Icons.history),
                           ),
-                        ),
-                      ],
+                    // Add Contact button
+                    Positioned(
+                      bottom: 24,
+                      right: 24,
+                      child: FloatingActionButton(
+                        backgroundColor: AppColors.accent,
+                        foregroundColor: AppColors.background,
+                        onPressed: _showAddContactDialog,
+                        tooltip: 'Add Contact',
+                        heroTag: 'add_contact',
+                        child: const Icon(Icons.add),
+                      ),
                     ),
+
+                    // Call History button
+                    Positioned(
+                      bottom: 24,
+                      left: 24,
+                      child: FloatingActionButton(
+                        backgroundColor: AppColors.accent,
+                        foregroundColor: AppColors.background,
+                        onPressed: () {
+                          _log.i('📜 Opening call history');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CallHistoryPage(
+                                service: callHistoryService,
+                                userId: currentUser.userId,
+                              ),
+                            ),
+                          );
+                        },
+                        tooltip: 'Call History',
+                        heroTag: 'call_history',
+                        child: const Icon(Icons.history),
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
