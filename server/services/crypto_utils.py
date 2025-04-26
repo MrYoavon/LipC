@@ -221,3 +221,33 @@ async def structure_encrypt_send_message(
         await send_encrypted(websocket, plaintext, aes_key)
     except Exception as e:
         logging.error("Failed to send structured encrypted message: " + str(e))
+
+
+async def send_error_message(
+    websocket,
+    aes_key,
+    msg_type,
+    error_code,
+    error_message,
+):
+    """
+    Send an error message over the websocket connection.
+
+    Parameters:
+      websocket: The websocket connection object.
+      aes_key: The AES key for encryption.
+      msg_type (str): The type of message.
+      error_code (str): A string representing the error code.
+      error_message (str): A descriptive error message.
+
+    This function constructs a structured error message and sends it using the send_encrypted() utility.
+    """
+    await structure_encrypt_send_message(
+        websocket,
+        aes_key,
+        msg_type=msg_type,
+        success=False,
+        payload=None,
+        error_code=error_code,
+        error_message=error_message
+    )

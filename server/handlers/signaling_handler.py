@@ -1,3 +1,4 @@
+# handlers/signaling_handler.py
 import asyncio
 import logging
 import av
@@ -5,7 +6,7 @@ from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription
 
 from constants import TARGET_CHUNK_SIZE
 from database.call_history import start_call, append_line, finish_call
-from services.crypto_utils import structure_encrypt_send_message
+from services.crypto_utils import send_error_message, structure_encrypt_send_message
 from services.jwt_utils import verify_jwt_in_message
 from services.lip_reading.lip_reader import LipReadingPipeline, get_lip_model
 from services.lip_reading.vosk_helper import VoskRecognizer, convert_audio_frame_to_pcm
@@ -225,7 +226,13 @@ async def handle_offer(websocket, data, aes_key):
 
     valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        return await _error_response(websocket, aes_key, "offer", err)
+        return await send_error_message(
+            websocket,
+            aes_key,
+            "offer",
+            error_code=err.get("error"),
+            error_message=err.get("message")
+        )
 
     logging.info(f"Offer from {sender} to {target}")
 
@@ -233,9 +240,12 @@ async def handle_offer(websocket, data, aes_key):
         return await handle_server_offer(websocket, data, aes_key)
 
     if sender not in clients or target not in clients:
-        return await _error_response(
-            websocket, aes_key, "offer", {
-                "error": "NOT_CONNECTED", "message": "Client not connected."}
+        return await send_error_message(
+            websocket,
+            aes_key,
+            "offer",
+            error_code="NOT_CONNECTED",
+            error_message="Client not connected."
         )
 
     # Track pending call without DB insert yet
@@ -261,7 +271,13 @@ async def handle_answer(websocket, data, aes_key):
 
     valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        return await _error_response(websocket, aes_key, "answer", err)
+        return await send_error_message(
+            websocket,
+            aes_key,
+            "answer",
+            error_code=err.get("error"),
+            error_message=err.get("message")
+        )
 
     logging.info(f"Answer from {sender} to {target}")
 
@@ -269,9 +285,12 @@ async def handle_answer(websocket, data, aes_key):
         return await handle_server_answer(websocket, data, aes_key)
 
     if target not in clients:
-        return await _error_response(
-            websocket, aes_key, "answer", {
-                "error": "TARGET_NOT_CONNECTED", "message": "Target not connected."}
+        return await send_error_message(
+            websocket,
+            aes_key,
+            "answer",
+            error_code="TARGET_NOT_CONNECTED",
+            error_message="Target not connected."
         )
 
     key = call_key(sender, target)
@@ -298,7 +317,13 @@ async def handle_ice_candidate(websocket, data, aes_key):
 
     valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        return await _error_response(websocket, aes_key, "ice_candidate", err)
+        return await send_error_message(
+            websocket,
+            aes_key,
+            "ice_candidate",
+            error_code=err.get("error"),
+            error_message=err.get("message")
+        )
 
     logging.info(f"ICE candidate from {sender} to {target}")
 
@@ -306,9 +331,12 @@ async def handle_ice_candidate(websocket, data, aes_key):
         return await handle_server_ice_candidate(websocket, data, aes_key)
 
     if target not in clients:
-        return await _error_response(
-            websocket, aes_key, "ice_candidate", {
-                "error": "TARGET_NOT_CONNECTED", "message": "Target not connected."}
+        return await send_error_message(
+            websocket,
+            aes_key,
+            "ice_candidate",
+            error_code="TARGET_NOT_CONNECTED",
+            error_message="Target not connected."
         )
 
     await structure_encrypt_send_message(
@@ -333,7 +361,13 @@ async def handle_server_offer(websocket, data, aes_key):
 
     valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        return await _error_response(websocket, aes_key, "server_offer", err)
+        return await send_error_message(
+            websocket,
+            aes_key,
+            "server_offer",
+            error_code=err.get("error"),
+            error_message=err.get("message")
+        )
 
     logging.info(f"Server-side offer from {sender} for {other_user}")
 
@@ -361,19 +395,19 @@ async def handle_server_answer(websocket, data, aes_key):
 
     valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        return await _error_response(websocket, aes_key, "answer", err)
+        return await send_error_message(websocket, aes_key, "answer", err)
 
     logging.info(f"Server-side answer from {sender}")
 
     client = clients.get(sender, {})
     pc = client.get("pc")
     if not pc:
-        return await _error_response(
+        return await send_error_message(
             websocket,
             aes_key,
             "answer",
-            {"error": "NO_ACTIVE_CONNECTION",
-                "message": "No active server connection."}
+            error_code="NO_ACTIVE_CONNECTION",
+            error_message="No active server connection."
         )
 
     desc = RTCSessionDescription(
@@ -390,19 +424,19 @@ async def handle_server_ice_candidate(websocket, data, aes_key):
 
     valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        return await _error_response(websocket, aes_key, "ice_candidate", err)
+        return await send_error_message(websocket, aes_key, "ice_candidate", err)
 
     logging.info(f"Server-side ICE candidate from {sender}")
 
     client = clients.get(sender, {})
     pc = client.get("pc")
     if not pc:
-        return await _error_response(
+        return await send_error_message(
             websocket,
             aes_key,
             "ice_candidate",
-            {"error": "NO_ACTIVE_CONNECTION",
-                "message": "No active server connection."}
+            error_code="NO_ACTIVE_CONNECTION",
+            error_message="No active server connection."
         )
 
     candidate_str = candidate_dict.get("candidate")
@@ -423,18 +457,6 @@ async def handle_server_ice_candidate(websocket, data, aes_key):
 
 
 # ----- Utility Functions -----
-
-
-async def _error_response(ws, aes, msg_type, error):
-    await structure_encrypt_send_message(
-        websocket=ws,
-        aes_key=aes,
-        msg_type=msg_type,
-        success=False,
-        error_code=error.get("error"),
-        error_message=error.get("message")
-    )
-
 
 def parse_candidate(candidate_str: str) -> dict:
     """Convert SDP candidate string into a dict for RTCIceCandidate."""
