@@ -13,7 +13,7 @@ from handlers.auth_handler import handle_authentication, handle_signup, handle_t
 from handlers.contacts_handler import handle_get_contacts, handle_add_contact
 from handlers.call_handler import (
     handle_call_invite, handle_call_accept, handle_call_reject,
-    handle_call_end, handle_video_state
+    handle_call_end, handle_set_model_preference, handle_video_state
 )
 from handlers.signaling_handler import handle_offer, handle_answer, handle_ice_candidate
 from handlers.call_history_handler import handle_fetch_call_history
@@ -74,6 +74,8 @@ async def dispatch_message_encrypted(websocket, data, aes_key):
             await handle_ice_candidate(websocket, data, aes_key)
         elif message_type == "fetch_call_history":
             await handle_fetch_call_history(websocket, data, aes_key)
+        elif message_type == "set_model_preference":
+            await handle_set_model_preference(websocket, data, aes_key)
         else:
             # Unknown message type - log a warning and send an error response back.
             logging.warning(f"Unknown message type: {message_type}")
@@ -229,5 +231,8 @@ async def handle_disconnection(websocket):
         logging.info(f"User {disconnected_username} disconnected.")
         del clients[disconnected_username]
     # only forget if the client is NOT currently banned
-    if not rate_limiter.is_banned(websocket.remote_address[0]):
-        rate_limiter.forget(websocket.remote_address[0])
+    try:
+        if not rate_limiter.is_banned(websocket.remote_address[0]):
+            rate_limiter.forget(websocket.remote_address[0])
+    except TypeError:
+        logging.error("Rate limiter error: Unable to forget client.")

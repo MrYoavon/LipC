@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lip_c/providers/model_preference_provider.dart';
 import 'package:logger/logger.dart';
 
 import '../helpers/app_logger.dart';
@@ -52,6 +53,9 @@ class _StartupPageState extends ConsumerState<StartupPage> {
         // Update providers with the logged-in user
         ref.read(currentUserProvider.notifier).setUser(user);
         ref.read(contactsProvider(user.userId).notifier).loadContacts();
+        // Send the model preference to the server
+        final InferenceModel modelPreference = ref.read(modelPreferenceProvider);
+        await serverHelper.sendModelPreference(modelPreference);
 
         if (!mounted) return;
         _log.i('➡️ Navigating to ContactsPage');

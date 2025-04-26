@@ -1,262 +1,248 @@
 import asyncio
 import logging
+import av
 from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription
 
-# from constants import VOSK_MODEL_PATH
-from services.state import clients, pending_calls, call_key
+from constants import TARGET_CHUNK_SIZE
+from database.call_history import start_call, append_line, finish_call
 from services.crypto_utils import structure_encrypt_send_message
 from services.jwt_utils import verify_jwt_in_message
-from database.call_history import start_call, append_line, finish_call
 from services.lip_reading.lip_reader import LipReadingPipeline, get_lip_model
-# from services.lip_reading.realtime_stt_helper import AudioTranscriber
-# from services.lip_reading.vosk_helper import (
-#     VoskRecognizer,
-#     convert_audio_frame_to_pcm
-# )
+from services.lip_reading.vosk_helper import VoskRecognizer, convert_audio_frame_to_pcm
+from services.state import clients, pending_calls, call_key
 
 
 class WebRTCServer:
     """
-    Encapsulates a server-side WebRTC connection.
-    Creates an RTCPeerConnection, registers event handlers, and manages the SDP offer/answer exchange.
+    Server-side WebRTC connection handler:
+    - Manages peer connection events
+    - Handles video lip-reading and audio Vosk transcription
+    - Records call history to the database
     """
 
-    def __init__(self, websocket, sender, aes_key, target=None):
+    def __init__(self, websocket, sender, aes_key, target=None, model_type="lip"):
         self.websocket = websocket
         self.sender = sender
         self.aes_key = aes_key
         self.target = target  # Save the call partner's user_id
+        self.model_type = model_type
         self.pc = RTCPeerConnection()
-        # Store the connection for later ICE/answer handling.
         clients[sender]["pc"] = self.pc
 
-        # Register event handlers
-        self.pc.on("track", self.on_track)
-        self.pc.on("connectionstatechange", self._on_pc_state)
+        self.recognizer = VoskRecognizer(sample_rate=16000)  # Vosk
+        # Buffer for audio chunks
+        self.pcm_buffer = bytearray()
+        self.buffered_ms = 0.0
+        self.sample_rate = self.recognizer.sample_rate
 
+        # Call record ID
         self.call_id = None
 
-        # self.audio_transcriber = AudioTranscriber(model="tiny")  # RealtimeSTT
-        # self.recognizer = VoskRecognizer(sample_rate=48000)  # Vosk
+        # Register event handlers
+        self.pc.on("track", self._on_track)
+        self.pc.on("connectionstatechange", self._on_pc_state)
 
-    async def on_track(self, track):
+    async def _on_track(self, track):
+        """Dispatch incoming media tracks to appropriate processors."""
         logging.info(f"Received {track.kind} track from {self.sender}")
         track.onended = lambda: logging.info(
             f"{track.kind} track from {self.sender} ended")
 
-        if track.kind == "video":
-            logging.info(
-                f"Starting video processing for lip reading for {self.sender}")
-            shared_model = await get_lip_model()
-            lip_reader_pipeline = LipReadingPipeline(shared_model)
+        # Ensure call_id is set from pending_calls
+        await self._ensure_call_id()
+
+        if track.kind == "video" and self.model_type == "lip":
+            await self._process_video(track)
+        elif track.kind == "audio" and self.model_type == "vosk":
+            await self._process_audio(track)
+
+    async def _ensure_call_id(self):
+        """Retrieve call ID from pending_calls if not yet set."""
+        while self.call_id is None:
             key = call_key(self.sender, self.target)
-            self.call_id = pending_calls.get(key, {}).get("call_id")
+            info = pending_calls.get(key, {})
+            self.call_id = info.get("call_id")
+            if self.call_id is None:
+                await asyncio.sleep(0.1)
 
-            while True:
-                try:
-                    # Receive a frame from the video track (this is asynchronous)
-                    frame = await track.recv()
-                except Exception as e:
-                    logging.error(f"Error receiving video frame: {e}")
-                    break
+    async def _process_video(self, track):
+        """Process video frames for lip-reading predictions."""
+        logging.info(f"Starting lip-reading video for {self.sender}")
+        shared_model = await get_lip_model()
+        pipeline = LipReadingPipeline(shared_model)
 
-                # Convert the frame to a numpy array
-                frame_array = frame.to_ndarray(format="bgr24")
+        while True:
+            try:
+                frame = await track.recv()
+            except Exception as exc:
+                logging.error(f"Error receiving video frame: {exc}")
+                break
 
-                # Process the frame.
-                # Since inference might block, I'll run it in a separate thread:
-                prediction = await asyncio.to_thread(
-                    lip_reader_pipeline.process_frame, frame_array
-                )
+            frame_array = frame.to_ndarray(format="bgr24")
+            prediction = await asyncio.to_thread(pipeline.process_frame, frame_array)
 
-                if prediction is None:
-                    continue
+            if not prediction:
+                continue
 
-                append_line(
-                    self.call_id,
-                    speaker_id=self.sender,
-                    text=prediction,
-                    source="lip"
-                )
-                logging.info(
-                    f"Lip reading prediction for {self.sender}: {prediction}")
+            append_line(self.call_id, speaker_id=self.sender,
+                        text=prediction, source="lip")
+            logging.info(f"Lip prediction for {self.sender}: {prediction}")
 
-                call_partner = self.target
-                if call_partner and call_partner in clients:
-                    target_ws = clients[call_partner]["ws"]
-                    target_aes_key = clients[call_partner].get(
-                        "aes_key", self.aes_key)
-                    await structure_encrypt_send_message(
-                        websocket=target_ws,
-                        aes_key=target_aes_key,
-                        msg_type="lip_reading_prediction",
-                        success=True,
-                        payload={
-                            "from": self.sender,
-                            "prediction": prediction
-                        }
-                    )
+            await self._relay_message(
+                msg_type="lip_reading_prediction",
+                payload={"from": self.sender, "prediction": prediction}
+            )
 
-        elif track.kind == "audio":
-            logging.info(f"Received an audio track from {self.sender}")
+    async def _process_audio(self, track):
+        """Accumulate audio frames and send chunks to Vosk for transcription."""
+        logging.info(f"Starting Vosk audio for {self.sender}")
 
-            # while True:
-            #     try:
-            #         frame = await track.recv()
-            #     except Exception as e:
-            #         logging.error(f"Error receiving audio frame: {e}")
-            #         break
+        while True:
+            try:
+                frame: av.AudioFrame = await track.recv()
+            except Exception as exc:
+                logging.error(f"Error receiving audio frame: {exc}")
+                break
 
-            #     # # Transcribe the received audio frame asynchronously with RealtimeSTT.
-            #     # transcription = await self.audio_transcriber.transcribe_audio_frame(frame)
-            #     # if transcription:
-            #     #     logging.info(
-            #     #         f"Audio transcription for {self.sender}: {transcription}")
+            pcm = convert_audio_frame_to_pcm(frame)
+            self.pcm_buffer.extend(pcm)
+            samples = len(pcm) / 2
+            self.buffered_ms += (samples / self.sample_rate) * 1000
 
-            #     # Trancribe the received audio frame asynchronously with Vosk.
-            #     # Convert the frame to PCM bytes.
-            #     pcm_bytes = convert_audio_frame_to_pcm(frame)
-            #     # Process the PCM bytes with Vosk recognizer.
-            #     result = await asyncio.to_thread(self.recognizer.process_audio_chunk, pcm_bytes)
-            #     if result:
-            #         logging.info(
-            #             f"Vosk final result {self.sender}: {result}")
+            if self.buffered_ms < TARGET_CHUNK_SIZE:
+                continue
 
-            # logging.info(
-            #     f"Vosk final final result {self.sender}: {self.recognizer.get_final_result()}")
+            chunk = bytes(self.pcm_buffer)
+            self.pcm_buffer.clear()
+            self.buffered_ms = 0.0
+
+            duration_ms = len(chunk) / 2 / self.sample_rate * 1000
+            logging.debug(f"Feeding Vosk {duration_ms:.1f} ms of audio")
+
+            result = await asyncio.to_thread(self.recognizer.process_audio_chunk, chunk)
+            if not result:
+                continue
+
+            text = result.get("text") or result.get("partial")
+            result_type = "final" if "text" in result else "partial"
+            logging.info(
+                f"Vosk {result_type} result for {self.sender}: {text}")
+
+            if result_type == "final":
+                append_line(self.call_id, speaker_id=self.sender,
+                            text=text, source="vosk")
+
+            await self._relay_message(
+                msg_type="lip_reading_prediction",
+                payload={"from": self.sender, "prediction": text}
+            )
+
+        final = self.recognizer.get_final_result()
+        logging.info(f"Vosk final result for {self.sender}: {final}")
+
+    async def _relay_message(self, msg_type, payload):
+        """Encrypt and send a message to the call partner."""
+        partner = self.target
+        if not partner or partner not in clients:
+            return
+
+        ws = clients[partner]["ws"]
+        aes = clients[partner].get("aes_key", self.aes_key)
+        await structure_encrypt_send_message(
+            websocket=ws,
+            aes_key=aes,
+            msg_type=msg_type,
+            success=True,
+            payload=payload
+        )
 
     async def handle_offer(self, offer_data):
-        """
-        Sets the remote description from the client's offer, creates an answer,
-        and sets the local description.
-        Returns the answer message to send back to the client.
-        """
-        offer_sdp = offer_data["sdp"]
-        cleaned_sdp = self.remove_rtx(offer_sdp)
-        offer = RTCSessionDescription(sdp=cleaned_sdp, type=offer_data["type"])
+        """Generate an SDP answer for an incoming offer."""
+        sdp = self._strip_rtx(offer_data["sdp"])
+        offer = RTCSessionDescription(sdp=sdp, type=offer_data["type"])
         await self.pc.setRemoteDescription(offer)
 
         answer = await self.pc.createAnswer()
         await self.pc.setLocalDescription(answer)
-        logging.info(f"ANSWER GENERATED: {answer}")
+        logging.info(f"Generated answer for {self.sender}")
 
-        return {
-            "from": "server",
-            "target": self.sender,
-            "answer": {
-                "sdp": answer.sdp,
-                "type": answer.type,
-            },
-        }
+        return {"from": "server", "target": self.sender, "answer": {"sdp": answer.sdp, "type": answer.type}}
 
-    def remove_rtx(self, sdp: str) -> str:
+    def _strip_rtx(self, sdp: str) -> str:
+        """Remove RTX codec entries from an SDP string."""
         lines = sdp.splitlines()
-        filtered_lines = []
-        rtx_payloads = set()
+        filtered, rtx = [], set()
+
         for line in lines:
             if line.startswith("a=rtpmap") and "rtx/90000" in line:
-                payload_type = line.split()[0].split(":")[1]
-                rtx_payloads.add(payload_type)
+                rtx.add(line.split()[0].split(":")[1])
                 continue
-            filtered_lines.append(line)
+            filtered.append(line)
 
-        # Remove fmtp and rtcp-fb lines related to RTX payloads
-        filtered_lines = [
-            line for line in filtered_lines
-            if not ((line.startswith("a=fmtp:") or line.startswith("a=rtcp-fb:")) and any(pt in line for pt in rtx_payloads))
-        ]
-        return "\r\n".join(filtered_lines) + "\r\n"
+        result = []
+        for line in filtered:
+            if any(line.startswith(prefix) and pt in line for prefix in ("a=fmtp:", "a=rtcp-fb:") for pt in rtx):
+                continue
+            result.append(line)
+
+        return "\r\n".join(result) + "\r\n"
 
     async def _on_pc_state(self):
         state = self.pc.connectionState
-        logging.info(f"Peer connection state changed: {state}")
+        logging.info(f"PC state for {self.sender}: {state}")
         if state in ("closed", "failed"):
-            await self._end_call()
+            await self._terminate_call()
         elif state == "disconnected":
-            # give ICE restart a chance
             await asyncio.sleep(5)
             if self.pc.connectionState == "disconnected":
-                await self._end_call()
+                await self._terminate_call()
 
-    async def _end_call(self):
+    async def _terminate_call(self):
+        """Finalize call record and clean up peer connection."""
         if self.call_id:
             key = call_key(self.sender, self.target)
             info = pending_calls.get(key)
-            if info and not info["ended"]:
+            if info and not info.get("ended"):
                 await asyncio.to_thread(finish_call, self.call_id)
-                info["ended"] = True   # mark finished
-            if info and info["ended"]:
-                pending_calls.pop(key, None)
+                info["ended"] = True
+            pending_calls.pop(key, None)
+
         await self.pc.close()
         logging.info(f"Call {self.call_id} ended for {self.sender}")
 
 
-# ----- Message handling functions follow. These are called by the main handler -----
+# ----- Top-level message handling functions -----
 
 async def handle_offer(websocket, data, aes_key):
-    """
-    Handle an SDP offer from a client.
-    Data should include "from", "target", and "offer" inside the payload.
-    """
+    """Relay or process an SDP offer message from a client."""
     user_id = data.get("user_id")
-    payload = data.get("payload")
+    payload = data.get("payload", {})
     sender = payload.get("from")
     target = payload.get("target")
 
-    # Verify JWT for the sender.
-    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        logging.warning(f"Invalid JWT for sender {sender}: {result}")
-        await structure_encrypt_send_message(
-            websocket,
-            aes_key,
-            msg_type="offer",
-            success=False,
-            error_code=result.get("error", "INVALID_JWT"),
-            error_message=result.get("message", "JWT verification failed.")
-        )
-        return
+        return await _error_response(websocket, aes_key, "offer", err)
 
-    logging.info(f"Received offer from {sender} to {target}")
+    logging.info(f"Offer from {sender} to {target}")
 
     if target == "server":
-        await handle_server_offer(websocket, data, aes_key)
-        return
+        return await handle_server_offer(websocket, data, aes_key)
 
-    if sender not in clients:
-        await structure_encrypt_send_message(
-            websocket,
-            aes_key,
-            msg_type="offer",
-            success=False,
-            error_code="SENDER_NOT_AUTHENTICATED",
-            error_message="Sender not authenticated."
+    if sender not in clients or target not in clients:
+        return await _error_response(
+            websocket, aes_key, "offer", {
+                "error": "NOT_CONNECTED", "message": "Client not connected."}
         )
-        return
 
-    # Relay offer to the target.
-    if target not in clients:
-        await structure_encrypt_send_message(
-            websocket,
-            aes_key,
-            msg_type="offer",
-            success=False,
-            error_code="TARGET_NOT_CONNECTED",
-            error_message="Target not connected."
-        )
-        return
-
-    # remember who started the call; no DB write yet
+    # Track pending call without DB insert yet
     key = call_key(sender, target)
     pending_calls.setdefault(
-        key,
-        {"caller": sender, "callee": target, "call_id": None, "ended": False}
-    )
-    target_ws = clients[target]["ws"]
-    target_aes_key = clients[target].get("aes_key", aes_key)
+        key, {"caller": sender, "callee": target, "call_id": None, "ended": False})
+
     await structure_encrypt_send_message(
-        websocket=target_ws,
-        aes_key=target_aes_key,
+        websocket=clients[target]["ws"],
+        aes_key=clients[target].get("aes_key", aes_key),
         msg_type="offer",
         success=True,
         payload=payload
@@ -264,62 +250,36 @@ async def handle_offer(websocket, data, aes_key):
 
 
 async def handle_answer(websocket, data, aes_key):
-    """
-    Handle an SDP answer from a client.
-    """
+    """Relay or process an SDP answer message from a client."""
     user_id = data.get("user_id")
-    payload = data.get("payload")
+    payload = data.get("payload", {})
     sender = payload.get("from")
     target = payload.get("target")
 
-    # Verify JWT for the sender.
-    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        logging.warning(f"Invalid JWT for sender {sender}: {result}")
-        await structure_encrypt_send_message(
-            websocket,
-            aes_key,
-            msg_type="answer",
-            success=False,
-            error_code=result.get("error", "INVALID_JWT"),
-            error_message=result.get("message", "JWT verification failed.")
-        )
-        return
+        return await _error_response(websocket, aes_key, "answer", err)
 
-    logging.info(f"Relaying answer from {sender} to {target}")
+    logging.info(f"Answer from {sender} to {target}")
 
     if target == "server":
-        await handle_server_answer(websocket, data, aes_key)
-        return
+        return await handle_server_answer(websocket, data, aes_key)
 
     if target not in clients:
-        await structure_encrypt_send_message(
-            websocket,
-            aes_key,
-            msg_type="answer",
-            success=False,
-            error_code="TARGET_NOT_CONNECTED",
-            error_message="Target not connected."
+        return await _error_response(
+            websocket, aes_key, "answer", {
+                "error": "TARGET_NOT_CONNECTED", "message": "Target not connected."}
         )
-        return
 
     key = call_key(sender, target)
     info = pending_calls.get(key)
+    if info and info.get("call_id") is None:
+        info["call_id"] = start_call(
+            info["caller"], info["callee"])  # Single DB record
 
-    if info and info["call_id"] is None:
-        # Confirm who is caller / callee
-        caller_id = info["caller"]
-        callee_id = info["callee"]
-
-        # 1. INSERT ONE RECORD
-        call_id = start_call(caller_id, callee_id)
-        info["call_id"] = call_id
-
-    target_ws = clients[target]["ws"]
-    target_aes_key = clients[target].get("aes_key", aes_key)
     await structure_encrypt_send_message(
-        websocket=target_ws,
-        aes_key=target_aes_key,
+        websocket=clients[target]["ws"],
+        aes_key=clients[target].get("aes_key", aes_key),
         msg_type="answer",
         success=True,
         payload=payload
@@ -327,225 +287,186 @@ async def handle_answer(websocket, data, aes_key):
 
 
 async def handle_ice_candidate(websocket, data, aes_key):
-    """
-    Handle an ICE candidate from a client.
-    """
+    """Relay an ICE candidate between peers or to server handler."""
     user_id = data.get("user_id")
-    payload = data.get("payload")
+    payload = data.get("payload", {})
     sender = payload.get("from")
     target = payload.get("target")
 
-    # Verify JWT for the sender.
-    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        logging.warning(f"Invalid JWT for sender {sender}: {result}")
-        await structure_encrypt_send_message(
-            websocket,
-            aes_key,
-            msg_type="ice_candidate",
-            success=False,
-            error_code=result.get("error", "INVALID_JWT"),
-            error_message=result.get("message", "JWT verification failed.")
-        )
-        return
+        return await _error_response(websocket, aes_key, "ice_candidate", err)
 
-    logging.info(f"Relaying ICE candidate from {sender} to {target}")
+    logging.info(f"ICE candidate from {sender} to {target}")
 
     if target == "server":
-        await handle_server_ice_candidate(websocket, data, aes_key)
-        return
+        return await handle_server_ice_candidate(websocket, data, aes_key)
 
     if target not in clients:
-        await structure_encrypt_send_message(
-            websocket,
-            aes_key,
-            msg_type="ice_candidate",
-            success=False,
-            error_code="TARGET_NOT_CONNECTED",
-            error_message="Target not connected."
+        return await _error_response(
+            websocket, aes_key, "ice_candidate", {
+                "error": "TARGET_NOT_CONNECTED", "message": "Target not connected."}
         )
-        return
 
-    target_ws = clients[target]["ws"]
-    target_aes_key = clients[target].get("aes_key", aes_key)
     await structure_encrypt_send_message(
-        websocket=target_ws,
-        aes_key=target_aes_key,
+        websocket=clients[target]["ws"],
+        aes_key=clients[target].get("aes_key", aes_key),
         msg_type="ice_candidate",
         success=True,
         payload=payload
     )
 
 
+# ----- Server-directed handlers -----
+
+
 async def handle_server_offer(websocket, data, aes_key):
-    """
-    Handle an SDP offer from a client that is intended for the server.
-    """
+    """Handle a client offer intended for the server."""
     user_id = data.get("user_id")
-    payload = data.get("payload")
+    payload = data.get("payload", {})
     sender = payload.get("from")
     other_user = payload.get("other_user")
-    offer_data = payload.get("offer")
+    offer = payload.get("offer")
 
-    # Verify JWT for the sender.
-    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        logging.warning(f"Invalid JWT for sender {sender}: {result}")
-        await structure_encrypt_send_message(
-            websocket,
-            aes_key,
-            msg_type="server_offer",
-            success=False,
-            error_code=result.get("error", "INVALID_JWT"),
-            error_message=result.get("message", "JWT verification failed.")
-        )
-        return
+        return await _error_response(websocket, aes_key, "server_offer", err)
 
-    logging.info(f"Handling server offer from {sender}")
+    logging.info(f"Server-side offer from {sender} for {other_user}")
 
-    server_connection = WebRTCServer(websocket, sender, aes_key, other_user)
-    response = await server_connection.handle_offer(offer_data)
+    model_type = clients.get(sender, {}).get("model_type", "lip")
+    server_conn = WebRTCServer(
+        websocket, sender, aes_key, target=other_user, model_type=model_type)
+    response = await server_conn.handle_offer(offer)
+
     await structure_encrypt_send_message(
-        websocket,
-        aes_key,
+        websocket=websocket,
+        aes_key=aes_key,
         msg_type="answer",
         success=True,
         payload=response
     )
-    logging.info(f"Server sent answer to {sender}")
+    logging.info(f"Sent server answer to {sender}")
 
 
 async def handle_server_answer(websocket, data, aes_key):
-    """
-    Handle an SDP answer from a client for a server-initiated connection.
-    """
+    """Handle a client answer to a server-initiated offer."""
     user_id = data.get("user_id")
-    payload = data.get("payload")
+    payload = data.get("payload", {})
     sender = payload.get("from")
-    answer_data = payload.get("answer")
+    answer = payload.get("answer")
 
-    # Verify JWT for the sender.
-    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        logging.warning(f"Invalid JWT for sender {sender}: {result}")
-        await structure_encrypt_send_message(
+        return await _error_response(websocket, aes_key, "answer", err)
+
+    logging.info(f"Server-side answer from {sender}")
+
+    client = clients.get(sender, {})
+    pc = client.get("pc")
+    if not pc:
+        return await _error_response(
             websocket,
             aes_key,
-            msg_type="answer",
-            success=False,
-            error_code=result.get("error", "INVALID_JWT"),
-            error_message=result.get("message", "JWT verification failed.")
+            "answer",
+            {"error": "NO_ACTIVE_CONNECTION",
+                "message": "No active server connection."}
         )
-        return
 
-    logging.info(f"Handling server answer from {sender}")
-
-    if sender not in clients or "pc" not in clients[sender]:
-        await structure_encrypt_send_message(
-            websocket,
-            aes_key,
-            msg_type="answer",
-            success=False,
-            error_code="NO_ACTIVE_CONNECTION",
-            error_message="No active server connection for sender."
-        )
-        return
-
-    pc = clients[sender]["pc"]
-    answer = RTCSessionDescription(
-        sdp=answer_data["sdp"], type=answer_data["type"])
-    await pc.setRemoteDescription(answer)
+    desc = RTCSessionDescription(
+        sdp=answer.get("sdp"), type=answer.get("type"))
+    await pc.setRemoteDescription(desc)
 
 
 async def handle_server_ice_candidate(websocket, data, aes_key):
-    """
-    Handle an ICE candidate intended for the server's peer connection.
-    """
+    """Handle ICE candidate for a server-side peer connection."""
     user_id = data.get("user_id")
-    payload = data.get("payload")
+    payload = data.get("payload", {})
     sender = payload.get("from")
-    candidate_dict = payload.get("candidate")
+    candidate_dict = payload.get("candidate", {})
 
-    # Verify JWT for the sender.
-    valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        logging.warning(f"Invalid JWT for sender {sender}: {result}")
-        await structure_encrypt_send_message(
+        return await _error_response(websocket, aes_key, "ice_candidate", err)
+
+    logging.info(f"Server-side ICE candidate from {sender}")
+
+    client = clients.get(sender, {})
+    pc = client.get("pc")
+    if not pc:
+        return await _error_response(
             websocket,
             aes_key,
-            msg_type="ice_candidate",
-            success=False,
-            error_code=result.get("error", "INVALID_JWT"),
-            error_message=result.get("message", "JWT verification failed.")
+            "ice_candidate",
+            {"error": "NO_ACTIVE_CONNECTION",
+                "message": "No active server connection."}
         )
-        return
 
-    logging.info(f"Handling server ICE candidate from {sender}")
-
-    if sender not in clients or "pc" not in clients[sender]:
-        await structure_encrypt_send_message(
-            websocket,
-            aes_key,
-            msg_type="ice_candidate",
-            success=False,
-            error_code="NO_ACTIVE_CONNECTION",
-            error_message="No active server connection for sender."
-        )
-        return
-
-    pc = clients[sender]["pc"]
     candidate_str = candidate_dict.get("candidate")
-    candidate_data = parse_candidate(candidate_str)
-    candidate = RTCIceCandidate(
-        foundation=candidate_data["foundation"],
-        component=candidate_data["component"],
-        protocol=candidate_data["protocol"],
-        priority=candidate_data["priority"],
-        ip=candidate_data["ip"],
-        port=candidate_data["port"],
-        type=candidate_data["type"],
-        tcpType=candidate_data["tcpType"],
+    data = parse_candidate(candidate_str)
+    cand = RTCIceCandidate(
+        foundation=data["foundation"],
+        component=data["component"],
+        protocol=data["protocol"],
+        priority=data["priority"],
+        ip=data["ip"],
+        port=data["port"],
+        type=data.get("type"),
+        tcpType=data.get("tcpType"),
         sdpMid=candidate_dict.get("sdpMid"),
-        sdpMLineIndex=candidate_dict.get("sdpMLineIndex"),
+        sdpMLineIndex=candidate_dict.get("sdpMLineIndex")
     )
-    await pc.addIceCandidate(candidate)
+    await pc.addIceCandidate(cand)
 
 
-def parse_candidate(candidate_str):
-    candidate_parts = candidate_str.split()
+# ----- Utility Functions -----
 
-    candidate_data = {
-        "foundation": candidate_parts[0],
-        "component": int(candidate_parts[1]),
-        "protocol": candidate_parts[2],
-        "priority": int(candidate_parts[3]),
-        "ip": candidate_parts[4],
-        "port": int(candidate_parts[5]),
+
+async def _error_response(ws, aes, msg_type, error):
+    await structure_encrypt_send_message(
+        websocket=ws,
+        aes_key=aes,
+        msg_type=msg_type,
+        success=False,
+        error_code=error.get("error"),
+        error_message=error.get("message")
+    )
+
+
+def parse_candidate(candidate_str: str) -> dict:
+    """Convert SDP candidate string into a dict for RTCIceCandidate."""
+    parts = candidate_str.split()
+    data = {
+        "foundation": parts[0],
+        "component": int(parts[1]),
+        "protocol": parts[2],
+        "priority": int(parts[3]),
+        "ip": parts[4],
+        "port": int(parts[5]),
         "type": None,
         "tcpType": None,
         "generation": None,
         "ufrag": None,
-        "network_id": None
+        "network_id": None,
     }
-
     i = 6
-    while i < len(candidate_parts):
-        if candidate_parts[i] == "typ":
-            candidate_data["type"] = candidate_parts[i + 1]
+    while i < len(parts):
+        key = parts[i]
+        if key == "typ":
+            data["type"] = parts[i + 1]
             i += 2
-        elif candidate_parts[i] == "tcptype":
-            candidate_data["tcpType"] = candidate_parts[i + 1]
+        elif key == "tcptype":
+            data["tcpType"] = parts[i + 1]
             i += 2
-        elif candidate_parts[i] == "generation":
-            candidate_data["generation"] = int(candidate_parts[i + 1])
+        elif key == "generation":
+            data["generation"] = int(parts[i + 1])
             i += 2
-        elif candidate_parts[i] == "ufrag":
-            candidate_data["ufrag"] = candidate_parts[i + 1]
+        elif key == "ufrag":
+            data["ufrag"] = parts[i + 1]
             i += 2
-        elif candidate_parts[i] == "network-id":
-            candidate_data["network_id"] = int(candidate_parts[i + 1])
+        elif key == "network-id":
+            data["network_id"] = int(parts[i + 1])
             i += 2
         else:
             i += 1  # Skip unknown keys
-
-    return candidate_data
+    return data

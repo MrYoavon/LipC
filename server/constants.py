@@ -11,7 +11,8 @@ num_to_char = tf.keras.layers.StringLookup(
     vocabulary=char_to_num.get_vocabulary(), oov_token="", invert=True)
 
 # Vosk
-VOSK_MODEL_PATH = "models/vosk-model-en-us-0.22"
+VOSK_MODEL_PATH = "models/vosk-model-small-en-us-0.15"
+TARGET_CHUNK_SIZE = 500  # in ms
 
 # SSL certificates
 SSL_CERT_FILE = "certs/cert.pem"

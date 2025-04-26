@@ -12,6 +12,7 @@ import '../providers/server_helper_provider.dart';
 import '../providers/contacts_provider.dart';
 import 'call_history_page.dart';
 import 'login_page.dart';
+import 'settings_page.dart';
 
 class ContactsPage extends ConsumerStatefulWidget {
   const ContactsPage({super.key});
@@ -220,16 +221,27 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
             actions: [
               PopupMenuButton<String>(
                 onSelected: (value) async {
-                  if (value == "logout") {
-                    _log.i('🔒 User selected logout');
-                    final serverHelper = ref.read(serverHelperProvider);
-                    await serverHelper.jwtTokenService?.clearTokens();
-                    ref.read(currentUserProvider.notifier).clearUser();
-                    if (!mounted) return;
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                      (route) => false,
-                    );
+                  switch (value) {
+                    case 'settings':
+                      _log.i('⚙️ User selected settings');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SettingsPage(),
+                        ),
+                      );
+                      break;
+                    case 'logout':
+                      _log.i('🔒 User selected logout');
+                      final serverHelper = ref.read(serverHelperProvider);
+                      await serverHelper.jwtTokenService?.clearTokens();
+                      ref.read(currentUserProvider.notifier).clearUser();
+                      if (!mounted) return;
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const LoginPage()),
+                        (route) => false,
+                      );
+                      break;
                   }
                 },
                 itemBuilder: (context) => [

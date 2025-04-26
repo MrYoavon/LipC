@@ -278,3 +278,29 @@ async def handle_video_state(websocket, data, aes_key):
             error_code="TARGET_NOT_AVAILABLE",
             error_message=f"{target} not connected."
         )
+
+
+async def handle_set_model_preference(websocket, data, aes_key):
+    user_id = data.get("user_id")
+    model = data["payload"].get("model_type", "lip")
+
+    if user_id not in clients:
+        await structure_encrypt_send_message(
+            websocket=websocket,
+            aes_key=aes_key,
+            msg_type="set_model_preference",
+            success=False,
+            error_code="USER_NOT_FOUND",
+            error_message=f"{user_id} not connected."
+        )
+        return
+
+    clients[user_id]["model_type"] = model
+    logging.info(f"{user_id} preference set to {model}")
+    await structure_encrypt_send_message(
+        websocket=websocket,
+        aes_key=aes_key,
+        msg_type="set_model_preference",
+        success=True,
+        payload={"model_type": model}
+    )

@@ -1,11 +1,7 @@
 # server/app.py
-from constants import SSL_CERT_FILE, SSL_KEY_FILE
-from services.logger import setup_logger
-from handlers.connection import handle_connection
-import os
-from websockets import serve
-import ssl
-import asyncio
+# fmt: off
+# fmt on/off forces autopep8 to not auto format the code between the comments
+# I want to keep the code initializing the GPU at the top, otherwise it won't work
 import tensorflow as tf
 
 
@@ -36,6 +32,16 @@ def configure_devices():
 
 
 configure_devices()
+
+
+from constants import SSL_CERT_FILE, SSL_KEY_FILE
+from services.logger import setup_logger
+from handlers.connection import handle_connection
+import os
+from websockets import serve
+import ssl
+import asyncio
+# fmt: on
 
 
 def main():

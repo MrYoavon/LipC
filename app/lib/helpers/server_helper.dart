@@ -9,6 +9,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import 'package:uuid/uuid.dart';
 
+import '../providers/model_preference_provider.dart';
 import 'app_logger.dart';
 import 'crypto_service.dart';
 import 'jwt_service.dart';
@@ -627,5 +628,16 @@ class ServerHelper {
       _log.w('⚠️ addContact failed: ${data['error_message']}');
     }
     return data;
+  }
+
+  Future<void> sendModelPreference(InferenceModel model) async {
+    final access = await jwtTokenService?.getAccessToken();
+    if (access == null) return;
+    // Send a message to the server to set the model preference.
+    await sendMessage(
+      msgType: 'set_model_preference',
+      payload: {"model_type": model.name}, // "lip" | "vosk"
+    );
+    _log.d('📡 Sent model preference: ${model.name}');
   }
 }

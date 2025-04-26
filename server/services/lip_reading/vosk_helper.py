@@ -1,12 +1,18 @@
 import json
-import numpy as np
-import librosa
+import av
+
 from vosk import Model, KaldiRecognizer
 from constants import VOSK_MODEL_PATH
 
 
 # one global (thread‑safe) model to save RAM
 _VOSK_MODEL = Model(model_path=VOSK_MODEL_PATH)
+
+_RESAMPLER = av.AudioResampler(
+    format="s16",    # signed 16-bit PCM (little-endian)
+    layout="mono",   # single channel
+    rate=16000       # 16 kHz
+)
 
 
 class VoskRecognizer:
@@ -37,11 +43,11 @@ class VoskRecognizer:
         """
         if self.recognizer.AcceptWaveform(audio_chunk):
             # The recognizer has finalized this audio segment.
-            result = self.recognizer.Result()
-        # else:
-        #     # Return a partial result for ongoing speech.
-        #     result = self.recognizer.PartialResult()
-            return result
+            result = json.loads(self.recognizer.Result())
+        else:
+            # Return a partial result for ongoing speech.
+            result = json.loads(self.recognizer.PartialResult())
+        return result
 
     def get_final_result(self) -> str:
         """
@@ -62,14 +68,13 @@ class VoskRecognizer:
         self.recognizer = KaldiRecognizer(self.model, self.sample_rate)
 
 
-def convert_audio_frame_to_pcm(frame, target_sr=16000):
+def convert_audio_frame_to_pcm(frame: av.AudioFrame) -> bytes:
     """Return mono 16 bit PCM bytes, resampled to `target_sr`."""
-    pcm = frame.to_ndarray().astype(np.int16)   # (ch, samples) or (samples,)
-    if pcm.ndim > 1:
-        pcm = pcm.mean(axis=0).astype(np.int16)  # to mono
-    # # If frame.sample_rate != target_sr, resample
-    # if frame.sample_rate != target_sr:
-    #     pcm = librosa.resample(pcm.astype(np.float32),
-    #                            orig_sr=frame.sample_rate,
-    #                            target_sr=target_sr).astype(np.int16)
-    return pcm.tobytes()
+    converted: av.AudioFrame = _RESAMPLER.resample(frame)
+
+    # Ensure we have a list of frames (sometimes the resampler returns a few frames because of fractional resampling so we will treat everything as a list)
+    frames = converted if isinstance(converted, list) else [converted]
+
+    # Extract the raw bytes from the first (and only) plane
+    pcm_chunks = [bytes(f.planes[0])[:f.samples * 2] for f in frames]
+    return b"".join(pcm_chunks)

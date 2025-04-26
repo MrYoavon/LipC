@@ -8,6 +8,7 @@ import '../helpers/app_logger.dart';
 import '../models/lip_c_user.dart';
 import '../providers/contacts_provider.dart';
 import '../providers/current_user_provider.dart';
+import '../providers/model_preference_provider.dart';
 import '../providers/server_helper_provider.dart';
 import 'contacts_page.dart';
 import '../constants.dart';
@@ -98,6 +99,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
         // Load the contacts list for the current user
         ref.read(contactsProvider(currentUser.userId).notifier).loadContacts();
+
+        // Send the model preference to the server
+        final InferenceModel modelPreference = ref.read(modelPreferenceProvider);
+        await serverHelper.sendModelPreference(modelPreference);
 
         Navigator.pushReplacement(
           context,

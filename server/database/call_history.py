@@ -1,7 +1,6 @@
 # database/call_history.py
 from datetime import datetime
 from bson import ObjectId
-from pymongo import ReturnDocument
 from database.db import get_collection
 
 calls = get_collection("calls")
@@ -17,7 +16,7 @@ def start_call(caller_id: str, callee_id: str) -> ObjectId:
         "started_at": datetime.now(),
         "ended_at": None,
         "duration_seconds": None,
-        # each item: {"t": <datetime>, "speaker": ObjectId, "text": str, "source": "lip"|"stt"}
+        # each item: {"t": <datetime>, "speaker": ObjectId, "text": str, "source": "lip"|"vosk"}
         "transcripts": [],
         # room for future stats (frame counts, WER, …)
         "meta": {}

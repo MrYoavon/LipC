@@ -5,7 +5,7 @@ from bson import ObjectId
 
 # Dictionary mapping client IDs to their peer connections, AES keys and WebSocket objects.
 clients = {
-    # "client_identifier": {"ws": <websocket instance>, "username": <username>, "aes_key": <session AES key>, "pc": <optional PeerConnection>}
+    # "client_identifier": {"ws": <websocket instance>, "username": <username>, "aes_key": <session AES key>, "pc": <optional PeerConnection>, "model_type": <model type "lip" or "vosk">}
 }
 
 # key = tuple(sorted([caller_id, callee_id]))
