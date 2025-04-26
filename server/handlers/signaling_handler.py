@@ -125,6 +125,9 @@ class WebRTCServer:
 
             text = result.get("text") or result.get("partial")
             result_type = "final" if "text" in result else "partial"
+            if not text:
+                continue
+
             logging.info(
                 f"Vosk {result_type} result for {self.sender}: {text}")
 
