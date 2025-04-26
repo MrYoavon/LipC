@@ -80,11 +80,17 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   }
 
   String? _validatePassword(String? value) {
-    if (value == null || value.trim().isEmpty) {
+    if (value == null || value.isEmpty) {
       return 'Password is required';
     }
-    if (value.trim().length < 6) {
-      return 'Password must be at least 6 characters long';
+    final passwordRegex = RegExp(r'^(?=.{8,}$)' // at least 8 characters long
+        r'(?=.*[a-z])' // at least one lowercase
+        r'(?=.*[A-Z])' // at least one uppercase
+        r'(?=.*\d)' // at least one digit
+        r'(?=.*[!@#\$%^&*(),.?":{}|<>])' // at least one special
+        r'.*$');
+    if (!passwordRegex.hasMatch(value)) {
+      return 'Password must be ≥8 characters long and include uppercase, lowercase, number, and special character';
     }
     return null;
   }

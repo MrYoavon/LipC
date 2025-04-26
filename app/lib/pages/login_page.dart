@@ -62,8 +62,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (value == null || value.trim().isEmpty) {
       return 'Password is required';
     }
-    if (value.trim().length < 6) {
-      return 'Password must be at least 6 characters long';
+    if (value.trim().length < 8) {
+      return 'Password must be at least 8 characters long';
     }
     // Additional password validations can be added here.
     return null;
