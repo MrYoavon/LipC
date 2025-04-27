@@ -6,9 +6,9 @@ from aiortc import RTCIceCandidate, RTCPeerConnection, RTCSessionDescription
 
 from constants import TARGET_CHUNK_SIZE
 from database.call_history import start_call, append_line, finish_call
+from services import thread_executors
 from services.crypto_utils import send_error_message, structure_encrypt_send_message
 from services.jwt_utils import verify_jwt_in_message
-from services.lip_reading.lip_reader import LipReadingPipeline, get_lip_model
 from services.lip_reading.vosk_helper import VoskRecognizer, convert_audio_frame_to_pcm
 from services.state import clients, pending_calls, call_key
 
@@ -69,8 +69,7 @@ class WebRTCServer:
     async def _process_video(self, track):
         """Process video frames for lip-reading predictions."""
         logging.info(f"Starting lip-reading video for {self.sender}")
-        shared_model = await get_lip_model()
-        pipeline = LipReadingPipeline(shared_model)
+        loop = asyncio.get_event_loop()
 
         while True:
             try:
@@ -80,7 +79,11 @@ class WebRTCServer:
                 break
 
             frame_array = frame.to_ndarray(format="bgr24")
-            prediction = await asyncio.to_thread(pipeline.process_frame, frame_array)
+            prediction = await loop.run_in_executor(
+                thread_executors.get_tf_executor(),
+                thread_executors.lip_read,
+                frame_array
+            )
 
             if not prediction:
                 continue
@@ -97,6 +100,7 @@ class WebRTCServer:
     async def _process_audio(self, track):
         """Accumulate audio frames and send chunks to Vosk for transcription."""
         logging.info(f"Starting Vosk audio for {self.sender}")
+        loop = asyncio.get_event_loop()
 
         while True:
             try:
@@ -120,7 +124,12 @@ class WebRTCServer:
             duration_ms = len(chunk) / 2 / self.sample_rate * 1000
             logging.debug(f"Feeding Vosk {duration_ms:.1f} ms of audio")
 
-            result = await asyncio.to_thread(self.recognizer.process_audio_chunk, chunk)
+            result = await loop.run_in_executor(
+                thread_executors.get_speech_executor(),
+                thread_executors.vosk_transcribe,
+                self.recognizer,
+                chunk,
+            )
             if not result:
                 continue
 

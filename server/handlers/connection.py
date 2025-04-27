@@ -136,8 +136,8 @@ async def _cleanup(ws):
                 await pc.close()
             del clients[user]
             break
-    ip = ws.remote_address[0]
-    if not RATE_LIMITER.is_banned(ip):
+    ip = (ws.remote_address[0] if ws.remote_address else None)
+    if not RATE_LIMITER.is_banned(ip) and ip is not None:
         RATE_LIMITER.forget(ip)
 
 # -----------------------------------------------------------------------------
