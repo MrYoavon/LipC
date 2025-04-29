@@ -590,6 +590,18 @@ class ServerHelper {
     };
   }
 
+  /// Log out the user by clearing the stored tokens and closing the connection.
+  /// This method also sends a logout message to the server.
+  Future<void> logout() async {
+    // Send a logout message to the server.
+    await sendMessage(msgType: 'logout', payload: {"user_id": userId});
+
+    // Clear the stored tokens.
+    await jwtTokenService?.clearTokens();
+
+    userId = null; // Reset the user ID.
+  }
+
   /// Fetches the list of contacts for the given user.
   Future<List<Map<String, dynamic>>> fetchContacts(String userId) async {
     // Send an encrypted request to get contacts for the given user ID.

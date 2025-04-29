@@ -8,7 +8,7 @@ import os
 import time
 
 # Local handlers
-from handlers.auth_handler import handle_authentication, handle_signup, handle_token_refresh
+from handlers.auth_handler import handle_authentication, handle_logout, handle_signup, handle_token_refresh
 from handlers.contacts_handler import handle_get_contacts, handle_add_contact
 from handlers.call_handler import (
     handle_call_invite, handle_call_accept, handle_call_reject,
@@ -36,6 +36,7 @@ RATE_LIMITER = RateLimiter()
 HANDLERS = {
     "authenticate": handle_authentication,
     "signup":       handle_signup,
+    "logout":       handle_logout,
     "refresh_token": handle_token_refresh,
     "get_contacts": handle_get_contacts,
     "add_contact":  handle_add_contact,

@@ -52,7 +52,10 @@ class CallControlManager {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Call invite failed: $errMsg"),
+          content: errCode == "TARGET_NOT_AVAILABLE"
+              ? Text(
+                  "Call invite failed: ${findContact(errMsg.split(" ")[0])?.username ?? errMsg.split(" ")[0]} is not available") // Up until the first space is the userId
+              : Text("Call invite failed: $errMsg"),
           backgroundColor: AppColors.accent,
           padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           behavior: SnackBarBehavior.floating,
@@ -127,11 +130,11 @@ class CallControlManager {
     final Map<String, dynamic> payload = data["payload"] as Map<String, dynamic>;
     final String fromId = payload["from"] as String;
     final LipCUser? callee = findContact(fromId);
-    final String name = callee?.username ?? fromId;
-    _log.i('✖️ Call rejected by $name');
+    final String username = callee?.username ?? fromId;
+    _log.i('✖️ Call rejected by $username');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Call rejected by $name"),
+        content: Text("Call rejected by $username"),
         backgroundColor: AppColors.accent,
         padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         behavior: SnackBarBehavior.floating,

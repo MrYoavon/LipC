@@ -262,3 +262,33 @@ async def handle_token_refresh(websocket, data, aes_key):
             error_code="REFRESH_FAILED",
             error_message=str(e),
         )
+
+
+async def handle_logout(websocket, data, aes_key):
+    """
+    Handle user logout by removing the session.
+    """
+    msg_type = "logout"
+    payload = data.get("payload", {})
+    user_id = payload.get("user_id")
+
+    if not user_id:
+        await send_error_message(
+            websocket=websocket,
+            aes_key=aes_key,
+            msg_type=msg_type,
+            error_code="MISSING_USER_ID",
+            error_message="User ID is required.",
+        )
+        return
+
+    # Remove client session
+    clients.pop(user_id, None)
+    logging.info(f"User ID {user_id} logged out.")
+    await structure_encrypt_send_message(
+        websocket=websocket,
+        aes_key=aes_key,
+        msg_type=msg_type,
+        success=True,
+        payload={"message": "Logged out successfully."}
+    )

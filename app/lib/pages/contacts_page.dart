@@ -234,9 +234,8 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                     case 'logout':
                       _log.i('🔒 User selected logout');
                       final serverHelper = ref.read(serverHelperProvider);
-                      await serverHelper.jwtTokenService?.clearTokens();
+                      await serverHelper.logout();
                       ref.read(currentUserProvider.notifier).clearUser();
-                      if (!mounted) return;
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (_) => const LoginPage()),
                         (route) => false,
