@@ -27,15 +27,6 @@ def get_user_by_username(username):
     return users_collection.find_one({"username": username})
 
 
-def update_user(user_id, update_fields):
-    """
-    Update user details.
-    """
-    if not isinstance(user_id, ObjectId):
-        user_id = ObjectId(user_id)
-    users_collection.update_one({"_id": user_id}, {"$set": update_fields})
-
-
 def add_contact_to_user(user_id, contact_username):
     """
     Add a contact's ObjectId to a user's contacts list.
@@ -60,11 +51,11 @@ def get_user_contacts(user_id):
     user = get_user_by_id(user_id)
     if not user or "contacts" not in user:
         return []
-    
+
     contact_ids = user["contacts"]
     # Query the users collection to fetch details of contacts.
     contacts = list(users_collection.find({"_id": {"$in": contact_ids}}))
-    
+
     # Convert ObjectIds to strings for JSON serialization if needed.
     for contact in contacts:
         # Convert the contact's own _id to a string.
@@ -74,5 +65,5 @@ def get_user_contacts(user_id):
         # convert those to strings as well.
         if "contacts" in contact:
             contact["contacts"] = [str(cid) for cid in contact["contacts"]]
-    
+
     return contacts
