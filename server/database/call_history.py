@@ -18,8 +18,6 @@ def start_call(caller_id: str, callee_id: str) -> ObjectId:
         "duration_seconds": None,
         # each item: {"t": <datetime>, "speaker": ObjectId, "text": str, "source": "lip"|"vosk"}
         "transcripts": [],
-        # room for future stats (frame counts, WER, …)
-        "meta": {}
     }
     return calls.insert_one(doc).inserted_id
 
