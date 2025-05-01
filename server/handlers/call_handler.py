@@ -33,7 +33,7 @@ class CallHandler:
         caller, target = payload.get("from"), payload.get("target")
         logger.info(f"Call invite from {caller} to {target}")
 
-        target_ws, target_key = self._get_client_key(target, aes_key)
+        target_ws, target_key = self._get_client_key(target)
         if target_ws:
             await structure_encrypt_send_message(
                 websocket=target_ws,
@@ -66,7 +66,7 @@ class CallHandler:
         callee, caller = payload.get("from"), payload.get("target")
         logger.info(f"Call accepted by {callee} for {caller}")
 
-        caller_ws, caller_key = self._get_client_key(caller, aes_key)
+        caller_ws, caller_key = self._get_client_key(caller)
         if caller_ws:
             await structure_encrypt_send_message(
                 websocket=caller_ws,
@@ -99,7 +99,7 @@ class CallHandler:
         callee, caller = payload.get("from"), payload.get("target")
         logger.info(f"Call rejected by {callee} for {caller}")
 
-        caller_ws, caller_key = self._get_client_key(caller, aes_key)
+        caller_ws, caller_key = self._get_client_key(caller)
         if caller_ws:
             await structure_encrypt_send_message(
                 websocket=caller_ws,
@@ -133,7 +133,7 @@ class CallHandler:
         sender, target = payload.get("from"), payload.get("target")
         logger.info(f"Call end request from {sender} to {target}")
 
-        target_ws, target_key = self._get_client_key(target, aes_key)
+        target_ws, target_key = self._get_client_key(target)
         if target_ws:
             await structure_encrypt_send_message(
                 websocket=target_ws,
@@ -167,7 +167,7 @@ class CallHandler:
             "from"), payload.get("target"), payload.get("video")
         logger.info(f"Video state update from {sender} to {target}: {state}")
 
-        target_ws, target_key = self._get_client_key(target, aes_key)
+        target_ws, target_key = self._get_client_key(target)
         if target_ws:
             await structure_encrypt_send_message(
                 websocket=target_ws,
@@ -217,13 +217,12 @@ class CallHandler:
             payload={"model_type": model},
         )
 
-    def _get_client_key(self, target, fallback_key):
+    def _get_client_key(self, target):
         """
         Retrieve the WebSocket and AES key for a target user.
 
         Args:
             target (str): The user ID of the target client.
-            fallback_key (bytes): AES key to use if the client has no stored key.
 
         Returns:
             tuple:
@@ -233,7 +232,7 @@ class CallHandler:
         info = clients.get(target)
         if not info:
             return None, None
-        return info["ws"], info.get("aes_key", fallback_key)
+        return info["ws"], info.get("aes_key")
 
     async def _validate_jwt(self, ws, data, aes_key, msg_type):
         """

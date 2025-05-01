@@ -2440,3 +2440,5 @@ AttributeError: module 'websockets.exceptions' has no attribute 'CibbectuibCkise
 01-05-2025 21:22:12 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
 01-05-2025 21:22:25 | INFO     | handlers.connection:130 | Connection closed by client
 01-05-2025 21:22:35 | INFO     | handlers.connection:130 | Connection closed by client
+01-05-2025 21:25:17 | INFO     | websockets.server:440 | server closing
+01-05-2025 21:25:17 | INFO     | websockets.server:473 | server closed
