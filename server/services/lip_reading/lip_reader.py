@@ -53,7 +53,7 @@ class LipReadingPipeline:
     the model when the buffer is full, decodes CTC output, and resets buffer.
     """
 
-    def __init__(self, shared_model: tf.Keras.Model, sequence_length: int = 75):
+    def __init__(self, shared_model: tf.keras.Model, sequence_length: int = 75):
         """
         Initialize the lip-reading pipeline.
 
