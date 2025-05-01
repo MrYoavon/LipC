@@ -12,6 +12,8 @@ from services.state import clients
 from services.crypto_utils import structure_encrypt_send_message, send_error_message
 from constants import NAME_PART_MAX_LENGTH, USERNAME_MAX_LENGTH, PASSWORD_MAX_LENGTH
 
+logger = logging.getLogger(__name__)
+
 # -----------------------------------------------------------------------------
 # Authentication Handlers
 # -----------------------------------------------------------------------------
@@ -49,7 +51,7 @@ async def handle_authentication(websocket, data, aes_key):
 
     user = get_user_by_username(username)
     if not user:
-        logging.info(f"Authentication failed: user '{username}' not found.")
+        logger.info(f"Authentication failed: user '{username}' not found.")
         await send_error_message(
             websocket=websocket,
             aes_key=aes_key,
@@ -60,7 +62,7 @@ async def handle_authentication(websocket, data, aes_key):
         return
 
     if not bcrypt.checkpw(password.encode(), user["password_hash"].encode()):
-        logging.info(
+        logger.info(
             f"Authentication failed: incorrect password for '{username}'.")
         await send_error_message(
             websocket=websocket,
@@ -78,7 +80,7 @@ async def handle_authentication(websocket, data, aes_key):
     # Register client session
     clients[user_id] = {"ws": websocket,
                         "username": username, "aes_key": aes_key, "pc": None}
-    logging.info(f"User '{username}' authenticated with ID {user_id}.")
+    logger.info(f"User '{username}' authenticated with ID {user_id}.")
 
     response = {
         "user_id": user_id,
@@ -196,7 +198,7 @@ async def handle_signup(websocket, data, aes_key):
     # Register client session
     clients[user_id] = {"ws": websocket,
                         "username": username, "aes_key": aes_key, "pc": None}
-    logging.info(f"New user '{username}' registered with ID {user_id}.")
+    logger.info(f"New user '{username}' registered with ID {user_id}.")
 
     response = {"user_id": user_id, "access_token": access_token,
                 "refresh_token": refresh_token}
@@ -252,9 +254,9 @@ async def handle_token_refresh(websocket, data, aes_key):
             success=True,
             payload=response
         )
-        logging.info(f"Access token refreshed for user ID {user_id}.")
+        logger.info(f"Access token refreshed for user ID {user_id}.")
     except Exception as e:
-        logging.error(f"Failed to refresh token: {e}")
+        logger.error(f"Failed to refresh token: {e}")
         await send_error_message(
             websocket=websocket,
             aes_key=aes_key,
@@ -284,7 +286,7 @@ async def handle_logout(websocket, data, aes_key):
 
     # Remove client session
     clients.pop(user_id, None)
-    logging.info(f"User ID {user_id} logged out.")
+    logger.info(f"User ID {user_id} logged out.")
     await structure_encrypt_send_message(
         websocket=websocket,
         aes_key=aes_key,

@@ -5,6 +5,9 @@ from database.users import add_contact_to_user, get_user_contacts
 from services.jwt_utils import verify_jwt_in_message
 from services.crypto_utils import structure_encrypt_send_message, send_error_message
 
+
+logger = logging.getLogger(__name__)
+
 # -----------------------------------------------------------------------------
 # Helpers
 # -----------------------------------------------------------------------------
@@ -17,7 +20,7 @@ async def _validate_jwt(ws, data, aes_key, msg_type):
     user_id = data.get("user_id")
     valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        logging.warning(
+        logger.warning(
             f"Invalid JWT for {msg_type}, user {user_id}: {result}")
         await send_error_message(
             websocket=ws,
@@ -66,7 +69,7 @@ async def handle_add_contact(websocket, data, aes_key):
         return
 
     contacts = [str(cid) for cid in updated.get("contacts", [])]
-    logging.info(f"Added contact '{contact_username}' for user '{user_id}'")
+    logger.info(f"Added contact '{contact_username}' for user '{user_id}'")
     await structure_encrypt_send_message(
         websocket=websocket,
         aes_key=aes_key,
@@ -95,7 +98,7 @@ async def handle_get_contacts(websocket, data, aes_key):
         )
         return
 
-    logging.info(f"Retrieved {len(contacts)} contacts for user '{user_id}'")
+    logger.info(f"Retrieved {len(contacts)} contacts for user '{user_id}'")
     contacts_data = [
         {
             "_id": str(contact.get("_id")),

@@ -5,6 +5,10 @@ from database.call_history import get_call_history
 from services.jwt_utils import verify_jwt_in_message
 from services.crypto_utils import structure_encrypt_send_message, send_error_message
 
+
+logger = logging.getLogger(__name__)
+
+
 # -----------------------------------------------------------------------------
 # Helpers
 # -----------------------------------------------------------------------------
@@ -17,7 +21,7 @@ async def _validate_jwt(ws, data, aes_key, msg_type):
     user_id = data.get("user_id")
     valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        logging.warning(
+        logger.warning(
             f"Invalid JWT for {msg_type}, user {user_id}: {result}")
         await send_error_message(
             websocket=ws,
@@ -72,7 +76,7 @@ async def handle_fetch_call_history(websocket, data, aes_key):
         entries = get_call_history(user_id, limit)
         serialized = [_serialize_entry(e) for e in entries]
 
-        logging.info(
+        logger.info(
             f"Fetched {len(serialized)} history entries for user {user_id}")
         await structure_encrypt_send_message(
             websocket=websocket,
@@ -82,7 +86,7 @@ async def handle_fetch_call_history(websocket, data, aes_key):
             payload={"entries": serialized},
         )
     except Exception as exc:
-        logging.error(f"Error fetching call history for user {user_id}: {exc}")
+        logger.error(f"Error fetching call history for user {user_id}: {exc}")
         await send_error_message(
             websocket=websocket,
             aes_key=aes_key,

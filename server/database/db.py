@@ -92,7 +92,7 @@ def init_db():
             )
             print(f"Created collection '{name}' with schema validation.")
         except CollectionInvalid:
-            # If it exists, modify the collection to apply the schema
+            # If it exists, attempt to modify the collection to apply the schema
             try:
                 db.command(
                     {
@@ -105,15 +105,8 @@ def init_db():
                 print(
                     f"Updated schema validation for existing collection '{name}'.")
             except OperationFailure as e:
-                # Provide detailed feedback rather than silently skipping
-                if e.code == 13:
-                    raise PermissionError(
-                        f"Unauthorized to modify validation on collection '{name}'. "
-                        f"Current user needs appropriate roles (e.g., 'dbAdmin' or 'dbOwner')."
-                    ) from e
-                raise RuntimeError(
-                    f"Failed to apply schema validation to collection '{name}': {e.message if hasattr(e, 'message') else str(e)}"
-                ) from e
+                # Insufficient privileges or other failure => skip
+                print(f"Skipping schema update for '{name}': {e}")
 
 
 def get_collection(collection_name):

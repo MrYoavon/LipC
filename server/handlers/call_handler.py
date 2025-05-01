@@ -4,6 +4,8 @@ from services.jwt_utils import verify_jwt_in_message
 from services.state import clients
 from services.crypto_utils import structure_encrypt_send_message, send_error_message
 
+logger = logging.getLogger(__name__)
+
 
 # -----------------------------------------------------------------------------
 # Helpers
@@ -21,7 +23,7 @@ async def _validate_jwt(ws, data, aes_key, msg_type):
     user_id = data.get("user_id")
     valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
-        logging.warning(
+        logger.warning(
             f"Invalid JWT for {msg_type}, user {user_id}: {result}")
         await send_error_message(ws, aes_key, msg_type, result.get("error"), result.get("message"))
         return None
@@ -38,7 +40,7 @@ async def handle_call_invite(websocket, data, aes_key):
     if payload is None:
         return
     caller, target = payload.get("from"), payload.get("target")
-    logging.info(f"Call invite from {caller} to {target}")
+    logger.info(f"Call invite from {caller} to {target}")
 
     target_ws, target_key = _get_client_key(target, aes_key)
     if target_ws:
@@ -62,7 +64,7 @@ async def handle_call_accept(websocket, data, aes_key):
     if payload is None:
         return
     callee, caller = payload.get("from"), payload.get("target")
-    logging.info(f"Call accepted by {callee} for {caller}")
+    logger.info(f"Call accepted by {callee} for {caller}")
 
     caller_ws, caller_key = _get_client_key(caller, aes_key)
     if caller_ws:
@@ -86,7 +88,7 @@ async def handle_call_reject(websocket, data, aes_key):
     if payload is None:
         return
     callee, caller = payload.get("from"), payload.get("target")
-    logging.info(f"Call rejected by {callee} for {caller}")
+    logger.info(f"Call rejected by {callee} for {caller}")
 
     caller_ws, caller_key = _get_client_key(caller, aes_key)
     if caller_ws:
@@ -111,7 +113,7 @@ async def handle_call_end(websocket, data, aes_key):
     if payload is None:
         return
     sender, target = payload.get("from"), payload.get("target")
-    logging.info(f"Call end request from {sender} to {target}")
+    logger.info(f"Call end request from {sender} to {target}")
 
     target_ws, target_key = _get_client_key(target, aes_key)
     if target_ws:
@@ -136,7 +138,7 @@ async def handle_video_state(websocket, data, aes_key):
         return
     sender, target, state = payload.get(
         "from"), payload.get("target"), payload.get("video")
-    logging.info(f"Video state update from {sender} to {target}: {state}")
+    logger.info(f"Video state update from {sender} to {target}: {state}")
 
     target_ws, target_key = _get_client_key(target, aes_key)
     if target_ws:
@@ -170,7 +172,7 @@ async def handle_set_model_preference(websocket, data, aes_key):
         return
 
     clients[user]["model_type"] = model
-    logging.info(f"Set model preference for {user} to {model}")
+    logger.info(f"Set model preference for {user} to {model}")
     await structure_encrypt_send_message(
         websocket=websocket,
         aes_key=aes_key,

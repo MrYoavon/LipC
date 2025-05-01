@@ -11,6 +11,9 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 
 
+logger = logging.getLogger(__name__)
+
+
 def generate_ephemeral_key():
     """
     Generate an ephemeral key pair using the X25519 algorithm.
@@ -168,7 +171,7 @@ async def send_encrypted(websocket, plaintext, aes_key):
         # Send the encrypted payload over the websocket.
         await websocket.send(json.dumps(payload))
     except Exception as e:
-        logging.error("Failed to send encrypted message: " + str(e))
+        logger.error("Failed to send encrypted message: " + str(e))
 
 
 async def structure_encrypt_send_message(
@@ -220,7 +223,7 @@ async def structure_encrypt_send_message(
         # Encrypt the message and send it over the websocket.
         await send_encrypted(websocket, plaintext, aes_key)
     except Exception as e:
-        logging.error("Failed to send structured encrypted message: " + str(e))
+        logger.error("Failed to send structured encrypted message: " + str(e))
 
 
 async def send_error_message(

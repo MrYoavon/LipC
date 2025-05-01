@@ -14,7 +14,3 @@ pending_calls: Dict[Tuple[str, str], Dict[str, Optional[ObjectId]]] = {}
 
 def call_key(uid1: str, uid2: str) -> Tuple[str, str]:
     return tuple(sorted([uid1, uid2]))
-
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)

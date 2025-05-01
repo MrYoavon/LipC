@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from database.refresh_tokens import find_valid_token, revoke_previous_token, revoke_token, save_refresh_token
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 # --- RSA Key Configuration ---
 # Your RSA private key and public key should be stored securely.
@@ -19,7 +20,7 @@ RSA_PRIVATE_KEY = os.getenv("JWT_RSA_PRIVATE_KEY")
 RSA_PUBLIC_KEY = os.getenv("JWT_RSA_PUBLIC_KEY")
 
 if not RSA_PRIVATE_KEY or not RSA_PUBLIC_KEY:
-    logging.error(
+    logger.error(
         "RSA keys not set; please configure JWT_RSA_PRIVATE_KEY and JWT_RSA_PUBLIC_KEY in the environment.")
 
 # Use RS256 signing algorithm.
@@ -94,10 +95,10 @@ def verify_jwt(token: str, expected_type: str = "access") -> dict:
                 f"Token type mismatch. Expected '{expected_type}' token.")
         return payload
     except jwt.ExpiredSignatureError as e:
-        logging.error("JWT expired: " + str(e))
+        logger.error("JWT expired: " + str(e))
         raise
     except jwt.InvalidTokenError as e:
-        logging.error("Invalid JWT token: " + str(e))
+        logger.error("Invalid JWT token: " + str(e))
         raise
 
 
@@ -120,13 +121,13 @@ def verify_jwt_in_message(token: str, expected_type: str, user_id: str) -> dict:
             }
         return True, payload
     except jwt.ExpiredSignatureError as e:
-        logging.error("Access token expired: " + str(e))
+        logger.error("Access token expired: " + str(e))
         return False, {
             "error": "TOKEN_EXPIRED",
             "message": "Your access token has expired. Please refresh your token or log in again."
         }
     except jwt.InvalidTokenError as e:
-        logging.error("Invalid access token: " + str(e))
+        logger.error("Invalid access token: " + str(e))
         return False, {
             "error": "INVALID_TOKEN",
             "message": "Your access token is invalid. Please log in again."

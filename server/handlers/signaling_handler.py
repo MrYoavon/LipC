@@ -13,6 +13,9 @@ from services.lip_reading.vosk_helper import VoskRecognizer, convert_audio_frame
 from services.state import clients, pending_calls, call_key
 
 
+logger = logging.getLogger(__name__)
+
+
 class WebRTCServer:
     """
     Server-side WebRTC connection handler:
@@ -45,8 +48,8 @@ class WebRTCServer:
 
     async def _on_track(self, track):
         """Dispatch incoming media tracks to appropriate processors."""
-        logging.info(f"Received {track.kind} track from {self.sender}")
-        track.onended = lambda: logging.info(
+        logger.info(f"Received {track.kind} track from {self.sender}")
+        track.onended = lambda: logger.info(
             f"{track.kind} track from {self.sender} ended")
 
         # Ensure call_id is set from pending_calls
@@ -68,14 +71,14 @@ class WebRTCServer:
 
     async def _process_video(self, track):
         """Process video frames for lip-reading predictions."""
-        logging.info(f"Starting lip-reading video for {self.sender}")
+        logger.info(f"Starting lip-reading video for {self.sender}")
         loop = asyncio.get_event_loop()
 
         while True:
             try:
                 frame = await track.recv()
             except Exception as exc:
-                logging.error(f"Error receiving video frame: {exc}")
+                logger.error(f"Error receiving video frame: {exc}")
                 break
 
             frame_array = frame.to_ndarray(format="bgr24")
@@ -90,7 +93,7 @@ class WebRTCServer:
 
             append_line(self.call_id, speaker_id=self.sender,
                         text=prediction, source="lip")
-            logging.info(f"Lip prediction for {self.sender}: {prediction}")
+            logger.info(f"Lip prediction for {self.sender}: {prediction}")
 
             await self._relay_message(
                 msg_type="lip_reading_prediction",
@@ -99,14 +102,14 @@ class WebRTCServer:
 
     async def _process_audio(self, track):
         """Accumulate audio frames and send chunks to Vosk for transcription."""
-        logging.info(f"Starting Vosk audio for {self.sender}")
+        logger.info(f"Starting Vosk audio for {self.sender}")
         loop = asyncio.get_event_loop()
 
         while True:
             try:
                 frame: av.AudioFrame = await track.recv()
             except Exception as exc:
-                logging.error(f"Error receiving audio frame: {exc}")
+                logger.error(f"Error receiving audio frame: {exc}")
                 break
 
             pcm = convert_audio_frame_to_pcm(frame)
@@ -122,7 +125,7 @@ class WebRTCServer:
             self.buffered_ms = 0.0
 
             duration_ms = len(chunk) / 2 / self.sample_rate * 1000
-            logging.debug(f"Feeding Vosk {duration_ms:.1f} ms of audio")
+            logger.debug(f"Feeding Vosk {duration_ms:.1f} ms of audio")
 
             result = await loop.run_in_executor(
                 thread_executors.get_speech_executor(),
@@ -138,7 +141,7 @@ class WebRTCServer:
             if not text:
                 continue
 
-            logging.info(
+            logger.info(
                 f"Vosk {result_type} result for {self.sender}: {text}")
 
             if result_type == "final":
@@ -151,7 +154,7 @@ class WebRTCServer:
             )
 
         final = self.recognizer.get_final_result()
-        logging.info(f"Vosk final result for {self.sender}: {final}")
+        logger.info(f"Vosk final result for {self.sender}: {final}")
 
     async def _relay_message(self, msg_type, payload):
         """Encrypt and send a message to the call partner."""
@@ -177,7 +180,7 @@ class WebRTCServer:
 
         answer = await self.pc.createAnswer()
         await self.pc.setLocalDescription(answer)
-        logging.info(f"Generated answer for {self.sender}")
+        logger.info(f"Generated answer for {self.sender}")
 
         return {"from": "server", "target": self.sender, "answer": {"sdp": answer.sdp, "type": answer.type}}
 
@@ -202,7 +205,7 @@ class WebRTCServer:
 
     async def _on_pc_state(self):
         state = self.pc.connectionState
-        logging.info(f"PC state for {self.sender}: {state}")
+        logger.info(f"PC state for {self.sender}: {state}")
         if state in ("closed", "failed"):
             await self._terminate_call()
         elif state == "disconnected":
@@ -221,7 +224,7 @@ class WebRTCServer:
             pending_calls.pop(key, None)
 
         await self.pc.close()
-        logging.info(f"Call {self.call_id} ended for {self.sender}")
+        logger.info(f"Call {self.call_id} ended for {self.sender}")
 
 
 # ----- Top-level message handling functions -----
@@ -243,7 +246,7 @@ async def handle_offer(websocket, data, aes_key):
             error_message=err.get("message")
         )
 
-    logging.info(f"Offer from {sender} to {target}")
+    logger.info(f"Offer from {sender} to {target}")
 
     if target == "server":
         return await handle_server_offer(websocket, data, aes_key)
@@ -288,7 +291,7 @@ async def handle_answer(websocket, data, aes_key):
             error_message=err.get("message")
         )
 
-    logging.info(f"Answer from {sender} to {target}")
+    logger.info(f"Answer from {sender} to {target}")
 
     if target == "server":
         return await handle_server_answer(websocket, data, aes_key)
@@ -334,7 +337,7 @@ async def handle_ice_candidate(websocket, data, aes_key):
             error_message=err.get("message")
         )
 
-    logging.info(f"ICE candidate from {sender} to {target}")
+    logger.info(f"ICE candidate from {sender} to {target}")
 
     if target == "server":
         return await handle_server_ice_candidate(websocket, data, aes_key)
@@ -378,7 +381,7 @@ async def handle_server_offer(websocket, data, aes_key):
             error_message=err.get("message")
         )
 
-    logging.info(f"Server-side offer from {sender} for {other_user}")
+    logger.info(f"Server-side offer from {sender} for {other_user}")
 
     model_type = clients.get(sender, {}).get("model_type", "lip")
     server_conn = WebRTCServer(
@@ -392,7 +395,7 @@ async def handle_server_offer(websocket, data, aes_key):
         success=True,
         payload=response
     )
-    logging.info(f"Sent server answer to {sender}")
+    logger.info(f"Sent server answer to {sender}")
 
 
 async def handle_server_answer(websocket, data, aes_key):
@@ -406,7 +409,7 @@ async def handle_server_answer(websocket, data, aes_key):
     if not valid:
         return await send_error_message(websocket, aes_key, "answer", err)
 
-    logging.info(f"Server-side answer from {sender}")
+    logger.info(f"Server-side answer from {sender}")
 
     client = clients.get(sender, {})
     pc = client.get("pc")
@@ -435,7 +438,7 @@ async def handle_server_ice_candidate(websocket, data, aes_key):
     if not valid:
         return await send_error_message(websocket, aes_key, "ice_candidate", err)
 
-    logging.info(f"Server-side ICE candidate from {sender}")
+    logger.info(f"Server-side ICE candidate from {sender}")
 
     client = clients.get(sender, {})
     pc = client.get("pc")

@@ -30,6 +30,8 @@ from constants import HEARTBEAT_INTERVAL, HEARTBEAT_TIMEOUT
 # -----------------------------------------------------------------------------
 # Configuration and Global Instances
 # -----------------------------------------------------------------------------
+logger = logging.getLogger(__name__)
+
 RATE_LIMITER = RateLimiter()
 
 # Mapping of message types to handler functions
@@ -90,7 +92,7 @@ async def _heartbeat(ws, last_ping_ref):
     while True:
         await asyncio.sleep(HEARTBEAT_INTERVAL)
         if time.time() - last_ping_ref[0] > HEARTBEAT_TIMEOUT:
-            logging.warning("Heartbeat timeout, closing connection")
+            logger.warning("Heartbeat timeout, closing connection")
             await ws.close()
             break
 
@@ -122,7 +124,7 @@ async def _dispatch(ws, data, aes_key):
         return await handler(ws, data, aes_key)
 
     # Unknown
-    logging.warning(f"Unknown msg_type: {msg_type}")
+    logger.warning(f"Unknown msg_type: {msg_type}")
     await send_encrypted(ws, json.dumps({"error": "Unknown message type"}), aes_key)
 
 
@@ -150,7 +152,7 @@ async def handle_connection(ws):
     """
     Orchestrate handshake, heartbeat, rate-limit, decrypt/dispatch loop, and cleanup.
     """
-    logging.info("New connection")
+    logger.info("New connection")
     ip = ws.remote_address[0]
     last_ping = [time.time()]
 
@@ -160,7 +162,7 @@ async def handle_connection(ws):
     try:
         aes_key = await _perform_handshake(ws)
     except Exception as e:
-        logging.error("Handshake failed", exc_info=e)
+        logger.error("Handshake failed", exc_info=e)
         await ws.send(json.dumps({"error": "Handshake failed"}))
         return
 
@@ -168,14 +170,14 @@ async def handle_connection(ws):
         async for raw in ws:
             # Rate limit
             if not RATE_LIMITER.allow(ip):
-                logging.warning("Rate limit exceeded")
+                logger.warning("Rate limit exceeded")
                 await ws.close(code=4008, reason="Rate limit exceeded")
                 break
 
             try:
                 data = await _decrypt_and_parse(raw, aes_key)
             except Exception as e:
-                logging.error("Decrypt/parse error", exc_info=e)
+                logger.error("Decrypt/parse error", exc_info=e)
                 await send_encrypted(ws, json.dumps({"error": "Invalid message format"}), aes_key)
                 continue
 
@@ -188,7 +190,7 @@ async def handle_connection(ws):
             await _dispatch(ws, data, aes_key)
 
     except Exception as e:
-        logging.error("Connection loop error", exc_info=e)
+        logger.error("Connection loop error", exc_info=e)
     finally:
         hb.cancel()
         await _cleanup(ws)

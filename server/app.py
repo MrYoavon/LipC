@@ -2,6 +2,12 @@
 # fmt: off
 # fmt on/off forces autopep8 to not auto format the code between the comments
 # I want to keep the code initializing the GPU at the top, otherwise it won't work
+import logging
+
+from services.logging_utils import setup_logging  # logging config must precede other imports
+setup_logging()
+logger = logging.getLogger(__name__)
+
 import tensorflow as tf
 
 
@@ -12,20 +18,20 @@ def configure_devices():
     try:
         # Detect GPUs
         gpus = tf.config.experimental.list_physical_devices('GPU')
-        print(gpus)
+        logger.debug(f"Detected GPUs: {gpus}")
 
         if gpus:
             # Set memory growth to prevent memory allocation problems
             tf.config.experimental.set_memory_growth(gpus[0], True)
             tf.config.experimental.set_visible_devices(gpus[0], 'GPU')
-            print(f"Using GPU: {gpus[0]}")
+            logger.info(f"Using GPU: {gpus[0]}")
         else:
-            print("No GPU detected, using CPU.")
+            logger.info("No GPU detected, using CPU.")
 
         # Log TensorFlow ROCm or CUDA status (if applicable)
-        print(f"TensorFlow Version: {tf.__version__}")
-        print(f"Is CUDA enabled: {tf.test.is_built_with_cuda()}")
-        print(f"Is ROCm enabled: {tf.test.is_built_with_rocm()}")
+        logger.info(f"TensorFlow Version: {tf.__version__}")
+        logger.info(f"Is CUDA enabled: {tf.test.is_built_with_cuda()}")
+        logger.info(f"Is ROCm enabled: {tf.test.is_built_with_rocm()}")
 
     except RuntimeError as e:
         print(f"Error configuring TensorFlow devices: {e}")
@@ -35,7 +41,6 @@ configure_devices()
 
 
 from constants import SSL_CERT_FILE, SSL_KEY_FILE
-from services.logger import setup_logger
 from handlers.connection import handle_connection
 import os
 from websockets import serve
@@ -45,8 +50,7 @@ import asyncio
 
 
 def main():
-    print("Starting WebSocket server...")
-    setup_logger()
+    logger.info("Starting WebSocket server...")
     host = os.getenv("WEBSOCKET_HOST", "0.0.0.0")
     port = int(os.getenv("WEBSOCKET_PORT", 8765))
     ssl_ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
