@@ -7,15 +7,14 @@ import logging
 import os
 import time
 
+import websockets
+
 # Local handlers
-from handlers.auth_handler import handle_authentication, handle_logout, handle_signup, handle_token_refresh
-from handlers.contacts_handler import handle_get_contacts, handle_add_contact
-from handlers.call_handler import (
-    handle_call_invite, handle_call_accept, handle_call_reject,
-    handle_call_end, handle_set_model_preference, handle_video_state
-)
-from handlers.signaling_handler import handle_offer, handle_answer, handle_ice_candidate
-from handlers.call_history_handler import handle_fetch_call_history
+from handlers.auth_handler import AuthHandler
+from handlers.contacts_handler import ContactsHandler
+from handlers.call_handler import CallHandler
+from handlers.signaling_handler import SignalingHandler
+from handlers.call_history_handler import CallHistoryHandler
 
 # Crypto and rate limiting
 from services.crypto_utils import (
@@ -34,227 +33,228 @@ logger = logging.getLogger(__name__)
 
 RATE_LIMITER = RateLimiter()
 
+# Instantiate handler classes
+auth_handler = AuthHandler()
+contacts_handler = ContactsHandler()
+call_handler = CallHandler()
+signaling_handler = SignalingHandler()
+call_history_handler = CallHistoryHandler()
+
 # Mapping of message types to handler functions
 HANDLERS = {
-    "authenticate": handle_authentication,
-    "signup":       handle_signup,
-    "logout":       handle_logout,
-    "refresh_token": handle_token_refresh,
-    "get_contacts": handle_get_contacts,
-    "add_contact":  handle_add_contact,
-    "call_invite":  handle_call_invite,
-    "call_accept":  handle_call_accept,
-    "call_reject":  handle_call_reject,
-    "call_end":     handle_call_end,
-    "video_state":  handle_video_state,
-    "offer":        handle_offer,
-    "answer":       handle_answer,
-    "ice_candidate": handle_ice_candidate,
-    "fetch_call_history": handle_fetch_call_history,
-    "set_model_preference": handle_set_model_preference,
+    "authenticate":         auth_handler.handle_authentication,
+    "signup":               auth_handler.handle_signup,
+    "logout":               auth_handler.handle_logout,
+    "refresh_token":        auth_handler.handle_refresh_token,
+    "get_contacts":         contacts_handler.handle_get_contacts,
+    "add_contact":          contacts_handler.handle_add_contact,
+    "call_invite":          call_handler.handle_call_invite,
+    "call_accept":          call_handler.handle_call_accept,
+    "call_reject":          call_handler.handle_call_reject,
+    "call_end":             call_handler.handle_call_end,
+    "video_state":          call_handler.handle_video_state,
+    "set_model_preference": call_handler.handle_set_model_preference,
+    "offer":                signaling_handler.handle_offer,
+    "answer":               signaling_handler.handle_answer,
+    "ice_candidate":        signaling_handler.handle_ice_candidate,
+    "fetch_call_history":   call_history_handler.handle_fetch_call_history,
 }
 
-# -----------------------------------------------------------------------------
-# Helper Coroutines
-# -----------------------------------------------------------------------------
 
-
-async def _perform_handshake(ws) -> bytes:
+class ConnectionHandler:
     """
-    Perform an Elliptic-curve Diffie Hellman (ECDH) handshake with the client.
-
-    This coroutine generates a server private/public key pair, sends the public key
-    and a random salt to the client, receives the client's public key, and derives
-    a shared AES key for subsequent encrypted communication.
-
-    Parameters:
-        ws: WebSocket connection instance to communicate with the client.
-
-    Returns:
-        aes_key (bytes): The derived AES key for encrypting/decrypting messages.
-
-    Raises:
-        ValueError: If the client response does not contain a valid handshake.
+    Manages a single WebSocket connection: handshake, heartbeat,
+    decrypt/dispatch loop, cleanup and dispatches to all other handlers.
     """
-    priv, pub = generate_ephemeral_key()
-    pub_ser = base64.b64encode(serialize_public_key(pub)).decode()
-    salt = base64.b64encode(os.urandom(16)).decode()
 
-    # Send server public key and salt
-    await ws.send(json.dumps({
-        "msg_type": "handshake",
-        "payload": {"server_public_key": pub_ser, "salt": salt}
-    }))
+    def __init__(self):
+        """
+        Initialize the ConnectionHandler with a WebSocket instance.
+        """
+        self.ws = None
+        self.aes_key = None
+        self.last_ping = time.time()
 
-    # Receive client handshake
-    data = json.loads(await ws.recv())
-    if data.get("msg_type") != "handshake":
-        raise ValueError("Invalid handshake response")
-    client_pub = base64.b64decode(data["payload"]["client_public_key"])
-    client_pub = deserialize_public_key(client_pub)
+    async def handle_connection(self, ws):
+        """
+        Main entry point for handling a new WebSocket connection.
 
-    # Derive AES key
-    secret = compute_shared_secret(priv, client_pub)
-    return derive_aes_key(secret, salt=salt.encode())
+        Orchestrates the handshake, heartbeat monitoring, rate limiting,
+        message decrypt/parse/dispatch loop, and final cleanup on disconnect.
 
+        Parameters:
+            ws (websockets.WebSocketServerProtocol): The WebSocket connection instance.
 
-async def _heartbeat(ws, last_ping_ref):
-    """
-    Monitor heartbeat pings from the client and close connection on timeout.
+        Returns:
+            None
+        """
+        logger.info("New connection")
+        self.ws = ws
+        ip = self.ws.remote_address[0]
+        last_ping = [time.time()]
 
-    Periodically checks if the time since the last ping exceeds a timeout threshold.
-    If so, logs a warning and closes the WebSocket connection.
+        # Start heartbeat monitor
+        hb = asyncio.create_task(self._heartbeat())
 
-    Parameters:
-        ws: WebSocket connection instance.
-        last_ping_ref: Single-element list holding the timestamp of last received ping.
+        try:
+            self.aes_key = await self._perform_handshake()
+            logger.info("Handshake successful")
+        except Exception as e:
+            logger.error("Handshake failed", exc_info=e)
+            await self.ws.send(json.dumps({"error": "Handshake failed"}))
+            return
 
-    Returns:
-        None
-    """
-    while True:
-        await asyncio.sleep(HEARTBEAT_INTERVAL)
-        if time.time() - last_ping_ref[0] > HEARTBEAT_TIMEOUT:
-            logger.warning("Heartbeat timeout, closing connection")
-            await ws.close()
-            break
+        try:
+            async for raw in self.ws:
+                # Rate limit
+                if not RATE_LIMITER.allow(ip):
+                    logger.warning("Rate limit exceeded")
+                    await self.ws.close(code=4008, reason="Rate limit exceeded")
+                    break
 
+                try:
+                    data = await self._decrypt_and_parse(raw)
+                except Exception as e:
+                    logger.error("Decrypt/parse error", exc_info=e)
+                    await send_encrypted(self.ws, json.dumps({"error": "Invalid message format"}), self.aes_key)
+                    continue
 
-async def _decrypt_and_parse(raw_message, aes_key):
-    """
-    Decrypt an incoming message if encrypted, or parse it as plaintext JSON.
+                # Heartbeat
+                if data.get("msg_type") == "ping":
+                    last_ping[0] = time.time()
+                    await send_encrypted(self.ws, json.dumps({"msg_type": "pong"}), self.aes_key)
+                    continue
 
-    Checks for encryption fields (nonce, ciphertext, tag). If present,
-    decrypts the payload using the provided AES key. Otherwise, returns the
-    parsed JSON directly.
+                await self._dispatch(data)
+        except websockets.exceptions.ConnectionClosedError as e:
+            logger.info("Connection closed by client")
+            hb.cancel()
+            await self._cleanup()
+        except Exception as e:
+            logger.error("Connection loop error", exc_info=e)
+        finally:
+            hb.cancel()
+            await self._cleanup()
 
-    Parameters:
-        raw_message (str): The raw string message received over WebSocket.
-        aes_key (bytes): AES key to use for decryption.
+    async def _perform_handshake(self) -> bytes:
+        """
+        Perform an Elliptic-curve Diffie Hellman (ECDH) handshake with the client.
 
-    Returns:
-        data (dict): The parsed JSON object after decryption or direct parse.
-    """
-    data = json.loads(raw_message)
-    if all(k in data for k in ("nonce", "ciphertext", "tag")):
-        nonce = base64.b64decode(data["nonce"])
-        ct = base64.b64decode(data["ciphertext"])
-        tag = base64.b64decode(data["tag"])
-        plain = decrypt_message(aes_key, nonce, ct, tag)
-        return json.loads(plain.decode())
-    return data
+        This coroutine generates a server private/public key pair, sends the public key
+        and a random salt to the client, receives the client's public key, and derives
+        a shared AES key for subsequent encrypted communication.
 
+        Returns:
+            aes_key (bytes): The derived AES key for encrypting/decrypting messages.
 
-async def _dispatch(ws, data, aes_key):
-    """
-    Dispatch a parsed message to the appropriate handler based on its type.
+        Raises:
+            ValueError: If the client response does not contain a valid handshake.
+        """
+        priv, pub = generate_ephemeral_key()
+        pub_ser = base64.b64encode(serialize_public_key(pub)).decode()
+        salt = base64.b64encode(os.urandom(16)).decode()
 
-    If the message is a ping, responds with a pong. Otherwise looks up
-    the handler in HANDLERS mapping and invokes it. Unknown types result
-    in an encrypted error response.
+        # Send server public key and salt
+        await self.ws.send(json.dumps({
+            "msg_type": "handshake",
+            "payload": {"server_public_key": pub_ser, "salt": salt}
+        }))
 
-    Parameters:
-        ws: WebSocket connection instance.
-        data (dict): The parsed message data.
-        aes_key (bytes): AES key for encrypting any responses.
+        # Receive client handshake
+        data = json.loads(await self.ws.recv())
+        if data.get("msg_type") != "handshake":
+            raise ValueError(
+                f"Invalid handshake response | {data.get('msg_type')}")
+        client_pub = base64.b64decode(data["payload"]["client_public_key"])
+        client_pub = deserialize_public_key(client_pub)
 
-    Returns:
-        result: The return value of the handler coroutine, if any.
-    """
-    msg_type = data.get("msg_type")
-    if msg_type == "ping":
-        return {"pong": True}
+        # Derive AES key
+        secret = compute_shared_secret(priv, client_pub)
+        return derive_aes_key(secret, salt=salt.encode())
 
-    handler = HANDLERS.get(msg_type)
-    if handler:
-        return await handler(ws, data, aes_key)
+    async def _heartbeat(self):
+        """
+        Monitor heartbeat pings from the client and close connection on timeout.
 
-    # Unknown
-    logger.warning(f"Unknown msg_type: {msg_type}")
-    await send_encrypted(ws, json.dumps({"error": "Unknown message type"}), aes_key)
+        Periodically checks if the time since the last ping exceeds a timeout threshold.
+        If so, logs a warning and closes the WebSocket connection.
 
-
-async def _cleanup(ws):
-    """
-    Cleanup client state on connection close or error.
-
-    Closes any active PeerConnection for the client, removes their entry from
-    the clients dictionary, and resets rate limiter state for their IP if not banned.
-
-    Parameters:
-        ws: WebSocket connection instance being cleaned up.
-
-    Returns:
-        None
-    """
-    for user, info in list(clients.items()):
-        if info.get("ws") == ws:
-            pc = info.get("pc")
-            if pc:
-                await pc.close()
-            del clients[user]
-            break
-    ip = (ws.remote_address[0] if ws.remote_address else None)
-    if not RATE_LIMITER.is_banned(ip) and ip is not None:
-        RATE_LIMITER.forget(ip)
-
-# -----------------------------------------------------------------------------
-# Main Connection Handler
-# -----------------------------------------------------------------------------
-
-
-async def handle_connection(ws):
-    """
-    Main entry point for handling a new WebSocket connection.
-
-    Orchestrates the handshake, heartbeat monitoring, rate limiting,
-    message decrypt/parse/dispatch loop, and final cleanup on disconnect.
-
-    Parameters:
-        ws: WebSocket connection instance for this client.
-
-    Returns:
-        None
-    """
-    logger.info("New connection")
-    ip = ws.remote_address[0]
-    last_ping = [time.time()]
-
-    # Start heartbeat monitor
-    hb = asyncio.create_task(_heartbeat(ws, last_ping))
-
-    try:
-        aes_key = await _perform_handshake(ws)
-    except Exception as e:
-        logger.error("Handshake failed", exc_info=e)
-        await ws.send(json.dumps({"error": "Handshake failed"}))
-        return
-
-    try:
-        async for raw in ws:
-            # Rate limit
-            if not RATE_LIMITER.allow(ip):
-                logger.warning("Rate limit exceeded")
-                await ws.close(code=4008, reason="Rate limit exceeded")
+        Returns:
+            None
+        """
+        while True:
+            await asyncio.sleep(HEARTBEAT_INTERVAL)
+            if time.time() - self.last_ping[0] > HEARTBEAT_TIMEOUT:
+                logger.warning("Heartbeat timeout, closing connection")
+                await self.ws.close()
                 break
 
-            try:
-                data = await _decrypt_and_parse(raw, aes_key)
-            except Exception as e:
-                logger.error("Decrypt/parse error", exc_info=e)
-                await send_encrypted(ws, json.dumps({"error": "Invalid message format"}), aes_key)
-                continue
+    async def _decrypt_and_parse(self, raw_message):
+        """
+        Decrypt an incoming message if encrypted, or parse it as plaintext JSON.
 
-            # Heartbeat
-            if data.get("msg_type") == "ping":
-                last_ping[0] = time.time()
-                await send_encrypted(ws, json.dumps({"msg_type": "pong"}), aes_key)
-                continue
+        Checks for encryption fields (nonce, ciphertext, tag). If present,
+        decrypts the payload using the provided AES key. Otherwise, returns the
+        parsed JSON directly.
 
-            await _dispatch(ws, data, aes_key)
+        Parameters:
+            raw_message (str): The raw string message received over WebSocket.
 
-    except Exception as e:
-        logger.error("Connection loop error", exc_info=e)
-    finally:
-        hb.cancel()
-        await _cleanup(ws)
+        Returns:
+            data (dict): The parsed JSON object after decryption or direct parse.
+        """
+        data = json.loads(raw_message)
+        if all(k in data for k in ("nonce", "ciphertext", "tag")):
+            nonce = base64.b64decode(data["nonce"])
+            ct = base64.b64decode(data["ciphertext"])
+            tag = base64.b64decode(data["tag"])
+            plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            return json.loads(plain.decode())
+        return data
+
+    async def _dispatch(self, data):
+        """
+        Dispatch a parsed message to the appropriate handler based on its type.
+
+        If the message is a ping, responds with a pong. Otherwise looks up
+        the handler in HANDLERS mapping and invokes it. Unknown types result
+        in an encrypted error response.
+
+        Parameters:
+            data (dict): The parsed message data.
+
+        Returns:
+            result: The return value of the handler coroutine, if any.
+        """
+        msg_type = data.get("msg_type")
+        if msg_type == "ping":
+            return {"pong": True}
+
+        handler = HANDLERS.get(msg_type)
+        if handler:
+            return await handler(self.ws, data, self.aes_key)
+
+        # Unknown
+        logger.warning(f"Unknown msg_type: {msg_type}")
+        await send_encrypted(self.ws, json.dumps({"error": "Unknown message type"}), self.aes_key)
+
+    async def _cleanup(self):
+        """
+        Cleanup client state on connection close or error.
+
+        Closes any active PeerConnection for the client, removes their entry from
+        the clients dictionary, and resets rate limiter state for their IP if not banned.
+
+        Returns:
+            None
+        """
+        for user, info in list(clients.items()):
+            if info.get("ws") == self.ws:
+                pc = info.get("pc")
+                if pc:
+                    await pc.close()
+                del clients[user]
+                break
+        ip = (self.ws.remote_address[0] if self.ws.remote_address else None)
+        if not RATE_LIMITER.is_banned(ip) and ip is not None:
+            RATE_LIMITER.forget(ip)

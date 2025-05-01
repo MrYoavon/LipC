@@ -288,331 +288,329 @@ class WebRTCServer:
 
 # ----- Top-level message handling functions -----
 
-async def handle_offer(websocket, data, aes_key):
+class SignalingHandler:
     """
-    Relay or process a client's SDP offer message.
-
-    Args:
-        websocket: WebSocket connection for signaling.
-        data (dict): Parsed message containing 'user_id', 'payload', and 'jwt'.
-        aes_key (bytes): AES encryption key.
+    Handles incoming signaling messages for WebRTC connections.
     """
-    user_id = data.get("user_id")
-    payload = data.get("payload", {})
-    sender = payload.get("from")
-    target = payload.get("target")
 
-    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
-    if not valid:
-        return await send_error_message(
-            websocket,
-            aes_key,
-            "offer",
-            error_code=err.get("error"),
-            error_message=err.get("message")
+    async def handle_offer(self, websocket, data, aes_key):
+        """
+        Relay or process a client's SDP offer message.
+
+        Args:
+            websocket: WebSocket connection for signaling.
+            data (dict): Parsed message containing 'user_id', 'payload', and 'jwt'.
+            aes_key (bytes): AES encryption key.
+        """
+        user_id = data.get("user_id")
+        payload = data.get("payload", {})
+        sender = payload.get("from")
+        target = payload.get("target")
+
+        valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+        if not valid:
+            return await send_error_message(
+                websocket,
+                aes_key,
+                "offer",
+                error_code=err.get("error"),
+                error_message=err.get("message")
+            )
+
+        logger.info(f"Offer from {sender} to {target}")
+
+        if target == "server":
+            return await self.handle_server_offer(websocket, data, aes_key)
+
+        if sender not in clients or target not in clients:
+            return await send_error_message(
+                websocket,
+                aes_key,
+                "offer",
+                error_code="NOT_CONNECTED",
+                error_message="Client not connected."
+            )
+
+        # Track pending call without DB insert yet
+        key = call_key(sender, target)
+        pending_calls.setdefault(
+            key, {"caller": sender, "callee": target, "call_id": None, "ended": False})
+
+        await structure_encrypt_send_message(
+            websocket=clients[target]["ws"],
+            aes_key=clients[target].get("aes_key", aes_key),
+            msg_type="offer",
+            success=True,
+            payload=payload
         )
 
-    logger.info(f"Offer from {sender} to {target}")
+    async def handle_answer(self, websocket, data, aes_key):
+        """
+        Relay or process a client's SDP answer message.
 
-    if target == "server":
-        return await handle_server_offer(websocket, data, aes_key)
+        Args:
+            websocket: WebSocket connection.
+            data (dict): Parsed message with 'user_id', 'jwt', and 'payload'.
+            aes_key (bytes): AES encryption key.
+        """
+        user_id = data.get("user_id")
+        payload = data.get("payload", {})
+        sender = payload.get("from")
+        target = payload.get("target")
 
-    if sender not in clients or target not in clients:
-        return await send_error_message(
-            websocket,
-            aes_key,
-            "offer",
-            error_code="NOT_CONNECTED",
-            error_message="Client not connected."
+        valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+        if not valid:
+            return await send_error_message(
+                websocket,
+                aes_key,
+                "answer",
+                error_code=err.get("error"),
+                error_message=err.get("message")
+            )
+
+        logger.info(f"Answer from {sender} to {target}")
+
+        if target == "server":
+            return await self.handle_server_answer(websocket, data, aes_key)
+
+        if target not in clients:
+            return await send_error_message(
+                websocket,
+                aes_key,
+                "answer",
+                error_code="TARGET_NOT_CONNECTED",
+                error_message="Target not connected."
+            )
+
+        key = call_key(sender, target)
+        info = pending_calls.get(key)
+        if info and info.get("call_id") is None:
+            info["call_id"] = start_call(
+                info["caller"], info["callee"])  # Single DB record
+
+        await structure_encrypt_send_message(
+            websocket=clients[target]["ws"],
+            aes_key=clients[target].get("aes_key", aes_key),
+            msg_type="answer",
+            success=True,
+            payload=payload
         )
 
-    # Track pending call without DB insert yet
-    key = call_key(sender, target)
-    pending_calls.setdefault(
-        key, {"caller": sender, "callee": target, "call_id": None, "ended": False})
+    async def handle_ice_candidate(self, websocket, data, aes_key):
+        """
+        Relay an ICE candidate between peers or to the server handler.
 
-    await structure_encrypt_send_message(
-        websocket=clients[target]["ws"],
-        aes_key=clients[target].get("aes_key", aes_key),
-        msg_type="offer",
-        success=True,
-        payload=payload
-    )
+        Args:
+            websocket: WebSocket connection.
+            data (dict): Parsed message with 'user_id', 'jwt', and 'payload'.
+            aes_key (bytes): AES encryption key.
+        """
+        user_id = data.get("user_id")
+        payload = data.get("payload", {})
+        sender = payload.get("from")
+        target = payload.get("target")
 
+        valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+        if not valid:
+            return await send_error_message(
+                websocket,
+                aes_key,
+                "ice_candidate",
+                error_code=err.get("error"),
+                error_message=err.get("message")
+            )
 
-async def handle_answer(websocket, data, aes_key):
-    """
-    Relay or process a client's SDP answer message.
+        logger.info(f"ICE candidate from {sender} to {target}")
 
-    Args:
-        websocket: WebSocket connection.
-        data (dict): Parsed message with 'user_id', 'jwt', and 'payload'.
-        aes_key (bytes): AES encryption key.
-    """
-    user_id = data.get("user_id")
-    payload = data.get("payload", {})
-    sender = payload.get("from")
-    target = payload.get("target")
+        if target == "server":
+            return await self.handle_server_ice_candidate(websocket, data, aes_key)
 
-    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
-    if not valid:
-        return await send_error_message(
-            websocket,
-            aes_key,
-            "answer",
-            error_code=err.get("error"),
-            error_message=err.get("message")
+        if target not in clients:
+            return await send_error_message(
+                websocket,
+                aes_key,
+                "ice_candidate",
+                error_code="TARGET_NOT_CONNECTED",
+                error_message="Target not connected."
+            )
+
+        await structure_encrypt_send_message(
+            websocket=clients[target]["ws"],
+            aes_key=clients[target].get("aes_key", aes_key),
+            msg_type="ice_candidate",
+            success=True,
+            payload=payload
         )
 
-    logger.info(f"Answer from {sender} to {target}")
+    # ----- Server-directed handlers -----
 
-    if target == "server":
-        return await handle_server_answer(websocket, data, aes_key)
+    async def handle_server_offer(self, websocket, data, aes_key):
+        """
+        Handle a client SDP offer directed to the server.
 
-    if target not in clients:
-        return await send_error_message(
-            websocket,
-            aes_key,
-            "answer",
-            error_code="TARGET_NOT_CONNECTED",
-            error_message="Target not connected."
+        Args:
+            websocket: WebSocket connection.
+            data (dict): Parsed message containing 'jwt' and 'payload'.
+            aes_key (bytes): AES encryption key.
+        """
+        user_id = data.get("user_id")
+        payload = data.get("payload", {})
+        sender = payload.get("from")
+        other_user = payload.get("other_user")
+        offer = payload.get("offer")
+
+        valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+        if not valid:
+            return await send_error_message(
+                websocket,
+                aes_key,
+                "server_offer",
+                error_code=err.get("error"),
+                error_message=err.get("message")
+            )
+
+        logger.info(f"Server-side offer from {sender} for {other_user}")
+
+        model_type = clients.get(sender, {}).get("model_type", "lip")
+        server_conn = WebRTCServer(
+            websocket, sender, aes_key, target=other_user, model_type=model_type)
+        response = await server_conn.handle_offer(offer)
+
+        await structure_encrypt_send_message(
+            websocket=websocket,
+            aes_key=aes_key,
+            msg_type="answer",
+            success=True,
+            payload=response
         )
+        logger.info(f"Sent server answer to {sender}")
 
-    key = call_key(sender, target)
-    info = pending_calls.get(key)
-    if info and info.get("call_id") is None:
-        info["call_id"] = start_call(
-            info["caller"], info["callee"])  # Single DB record
+    async def handle_server_answer(self, websocket, data, aes_key):
+        """
+        Handle a client's SDP answer to a server-initiated offer.
 
-    await structure_encrypt_send_message(
-        websocket=clients[target]["ws"],
-        aes_key=clients[target].get("aes_key", aes_key),
-        msg_type="answer",
-        success=True,
-        payload=payload
-    )
+        Args:
+            websocket: WebSocket connection.
+            data (dict): Parsed message containing 'jwt' and 'payload'.
+            aes_key (bytes): AES encryption key.
+        """
+        user_id = data.get("user_id")
+        payload = data.get("payload", {})
+        sender = payload.get("from")
+        answer = payload.get("answer")
 
+        valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+        if not valid:
+            return await send_error_message(websocket, aes_key, "answer", err)
 
-async def handle_ice_candidate(websocket, data, aes_key):
-    """
-    Relay an ICE candidate between peers or to the server handler.
+        logger.info(f"Server-side answer from {sender}")
 
-    Args:
-        websocket: WebSocket connection.
-        data (dict): Parsed message with 'user_id', 'jwt', and 'payload'.
-        aes_key (bytes): AES encryption key.
-    """
-    user_id = data.get("user_id")
-    payload = data.get("payload", {})
-    sender = payload.get("from")
-    target = payload.get("target")
+        client = clients.get(sender, {})
+        pc = client.get("pc")
+        if not pc:
+            return await send_error_message(
+                websocket,
+                aes_key,
+                "answer",
+                error_code="NO_ACTIVE_CONNECTION",
+                error_message="No active server connection."
+            )
 
-    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
-    if not valid:
-        return await send_error_message(
-            websocket,
-            aes_key,
-            "ice_candidate",
-            error_code=err.get("error"),
-            error_message=err.get("message")
+        desc = RTCSessionDescription(
+            sdp=answer.get("sdp"), type=answer.get("type"))
+        await pc.setRemoteDescription(desc)
+
+    async def handle_server_ice_candidate(self, websocket, data, aes_key):
+        """
+        Handle an ICE candidate for a server-side connection.
+
+        Args:
+            websocket: WebSocket connection.
+            data (dict): Parsed message containing 'jwt' and 'payload'.
+            aes_key (bytes): AES encryption key.
+        """
+        user_id = data.get("user_id")
+        payload = data.get("payload", {})
+        sender = payload.get("from")
+        candidate_dict = payload.get("candidate", {})
+
+        valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
+        if not valid:
+            return await send_error_message(websocket, aes_key, "ice_candidate", err)
+
+        logger.info(f"Server-side ICE candidate from {sender}")
+
+        client = clients.get(sender, {})
+        pc = client.get("pc")
+        if not pc:
+            return await send_error_message(
+                websocket,
+                aes_key,
+                "ice_candidate",
+                error_code="NO_ACTIVE_CONNECTION",
+                error_message="No active server connection."
+            )
+
+        candidate_str = candidate_dict.get("candidate")
+        data = self._parse_candidate(candidate_str)
+        cand = RTCIceCandidate(
+            foundation=data["foundation"],
+            component=data["component"],
+            protocol=data["protocol"],
+            priority=data["priority"],
+            ip=data["ip"],
+            port=data["port"],
+            type=data.get("type"),
+            tcpType=data.get("tcpType"),
+            sdpMid=candidate_dict.get("sdpMid"),
+            sdpMLineIndex=candidate_dict.get("sdpMLineIndex")
         )
+        await pc.addIceCandidate(cand)
 
-    logger.info(f"ICE candidate from {sender} to {target}")
+    # ----- Utility Functions -----
 
-    if target == "server":
-        return await handle_server_ice_candidate(websocket, data, aes_key)
+    def _parse_candidate(self, candidate_str: str) -> dict:
+        """
+        Parse an SDP ICE candidate string into its components.
 
-    if target not in clients:
-        return await send_error_message(
-            websocket,
-            aes_key,
-            "ice_candidate",
-            error_code="TARGET_NOT_CONNECTED",
-            error_message="Target not connected."
-        )
+        Args:
+            candidate_str (str): Raw SDP ICE candidate line.
 
-    await structure_encrypt_send_message(
-        websocket=clients[target]["ws"],
-        aes_key=clients[target].get("aes_key", aes_key),
-        msg_type="ice_candidate",
-        success=True,
-        payload=payload
-    )
-
-
-# ----- Server-directed handlers -----
-
-
-async def handle_server_offer(websocket, data, aes_key):
-    """
-    Handle a client SDP offer directed to the server.
-
-    Args:
-        websocket: WebSocket connection.
-        data (dict): Parsed message containing 'jwt' and 'payload'.
-        aes_key (bytes): AES encryption key.
-    """
-    user_id = data.get("user_id")
-    payload = data.get("payload", {})
-    sender = payload.get("from")
-    other_user = payload.get("other_user")
-    offer = payload.get("offer")
-
-    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
-    if not valid:
-        return await send_error_message(
-            websocket,
-            aes_key,
-            "server_offer",
-            error_code=err.get("error"),
-            error_message=err.get("message")
-        )
-
-    logger.info(f"Server-side offer from {sender} for {other_user}")
-
-    model_type = clients.get(sender, {}).get("model_type", "lip")
-    server_conn = WebRTCServer(
-        websocket, sender, aes_key, target=other_user, model_type=model_type)
-    response = await server_conn.handle_offer(offer)
-
-    await structure_encrypt_send_message(
-        websocket=websocket,
-        aes_key=aes_key,
-        msg_type="answer",
-        success=True,
-        payload=response
-    )
-    logger.info(f"Sent server answer to {sender}")
-
-
-async def handle_server_answer(websocket, data, aes_key):
-    """
-    Handle a client's SDP answer to a server-initiated offer.
-
-    Args:
-        websocket: WebSocket connection.
-        data (dict): Parsed message containing 'jwt' and 'payload'.
-        aes_key (bytes): AES encryption key.
-    """
-    user_id = data.get("user_id")
-    payload = data.get("payload", {})
-    sender = payload.get("from")
-    answer = payload.get("answer")
-
-    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
-    if not valid:
-        return await send_error_message(websocket, aes_key, "answer", err)
-
-    logger.info(f"Server-side answer from {sender}")
-
-    client = clients.get(sender, {})
-    pc = client.get("pc")
-    if not pc:
-        return await send_error_message(
-            websocket,
-            aes_key,
-            "answer",
-            error_code="NO_ACTIVE_CONNECTION",
-            error_message="No active server connection."
-        )
-
-    desc = RTCSessionDescription(
-        sdp=answer.get("sdp"), type=answer.get("type"))
-    await pc.setRemoteDescription(desc)
-
-
-async def handle_server_ice_candidate(websocket, data, aes_key):
-    """
-    Handle an ICE candidate for a server-side connection.
-
-    Args:
-        websocket: WebSocket connection.
-        data (dict): Parsed message containing 'jwt' and 'payload'.
-        aes_key (bytes): AES encryption key.
-    """
-    user_id = data.get("user_id")
-    payload = data.get("payload", {})
-    sender = payload.get("from")
-    candidate_dict = payload.get("candidate", {})
-
-    valid, err = verify_jwt_in_message(data.get("jwt"), "access", user_id)
-    if not valid:
-        return await send_error_message(websocket, aes_key, "ice_candidate", err)
-
-    logger.info(f"Server-side ICE candidate from {sender}")
-
-    client = clients.get(sender, {})
-    pc = client.get("pc")
-    if not pc:
-        return await send_error_message(
-            websocket,
-            aes_key,
-            "ice_candidate",
-            error_code="NO_ACTIVE_CONNECTION",
-            error_message="No active server connection."
-        )
-
-    candidate_str = candidate_dict.get("candidate")
-    data = parse_candidate(candidate_str)
-    cand = RTCIceCandidate(
-        foundation=data["foundation"],
-        component=data["component"],
-        protocol=data["protocol"],
-        priority=data["priority"],
-        ip=data["ip"],
-        port=data["port"],
-        type=data.get("type"),
-        tcpType=data.get("tcpType"),
-        sdpMid=candidate_dict.get("sdpMid"),
-        sdpMLineIndex=candidate_dict.get("sdpMLineIndex")
-    )
-    await pc.addIceCandidate(cand)
-
-
-# ----- Utility Functions -----
-
-def parse_candidate(candidate_str: str) -> dict:
-    """
-    Parse an SDP ICE candidate string into its components.
-
-    Args:
-        candidate_str (str): Raw SDP ICE candidate line.
-
-    Returns:
-        dict: Parsed ICE candidate fields (foundation, component, protocol, etc.).
-    """
-    parts = candidate_str.split()
-    data = {
-        "foundation": parts[0],
-        "component": int(parts[1]),
-        "protocol": parts[2],
-        "priority": int(parts[3]),
-        "ip": parts[4],
-        "port": int(parts[5]),
-        "type": None,
-        "tcpType": None,
-        "generation": None,
-        "ufrag": None,
-        "network_id": None,
-    }
-    i = 6
-    while i < len(parts):
-        key = parts[i]
-        if key == "typ":
-            data["type"] = parts[i + 1]
-            i += 2
-        elif key == "tcptype":
-            data["tcpType"] = parts[i + 1]
-            i += 2
-        elif key == "generation":
-            data["generation"] = int(parts[i + 1])
-            i += 2
-        elif key == "ufrag":
-            data["ufrag"] = parts[i + 1]
-            i += 2
-        elif key == "network-id":
-            data["network_id"] = int(parts[i + 1])
-            i += 2
-        else:
-            i += 1  # Skip unknown keys
-    return data
+        Returns:
+            dict: Parsed ICE candidate fields (foundation, component, protocol, etc.).
+        """
+        parts = candidate_str.split()
+        data = {
+            "foundation": parts[0],
+            "component": int(parts[1]),
+            "protocol": parts[2],
+            "priority": int(parts[3]),
+            "ip": parts[4],
+            "port": int(parts[5]),
+            "type": None,
+            "tcpType": None,
+            "generation": None,
+            "ufrag": None,
+            "network_id": None,
+        }
+        i = 6
+        while i < len(parts):
+            key = parts[i]
+            if key == "typ":
+                data["type"] = parts[i + 1]
+                i += 2
+            elif key == "tcptype":
+                data["tcpType"] = parts[i + 1]
+                i += 2
+            elif key == "generation":
+                data["generation"] = int(parts[i + 1])
+                i += 2
+            elif key == "ufrag":
+                data["ufrag"] = parts[i + 1]
+                i += 2
+            elif key == "network-id":
+                data["network_id"] = int(parts[i + 1])
+                i += 2
+            else:
+                i += 1  # Skip unknown keys
+        return data

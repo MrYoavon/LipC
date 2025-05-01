@@ -52,7 +52,7 @@ configure_devices()
 
 
 from constants import SSL_CERT_FILE, SSL_KEY_FILE
-from handlers.connection import handle_connection
+from handlers.connection import ConnectionHandler
 import os
 from websockets import serve
 import ssl
@@ -82,6 +82,11 @@ def main():
     asyncio.run(start_server(host, port, ssl_ctx))
 
 
+async def connection_entry(ws):
+    handler = ConnectionHandler()
+    await handler.handle_connection(ws)
+
+
 async def start_server(host, port, ssl_ctx):
     """
     Asynchronously start the WebSocket server.
@@ -99,7 +104,7 @@ async def start_server(host, port, ssl_ctx):
         None
     """
     async with serve(
-            handler=handle_connection,
+            handler=connection_entry,
             host=host,
             port=port,
             ssl=ssl_ctx,  # Enable TLS
