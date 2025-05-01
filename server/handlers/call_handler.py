@@ -11,7 +11,18 @@ logger = logging.getLogger(__name__)
 # Helpers
 # -----------------------------------------------------------------------------
 def _get_client_key(target, fallback_key):
-    """Retrieve target's WebSocket and AES key, fallback if missing."""
+    """
+    Retrieve the WebSocket and AES key for a target user.
+
+    Args:
+        target (str): The user ID of the target client.
+        fallback_key (bytes): AES key to use if the client has no stored key.
+
+    Returns:
+        tuple:
+            - websocket instance if connected, else None
+            - AES key for encryption/decryption, else None
+    """
     info = clients.get(target)
     if not info:
         return None, None
@@ -19,7 +30,19 @@ def _get_client_key(target, fallback_key):
 
 
 async def _validate_jwt(ws, data, aes_key, msg_type):
-    """Verify JWT and extract user_id; send error on failure."""
+    """
+    Verify the JWT included in a message and extract its payload.
+
+    Args:
+        ws: WebSocket connection instance for responding on errors.
+        data (dict): Parsed message data, must include 'jwt' and 'user_id'.
+        aes_key (bytes): AES key for sending encrypted error messages.
+        msg_type (str): The message type, used for error context.
+
+    Returns:
+        dict or None: Returns the 'payload' dict if JWT is valid; otherwise sends
+                      an encrypted error and returns None.
+    """
     user_id = data.get("user_id")
     valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
     if not valid:
@@ -35,7 +58,20 @@ async def _validate_jwt(ws, data, aes_key, msg_type):
 
 
 async def handle_call_invite(websocket, data, aes_key):
-    """Forward call invite to the target user."""
+    """
+    Forward a call invite from one user to another.
+
+    Validates the requester's JWT, retrieves the target's connection,
+    and sends an encrypted call_invite message. Errors if target unavailable.
+
+    Args:
+        websocket: Initiator's WebSocket connection.
+        data (dict): Parsed message data containing 'from', 'target', and 'jwt'.
+        aes_key (bytes): AES key for encrypting messages.
+
+    Returns:
+        None
+    """
     payload = await _validate_jwt(websocket, data, aes_key, "call_invite")
     if payload is None:
         return
@@ -59,7 +95,17 @@ async def handle_call_invite(websocket, data, aes_key):
 
 
 async def handle_call_accept(websocket, data, aes_key):
-    """Forward call acceptance back to the caller."""
+    """
+    Notify the caller that their call invite was accepted.
+
+    Args:
+        websocket: Callee's WebSocket connection.
+        data (dict): Parsed message data containing 'from', 'target', and 'jwt'.
+        aes_key (bytes): AES key for encrypting messages.
+
+    Returns:
+        None
+    """
     payload = await _validate_jwt(websocket, data, aes_key, "call_accept")
     if payload is None:
         return
@@ -83,7 +129,17 @@ async def handle_call_accept(websocket, data, aes_key):
 
 
 async def handle_call_reject(websocket, data, aes_key):
-    """Forward call rejection back to the caller."""
+    """
+    Notify the caller that their call invite was rejected.
+
+    Args:
+        websocket: Callee's WebSocket connection.
+        data (dict): Parsed message data containing 'from', 'target', and 'jwt'.
+        aes_key (bytes): AES key for encrypting messages.
+
+    Returns:
+        None
+    """
     payload = await _validate_jwt(websocket, data, aes_key, "call_reject")
     if payload is None:
         return
@@ -108,7 +164,17 @@ async def handle_call_reject(websocket, data, aes_key):
 
 
 async def handle_call_end(websocket, data, aes_key):
-    """Forward call end notification between users."""
+    """
+    Inform the other party that the call has ended.
+
+    Args:
+        websocket: Sender's WebSocket connection.
+        data (dict): Parsed message data containing 'from', 'target', and 'jwt'.
+        aes_key (bytes): AES key for encrypting messages.
+
+    Returns:
+        None
+    """
     payload = await _validate_jwt(websocket, data, aes_key, "call_end")
     if payload is None:
         return
@@ -132,7 +198,17 @@ async def handle_call_end(websocket, data, aes_key):
 
 
 async def handle_video_state(websocket, data, aes_key):
-    """Forward video state changes to the other party."""
+    """
+    Forward video state updates (e.g., on/off) to the other user.
+
+    Args:
+        websocket: Sender's WebSocket connection.
+        data (dict): Parsed message data containing 'from', 'target', 'video', and 'jwt'.
+        aes_key (bytes): AES key for encrypting messages.
+
+    Returns:
+        None
+    """
     payload = await _validate_jwt(websocket, data, aes_key, "video_state")
     if payload is None:
         return
@@ -157,7 +233,17 @@ async def handle_video_state(websocket, data, aes_key):
 
 
 async def handle_set_model_preference(websocket, data, aes_key):
-    """Update the user’s server-side model preference."""
+    """
+    Set the inference model preference for a connected user.
+
+    Args:
+        websocket: User's WebSocket connection.
+        data (dict): Parsed message data containing 'user_id', 'payload', and 'jwt'.
+        aes_key (bytes): AES key for encrypting messages.
+
+    Returns:
+        None
+    """
     payload = await _validate_jwt(websocket, data, aes_key, "set_model_preference")
     if payload is None:
         return

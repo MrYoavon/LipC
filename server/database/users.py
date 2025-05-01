@@ -1,69 +1,114 @@
 # database/users.py
+"""
+User database access utilities.
+
+This module provides CRUD operations for user documents in MongoDB,
+including creating users, retrieving by ID or username, and managing contacts.
+"""
 from bson import ObjectId
 from pymongo import ReturnDocument
 from database.db import get_collection
 
+# MongoDB collection for user documents
 users_collection = get_collection("users")
 
 
-def create_user(user_data):
+def create_user(user_data: dict) -> ObjectId:
     """
-    Insert a new user document and return its unique ID.
+    Insert a new user record into the database.
+
+    Args:
+        user_data (dict): Dictionary containing user fields:
+            - username (str)
+            - password_hash (str)
+            - name (str)
+            - profile_pic (str, optional)
+            - contacts (list of ObjectId, empty by default)
+
+    Returns:
+        ObjectId: The MongoDB-generated _id of the new user document.
+
+    Raises:
+        PyMongoError: If insertion into the collection fails.
     """
     result = users_collection.insert_one(user_data)
     return result.inserted_id
 
 
-def get_user_by_id(user_id):
+def get_user_by_id(user_id: str | ObjectId) -> dict | None:
     """
-    Retrieve a user document by its ObjectId.
+    Retrieve a user document by its unique identifier.
+
+    Args:
+        user_id (str or ObjectId): The user's ObjectId or its string representation.
+
+    Returns:
+        dict or None: The user document if found; otherwise None.
     """
     if not isinstance(user_id, ObjectId):
         user_id = ObjectId(user_id)
     return users_collection.find_one({"_id": user_id})
 
 
-def get_user_by_username(username):
+def get_user_by_username(username: str) -> dict | None:
+    """
+    Retrieve a user document by its username.
+
+    Args:
+        username (str): The username to search for.
+
+    Returns:
+        dict or None: The user document if found; otherwise None.
+    """
     return users_collection.find_one({"username": username})
 
 
-def add_contact_to_user(user_id, contact_username):
+def add_contact_to_user(user_id: str | ObjectId, contact_username: str) -> dict | None:
     """
-    Add a contact's ObjectId to a user's contacts list.
-    Uses $addToSet to avoid duplicate entries.
+    Add another user as a contact to the given user's contact list.
+
+    Uses MongoDB's $addToSet to prevent duplicates.
+
+    Args:
+        user_id (str or ObjectId): The owner's user ID.
+        contact_username (str): The username of the contact to add.
+
+    Returns:
+        dict or None: The updated user document after adding the contact,
+                      or None if the contact username does not exist.
     """
     contact = get_user_by_username(contact_username)
     if not contact:
         return None
-    contact_id = contact["_id"]
-    result = users_collection.find_one_and_update(
-        {"_id": ObjectId(user_id)},
-        {"$addToSet": {"contacts": ObjectId(contact_id)}},
+    contact_id = contact.get("_id")
+    updated = users_collection.find_one_and_update(
+        {"_id": ObjectId(user_id) if not isinstance(
+            user_id, ObjectId) else user_id},
+        {"$addToSet": {"contacts": contact_id}},
         return_document=ReturnDocument.AFTER
     )
-    return result
+    return updated
 
 
-def get_user_contacts(user_id):
+def get_user_contacts(user_id: str | ObjectId) -> list[dict]:
     """
-    Retrieve full details for each contact in the user's contacts list.
+    Fetch full contact records for a user's contact list.
+
+    Args:
+        user_id (str or ObjectId): The user whose contacts to retrieve.
+
+    Returns:
+        list of dict: List of user documents for each contact,
+                      with _id and any nested contact IDs stringified.
     """
     user = get_user_by_id(user_id)
-    if not user or "contacts" not in user:
+    if not user or not user.get("contacts"):
         return []
-
-    contact_ids = user["contacts"]
-    # Query the users collection to fetch details of contacts.
+    contact_ids = user.get("contacts", [])
     contacts = list(users_collection.find({"_id": {"$in": contact_ids}}))
-
-    # Convert ObjectIds to strings for JSON serialization if needed.
-    for contact in contacts:
-        # Convert the contact's own _id to a string.
-        contact["_id"] = str(contact["_id"])
-
-        # If each contact document also has a 'contacts' field with ObjectIds,
-        # convert those to strings as well.
-        if "contacts" in contact:
-            contact["contacts"] = [str(cid) for cid in contact["contacts"]]
-
+    # Convert ObjectId fields to str for JSON serialization
+    for c in contacts:
+        c["_id"] = str(c.get("_id"))
+        if "contacts" in c:
+            c["contacts"] = [str(cid) for cid in c.get("contacts", [])]
     return contacts

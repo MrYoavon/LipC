@@ -13,7 +13,18 @@ import tensorflow as tf
 
 def configure_devices():
     """
-    Configure TensorFlow to use GPU if available, fallback to CPU otherwise.
+    Configure TensorFlow devices for GPU or CPU usage.
+
+    This function attempts to detect available GPUs and configure TensorFlow
+    to use the first GPU with memory growth enabled to avoid allocation
+    issues. If no GPU is found, it logs that the CPU will be used.
+    It also logs the TensorFlow version and whether CUDA or ROCm support is enabled.
+
+    Parameters:
+        None
+
+    Returns:
+        None
     """
     try:
         # Detect GPUs
@@ -50,6 +61,19 @@ import asyncio
 
 
 def main():
+    """
+    Entry point for starting the WebSocket server.
+
+    Reads host and port from environment variables (WEBSOCKET_HOST,
+    WEBSOCKET_PORT), sets up an SSL context using provided certificate
+    and key files, and runs the asynchronous server.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
     logger.info("Starting WebSocket server...")
     host = os.getenv("WEBSOCKET_HOST", "0.0.0.0")
     port = int(os.getenv("WEBSOCKET_PORT", 8765))
@@ -59,6 +83,21 @@ def main():
 
 
 async def start_server(host, port, ssl_ctx):
+    """
+    Asynchronously start the WebSocket server.
+
+    Creates an SSL-secured WebSocket server that listens for incoming
+    connections and dispatches them to the handle_connection handler.
+    The server runs indefinitely until externally stopped.
+
+    Parameters:
+        host (str): The host IP address or hostname to bind the server.
+        port (int): The port number to listen on.
+        ssl_ctx (ssl.SSLContext): SSL context configured with certificate and key.
+
+    Returns:
+        None
+    """
     async with serve(
             handler=handle_connection,
             host=host,

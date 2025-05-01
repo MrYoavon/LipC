@@ -16,7 +16,20 @@ logger = logging.getLogger(__name__)
 
 async def _validate_jwt(ws, data, aes_key, msg_type):
     """
-    Verify JWT and return user_id and payload; send error if verification fails.
+    Verify the JWT in the incoming message and extract context.
+
+    Validates the provided JWT against expected token type 'access' and ensures
+    it corresponds to the declared user_id. On failure, sends an encrypted
+    error message back to the client.
+
+    Args:
+        ws: WebSocket connection for sending error responses.
+        data (dict): Parsed message data containing 'jwt' and 'user_id'.
+        aes_key (bytes): AES key for encryption of error message.
+        msg_type (str): Identifier of the message type for context in errors.
+
+    Returns:
+        tuple: (user_id (str), payload (dict)) if valid; (None, None) if invalid.
     """
     user_id = data.get("user_id")
     valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
@@ -36,7 +49,16 @@ async def _validate_jwt(ws, data, aes_key, msg_type):
 
 def _serialize_entry(entry: dict) -> dict:
     """
-    Convert Mongo-specific and datetime fields to JSON-serializable formats.
+    Convert a database call history entry to a JSON-serializable format.
+
+    Transforms MongoDB ObjectId and datetime fields into strings, and formats
+    transcript timestamps. Leaves text and speaker/source fields intact.
+
+    Args:
+        entry (dict): A single call history record from the database.
+
+    Returns:
+        dict: A JSON-serializable copy of the entry.
     """
     entry_copy = entry.copy()
     entry_copy["_id"] = str(entry_copy.get("_id"))
@@ -63,8 +85,19 @@ def _serialize_entry(entry: dict) -> dict:
 
 async def handle_fetch_call_history(websocket, data, aes_key):
     """
-    Retrieve and return the authenticated user's call history.
-    Supports optional 'limit' in payload (default=50).
+    Retrieve and send the authenticated user's call history.
+
+    Verifies the user's JWT, fetches up to `limit` entries (default 50) from the
+    database, serializes each entry, and sends them encrypted back to the client.
+    Handles and reports any errors during retrieval.
+
+    Args:
+        websocket: WebSocket connection for sending responses.
+        data (dict): Parsed message data containing 'user_id', 'jwt', and optional 'payload.limit'.
+        aes_key (bytes): AES key for encrypting the response or error.
+
+    Returns:
+        None
     """
     msg_type = "fetch_call_history"
     user_id, payload = await _validate_jwt(websocket, data, aes_key, msg_type)

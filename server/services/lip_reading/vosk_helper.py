@@ -5,9 +5,10 @@ from vosk import Model, KaldiRecognizer
 from constants import VOSK_MODEL_PATH
 
 
-# one global (thread‑safe) model to save RAM
+# Load a single global Vosk model to reduce memory usage
 _VOSK_MODEL = Model(model_path=VOSK_MODEL_PATH)
 
+# Configure resampler for audio frames
 _RESAMPLER = av.AudioResampler(
     format="s16",    # signed 16-bit PCM (little-endian)
     layout="mono",   # single channel
@@ -16,6 +17,13 @@ _RESAMPLER = av.AudioResampler(
 
 
 class VoskRecognizer:
+    """
+    Wrapper around Vosk KaldiRecognizer for streaming speech-to-text.
+
+    This class initializes the recognizer with a shared Vosk model, processes
+    raw PCM audio chunks, and returns partial or final JSON transcription results.
+    """
+
     def __init__(self, sample_rate: int = 16000):
         """
         Initialize the Vosk model and recognizer.
@@ -49,32 +57,38 @@ class VoskRecognizer:
             result = json.loads(self.recognizer.PartialResult())
         return result
 
-    def get_final_result(self) -> str:
+    def get_final_result(self) -> dict:
         """
-        Retrieve the final transcription result after the audio stream ends.
+        Retrieve the final transcription after all audio has been processed.
 
         Returns:
-            str: The final recognition result.
+            dict: Final JSON result from Vosk with 'text' field.
         """
-        return self.recognizer.FinalResult()
+        return json.loads(self.recognizer.FinalResult())
 
-    def reset(self):
+    def reset(self) -> None:
         """
-        Reset the recognizer state to start a new recognition session.
+        Reset the recognizer state to process a new audio stream.
 
-        This might be useful if I intend to process a completely new audio stream
-        after finishing one and still use the existing instance of the class.
+        This re-initializes the KaldiRecognizer while retaining the shared model.
         """
-        self.recognizer = KaldiRecognizer(self.model, self.sample_rate)
+        self.recognizer = KaldiRecognizer(_VOSK_MODEL, self.sample_rate)
 
 
 def convert_audio_frame_to_pcm(frame: av.AudioFrame) -> bytes:
-    """Return mono 16 bit PCM bytes, resampled to `target_sr`."""
-    converted: av.AudioFrame = _RESAMPLER.resample(frame)
+    """
+    Convert and resample an AV AudioFrame to raw PCM bytes.
 
-    # Ensure we have a list of frames (sometimes the resampler returns a few frames because of fractional resampling so we will treat everything as a list)
+    Args:
+        frame (av.AudioFrame): Input audio frame from aiortc track.
+
+    Returns:
+        bytes: Concatenated PCM audio bytes, resampled to 16 kHz mono 16-bit.
+    """
+    # Resample the audio frame to the target format
+    converted = _RESAMPLER.resample(frame)
+    # Ensure we have a list of frames
     frames = converted if isinstance(converted, list) else [converted]
-
-    # Extract the raw bytes from the first (and only) plane
-    pcm_chunks = [bytes(f.planes[0])[:f.samples * 2] for f in frames]
+    # Extract and return raw PCM bytes from each plane
+    pcm_chunks = [bytes(f.planes[0])[: f.samples * 2] for f in frames]
     return b"".join(pcm_chunks)

@@ -16,8 +16,12 @@ logger = logging.getLogger(__name__)
 
 def generate_ephemeral_key():
     """
-    Generate an ephemeral key pair using the X25519 algorithm.
-    This function creates a private key and derives the corresponding public key.
+    Generate an ephemeral X25519 key pair.
+
+    Returns:
+        tuple:
+            private_key (X25519PrivateKey): Generated private key.
+            public_key (X25519PublicKey): Corresponding public key.
     """
     private_key = X25519PrivateKey.generate()
     public_key = private_key.public_key()
@@ -26,9 +30,13 @@ def generate_ephemeral_key():
 
 def serialize_public_key(public_key):
     """
-    Serialize a public key to its raw bytes format.
-    The public key is encoded in raw format (which is not human-readable)
-    using base encoding later if needed.
+    Serialize a public key to raw bytes.
+
+    Args:
+        public_key (X25519PublicKey): The public key to serialize.
+
+    Returns:
+        bytes: Raw-format public key bytes.
     """
     return public_key.public_bytes(
         encoding=serialization.Encoding.Raw,
@@ -38,17 +46,30 @@ def serialize_public_key(public_key):
 
 def deserialize_public_key(public_key_bytes):
     """
-    Deserialize raw-format public key bytes back into a public key object.
-    This is used to reconstruct the public key received from a peer.
+    Deserialize raw public key bytes into an X25519PublicKey.
+
+    Args:
+        public_key_bytes (bytes): Raw public key bytes.
+
+    Returns:
+        X25519PublicKey: Reconstructed public key object.
     """
     return X25519PublicKey.from_public_bytes(public_key_bytes)
 
 
 def compute_shared_secret(own_private_key, peer_public_key):
     """
-    Compute the shared secret using Elliptic-curve Diffie–Hellman (ECDH).
-    Given our private key and the peer's public key, the shared secret
-    is generated, enabling secure key derivation.
+    Compute shared secret via X25519 ECDH.
+
+    Args:
+        own_private_key (X25519PrivateKey): Local private key.
+        peer_public_key (X25519PublicKey): Remote party's public key.
+
+    Returns:
+        bytes: Shared secret bytes.
+
+    Raises:
+        Exception: If the exchange operation fails.
     """
     try:
         shared_secret = own_private_key.exchange(peer_public_key)
@@ -59,15 +80,18 @@ def compute_shared_secret(own_private_key, peer_public_key):
 
 def derive_aes_key(shared_secret, salt, info=b'handshake data'):
     """
-    Derive a 256-bit AES key from the shared secret using the HKDF key derivation function.
+    Derive a 256-bit AES key using HKDF-SHA256.
 
-    Parameters:
-      shared_secret: The ECDH-generated shared secret.
-      salt: Salt value (should be provided in bytes)
-      info: Contextual information for the HKDF (defaults to b'handshake data').
+    Args:
+        shared_secret (bytes): ECDH-generated shared secret.
+        salt (bytes): Salt value for HKDF.
+        info (bytes, optional): Context info. Defaults to b'handshake data'.
 
     Returns:
-      The derived AES key (32 bytes for a 256-bit key).
+        bytes: 32-byte AES key.
+
+    Raises:
+        Exception: If key derivation fails.
     """
     try:
         hkdf = HKDF(
@@ -85,17 +109,21 @@ def derive_aes_key(shared_secret, salt, info=b'handshake data'):
 
 def encrypt_message(aes_key, plaintext):
     """
-    Encrypt a plaintext byte string using AES in Galois/Counter Mode (GCM).
+    Encrypt plaintext bytes using AES-GCM.
 
-    Parameters:
-      aes_key: The AES encryption key.
-      plaintext: The plaintext bytes to be encrypted.
+    Args:
+        aes_key (bytes): 32-byte AES key.
+        plaintext (bytes): Data to encrypt.
 
     Returns:
-      A dictionary containing:
-        - 'nonce': A randomly generated nonce (recommended 96 bits for GCM),
-        - 'ciphertext': The resulting ciphertext,
-        - 'tag': The authentication tag used for verifying integrity.
+        dict: {
+            'nonce': bytes,  # 12-byte nonce
+            'ciphertext': bytes,
+            'tag': bytes     # 16-byte authentication tag
+        }
+
+    Raises:
+        Exception: If encryption fails.
     """
     try:
         nonce = os.urandom(12)  # Generate a 96-bit nonce for AES-GCM
@@ -118,16 +146,19 @@ def encrypt_message(aes_key, plaintext):
 
 def decrypt_message(aes_key, nonce, ciphertext, tag):
     """
-    Decrypt ciphertext encrypted using AES-GCM.
+    Decrypt AES-GCM encrypted data.
 
-    Parameters:
-      aes_key: The AES decryption key.
-      nonce: The nonce used during encryption.
-      ciphertext: The encrypted ciphertext.
-      tag: The authentication tag accompanying the ciphertext.
+    Args:
+        aes_key (bytes): AES key used for decryption.
+        nonce (bytes): Nonce used during encryption.
+        ciphertext (bytes): Encrypted data.
+        tag (bytes): Authentication tag.
 
     Returns:
-      The decrypted plaintext bytes.
+        bytes: Decrypted plaintext.
+
+    Raises:
+        Exception: If decryption fails or integrity check fails.
     """
     try:
         cipher = Cipher(
@@ -144,18 +175,15 @@ def decrypt_message(aes_key, nonce, ciphertext, tag):
 
 async def send_encrypted(websocket, plaintext, aes_key):
     """
-    Encrypt a plaintext string and send it through the given websocket.
+    Encrypt and send a JSON payload over a websocket.
 
-    The function:
-      1. Encodes the plaintext into bytes.
-      2. Encrypts the byte message using AES-GCM.
-      3. Encodes the encryption parameters (nonce, ciphertext, tag) in base64.
-      4. Sends the resulting JSON payload over the websocket.
+    Args:
+        websocket: WebSocket connection.
+        plaintext (str): JSON-formatted string to encrypt.
+        aes_key (bytes): AES key for encryption.
 
-    Parameters:
-      websocket: The websocket connection to use.
-      plaintext: The plain text string to send.
-      aes_key: The AES key for encryption.
+    Raises:
+        Logs error on failure.
     """
     try:
         # Convert the plaintext string to bytes.
@@ -186,14 +214,14 @@ async def structure_encrypt_send_message(
     """
     Build and send a structured server response message encrypted over a websocket.
 
-    Parameters:
-      websocket: The websocket connection object.
-      aes_key: The AES key for encryption.
-      msg_type (str): A string indicating the type of response.
-      success (bool): True if the server process was successful.
-      payload (dict, optional): Operation-specific response data; defaults to an empty dict if None.
-      error_code (str, optional): An error identifier code, used when success is False.
-      error_message (str, optional): A descriptive error message for unsuccessful operations.
+    Args:
+        websocket: WebSocket connection.
+        aes_key (bytes): AES key.
+        msg_type (str): Message type identifier.
+        success (bool, optional): Operation status. Defaults to True.
+        payload (dict, optional): Response data. Defaults to {}.
+        error_code (str, optional): Error code on failure.
+        error_message (str, optional): Error description on failure.
 
     The structured payload contains:
       - message_id: A new unique identifier for each response.
@@ -205,6 +233,9 @@ async def structure_encrypt_send_message(
 
     After constructing the payload, the function converts it to a JSON string and calls the send_encrypted() utility
     to wrap the message with the encryption envelope (nonce, ciphertext, tag) before sending over the websocket.
+
+    Raises:
+        Logs error on failure.
     """
     message = {
         "message_id": str(uuid.uuid4()),
@@ -234,16 +265,17 @@ async def send_error_message(
     error_message,
 ):
     """
-    Send an error message over the websocket connection.
+    Send a structured error message over a websocket.
 
-    Parameters:
-      websocket: The websocket connection object.
-      aes_key: The AES key for encryption.
-      msg_type (str): The type of message.
-      error_code (str): A string representing the error code.
-      error_message (str): A descriptive error message.
+    Args:
+        websocket: WebSocket connection.
+        aes_key (bytes): AES key for encryption.
+        msg_type (str): Original message type.
+        error_code (str): Error code identifier.
+        error_message (str): Human-readable error message.
 
-    This function constructs a structured error message and sends it using the send_encrypted() utility.
+    Raises:
+        Logs error on failure.
     """
     await structure_encrypt_send_message(
         websocket,

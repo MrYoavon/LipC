@@ -15,7 +15,22 @@ logger = logging.getLogger(__name__)
 
 async def _validate_jwt(ws, data, aes_key, msg_type):
     """
-    Verify JWT and return payload dict, or send an error and return None.
+    Verify the JWT in an incoming message and extract the payload.
+
+    Checks the provided JWT against expected token type 'access' and ensures
+    it corresponds to the declared user_id. On failure, sends an encrypted
+    error over the WebSocket.
+
+    Args:
+        ws: WebSocket connection for sending error responses.
+        data (dict): Parsed message data containing 'jwt' and 'user_id'.
+        aes_key (bytes): AES key for encrypting the error message.
+        msg_type (str): The type of the message being handled, used for logging.
+
+    Returns:
+        tuple:
+            - user_id (str) if valid, else None
+            - payload (dict) if valid, else None
     """
     user_id = data.get("user_id")
     valid, result = verify_jwt_in_message(data.get("jwt"), "access", user_id)
@@ -40,7 +55,20 @@ async def _validate_jwt(ws, data, aes_key, msg_type):
 async def handle_add_contact(websocket, data, aes_key):
     """
     Add a new contact for the authenticated user.
-    Expects 'contact_username' in payload.
+
+    Validates the requester's JWT, extracts the 'contact_username' from payload,
+    and updates the user's contact list in the database. Returns the updated list.
+
+    Args:
+        websocket: WebSocket connection for communication.
+        data (dict): Parsed message data containing 'user_id', 'jwt', and payload.
+        aes_key (bytes): AES key for encrypting responses.
+
+    Returns:
+        None
+
+    Side Effects:
+        Sends an encrypted success or error message over the WebSocket.
     """
     user_id, payload = await _validate_jwt(websocket, data, aes_key, "add_contact")
     if payload is None:
@@ -82,6 +110,20 @@ async def handle_add_contact(websocket, data, aes_key):
 async def handle_get_contacts(websocket, data, aes_key):
     """
     Retrieve all contacts for the authenticated user.
+
+    Validates the requester's JWT and fetches the user's contacts from the database.
+    Serializes each contact to a JSON-friendly format and returns the list.
+
+    Args:
+        websocket: WebSocket connection for communication.
+        data (dict): Parsed message data containing 'user_id' and 'jwt'.
+        aes_key (bytes): AES key for encrypting responses.
+
+    Returns:
+        None
+
+    Side Effects:
+        Sends an encrypted success or error message over the WebSocket.
     """
     user_id, _ = await _validate_jwt(websocket, data, aes_key, "get_contacts")
     if user_id is None:

@@ -1,64 +1,116 @@
+"""
+Database operations for refresh token lifecycle management.
+
+This module provides functions to save, validate, and revoke refresh tokens,
+as well as to replace previous tokens for a user.
+"""
 from bson import ObjectId
 from pymongo import ReturnDocument
 from database.db import get_collection
 import datetime
 
+# MongoDB collection for refresh token documents
 rt_collection = get_collection("refresh_tokens")
 
 
-def save_refresh_token(user_id, jti, token_hash, expires_at):
+def save_refresh_token(user_id: str, jti: str, token_hash: str, expires_at: datetime.datetime) -> None:
+    """
+    Persist a new refresh token record in the database.
+
+    Args:
+        user_id (str): String form of the user's ObjectId.
+        jti (str): Unique identifier (JWT ID) for the refresh token.
+        token_hash (str): SHA-256 hash of the refresh token.
+        expires_at (datetime.datetime): UTC timestamp when the token expires.
+
+    Returns:
+        None
+    """
     doc = {
         "user_id": ObjectId(user_id),
         "jti": jti,
         "token_hash": token_hash,
         "expires_at": expires_at,
         "revoked": False,
-        "created_at": datetime.datetime.now(),
-        "replaced_by_jti": None
+        "created_at": datetime.datetime.now(datetime.timezone.utc),
+        "replaced_by_jti": None,
+        "revoked_at": None
     }
     rt_collection.insert_one(doc)
 
 
-def find_valid_token(jti, token_hash):
+def find_valid_token(jti: str, token_hash: str) -> dict | None:
+    """
+    Retrieve a non-revoked, unexpired refresh token by its JTI and hash.
+
+    Args:
+        jti (str): JWT ID of the token to find.
+        token_hash (str): SHA-256 hash of the token to find.
+
+    Returns:
+        dict | None: The token document if valid, otherwise None.
+
+    Raises:
+        PyMongoError: If the query fails.
+    """
+    now = datetime.datetime.now(datetime.timezone.utc)
     return rt_collection.find_one({
         "jti": jti,
         "token_hash": token_hash,
         "revoked": False,
-        "expires_at": {"$gt": datetime.datetime.now()}
+        "expires_at": {"$gt": now}
     })
 
 
-def revoke_token(jti):
+def revoke_token(jti: str) -> None:
+    """
+    Mark a specific refresh token as revoked.
+
+    Args:
+        jti (str): JWT ID of the token to revoke.
+
+    Returns:
+        None
+
+    Raises:
+        PyMongoError: If the update operation fails.
+    """
     rt_collection.update_one(
         {"jti": jti},
-        {"$set": {"revoked": True}}
+        {"$set": {"revoked": True, "revoked_at": datetime.datetime.now(
+            datetime.timezone.utc)}}
     )
 
 
 def revoke_previous_token(user_id: str, replaced_by_jti: str) -> str | None:
     """
-    Find one non-revoked refresh token for this user, revoke it, and
-    set its `replaced_by_jti` to the new token's JTI.
+    Revoke the most recently created, non-revoked refresh token for a user.
 
-    Returns the old token's JTI if one was found and revoked, else None.
+    Finds one existing token for the given user that is not yet revoked,
+    sets its revoked flag and `replaced_by_jti` field to the new JTI.
+
+    Args:
+        user_id (str): String form of the user's ObjectId.
+        replaced_by_jti (str): JTI of the new token that replaces the old one.
+
+    Returns:
+        str | None: The JTI of the revoked token if one was found; otherwise None.
+
+    Raises:
+        PyMongoError: If the find-and-update operation fails.
     """
-    filter = {
-        "user_id": ObjectId(user_id),
-        "revoked": False
-    }
+    filter_query = {"user_id": ObjectId(user_id), "revoked": False}
     update = {
         "$set": {
             "revoked": True,
-            "revoked_at": datetime.datetime.now(),
+            "revoked_at": datetime.datetime.now(datetime.timezone.utc),
             "replaced_by_jti": replaced_by_jti
         }
     }
-
-    # find_one_and_update returns the document *before* the update
+    # Atomically find the most recent valid token and revoke it
     old = rt_collection.find_one_and_update(
-        filter,
+        filter_query,
         update,
-        # pick the most recent if there are multiple
         sort=[("created_at", -1)],
         return_document=ReturnDocument.BEFORE
     )

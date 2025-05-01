@@ -1,6 +1,13 @@
+"""
+Database initialization and access utilities for the LipC application.
+
+This module sets up MongoDB collections with JSON schema validation and provides
+helper functions to access collections. It reads configuration from environment
+variables and applies validators on import.
+"""
+import os
 from pymongo import MongoClient
 from pymongo.errors import CollectionInvalid, OperationFailure
-import os
 from dotenv import load_dotenv
 
 # Load environment variables for configuration
@@ -8,15 +15,28 @@ load_dotenv()
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "lip-c")
 
-# Create a global client instance
+# Create a global MongoDB client and database reference
 client = MongoClient(MONGODB_URI)
 db = client[DATABASE_NAME]
 
 
-def init_db():
+def init_db() -> None:
     """
-    Apply JSON Schema validators to all collections. If a collection already exists,
-    modify it to enforce the schema. If it doesn't, create it with validation.
+    Initialize MongoDB collections with JSON schema validation.
+
+    For each predefined collection schema, this function attempts to create the
+    collection with strict validation. If the collection already exists, it issues
+    a collMod command to update its validation rules. Errors during modification
+    (e.g., insufficient privileges) are logged and skipped.
+
+    Collections and their schemas:
+      - users
+      - calls
+      - refresh_tokens
+
+    Raises:
+        CollectionInvalid: If creating a new collection fails unexpectedly.
+        OperationFailure: If updating an existing collection's schema fails.
     """
     validators = {
         "users": {
@@ -109,9 +129,15 @@ def init_db():
                 print(f"Skipping schema update for '{name}': {e}")
 
 
-def get_collection(collection_name):
+def get_collection(collection_name: str):
     """
-    Retrieve a collection by name.
+    Retrieve a MongoDB collection by name from the configured database.
+
+    Args:
+        collection_name (str): Name of the collection to retrieve.
+
+    Returns:
+        Collection: PyMongo Collection object corresponding to the given name.
     """
     return db[collection_name]
 

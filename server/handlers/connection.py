@@ -61,7 +61,20 @@ HANDLERS = {
 
 async def _perform_handshake(ws) -> bytes:
     """
-    Perform ECDH handshake over WebSocket to derive AES key.
+    Perform an Elliptic-curve Diffie Hellman (ECDH) handshake with the client.
+
+    This coroutine generates a server private/public key pair, sends the public key
+    and a random salt to the client, receives the client's public key, and derives
+    a shared AES key for subsequent encrypted communication.
+
+    Parameters:
+        ws: WebSocket connection instance to communicate with the client.
+
+    Returns:
+        aes_key (bytes): The derived AES key for encrypting/decrypting messages.
+
+    Raises:
+        ValueError: If the client response does not contain a valid handshake.
     """
     priv, pub = generate_ephemeral_key()
     pub_ser = base64.b64encode(serialize_public_key(pub)).decode()
@@ -87,7 +100,17 @@ async def _perform_handshake(ws) -> bytes:
 
 async def _heartbeat(ws, last_ping_ref):
     """
-    Periodically check the last ping time and close if timed out.
+    Monitor heartbeat pings from the client and close connection on timeout.
+
+    Periodically checks if the time since the last ping exceeds a timeout threshold.
+    If so, logs a warning and closes the WebSocket connection.
+
+    Parameters:
+        ws: WebSocket connection instance.
+        last_ping_ref: Single-element list holding the timestamp of last received ping.
+
+    Returns:
+        None
     """
     while True:
         await asyncio.sleep(HEARTBEAT_INTERVAL)
@@ -99,7 +122,18 @@ async def _heartbeat(ws, last_ping_ref):
 
 async def _decrypt_and_parse(raw_message, aes_key):
     """
-    Attempt decryption; fallback to plaintext JSON.
+    Decrypt an incoming message if encrypted, or parse it as plaintext JSON.
+
+    Checks for encryption fields (nonce, ciphertext, tag). If present,
+    decrypts the payload using the provided AES key. Otherwise, returns the
+    parsed JSON directly.
+
+    Parameters:
+        raw_message (str): The raw string message received over WebSocket.
+        aes_key (bytes): AES key to use for decryption.
+
+    Returns:
+        data (dict): The parsed JSON object after decryption or direct parse.
     """
     data = json.loads(raw_message)
     if all(k in data for k in ("nonce", "ciphertext", "tag")):
@@ -113,7 +147,19 @@ async def _decrypt_and_parse(raw_message, aes_key):
 
 async def _dispatch(ws, data, aes_key):
     """
-    Route a parsed message to its handler.
+    Dispatch a parsed message to the appropriate handler based on its type.
+
+    If the message is a ping, responds with a pong. Otherwise looks up
+    the handler in HANDLERS mapping and invokes it. Unknown types result
+    in an encrypted error response.
+
+    Parameters:
+        ws: WebSocket connection instance.
+        data (dict): The parsed message data.
+        aes_key (bytes): AES key for encrypting any responses.
+
+    Returns:
+        result: The return value of the handler coroutine, if any.
     """
     msg_type = data.get("msg_type")
     if msg_type == "ping":
@@ -130,7 +176,16 @@ async def _dispatch(ws, data, aes_key):
 
 async def _cleanup(ws):
     """
-    Close PeerConnection if exists, remove client, and reset rate limiter.
+    Cleanup client state on connection close or error.
+
+    Closes any active PeerConnection for the client, removes their entry from
+    the clients dictionary, and resets rate limiter state for their IP if not banned.
+
+    Parameters:
+        ws: WebSocket connection instance being cleaned up.
+
+    Returns:
+        None
     """
     for user, info in list(clients.items()):
         if info.get("ws") == ws:
@@ -150,7 +205,16 @@ async def _cleanup(ws):
 
 async def handle_connection(ws):
     """
-    Orchestrate handshake, heartbeat, rate-limit, decrypt/dispatch loop, and cleanup.
+    Main entry point for handling a new WebSocket connection.
+
+    Orchestrates the handshake, heartbeat monitoring, rate limiting,
+    message decrypt/parse/dispatch loop, and final cleanup on disconnect.
+
+    Parameters:
+        ws: WebSocket connection instance for this client.
+
+    Returns:
+        None
     """
     logger.info("New connection")
     ip = ws.remote_address[0]
@@ -194,11 +258,3 @@ async def handle_connection(ws):
     finally:
         hb.cancel()
         await _cleanup(ws)
-
-# -----------------------------------------------------------------------------
-# Disconnection Cleanup (if separate)
-# -----------------------------------------------------------------------------
-
-
-async def handle_disconnection(ws):
-    await _cleanup(ws)

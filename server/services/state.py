@@ -1,16 +1,27 @@
 # utils/state.py
-import logging
 from typing import Dict, Tuple, Optional
 from bson import ObjectId
 
-# Dictionary mapping client IDs to their peer connections, AES keys and WebSocket objects.
-clients = {
-    # "client_identifier": {"ws": <websocket instance>, "username": <username>, "aes_key": <session AES key>, "pc": <optional PeerConnection>, "model_type": <model type "lip" or "vosk">}
-}
+# ----------------------------------------------------------------------------
+# Global session and call state
+# ----------------------------------------------------------------------------
 
-# key = tuple(sorted([caller_id, callee_id]))
+# Mapping of user IDs to session info: websocket, username, AES key, peer connection, and model preference.
+clients: Dict[str, Dict[str, Optional[object]]] = {}
+
+# Mapping of call keys to pending call metadata, including caller, callee, and database call_id.
 pending_calls: Dict[Tuple[str, str], Dict[str, Optional[ObjectId]]] = {}
 
 
 def call_key(uid1: str, uid2: str) -> Tuple[str, str]:
+    """
+    Generate a consistent, order-independent key for a pair of user IDs.
+
+    Args:
+        uid1 (str): First user ID.
+        uid2 (str): Second user ID.
+
+    Returns:
+        Tuple[str, str]: Sorted tuple of the two user IDs, suitable as a dictionary key.
+    """
     return tuple(sorted([uid1, uid2]))

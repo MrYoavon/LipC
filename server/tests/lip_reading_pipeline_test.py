@@ -1,5 +1,4 @@
 import cv2
-import tensorflow as tf
 
 from server.services.lip_reading.lip_reader import LipReadingPipeline
 
@@ -12,6 +11,25 @@ SEQUENCE_LENGTH = 75
 
 
 def main():
+    """
+    Run a lip-reading inference pipeline on a video file frame by frame.
+
+    This function:
+      1. Loads the lip-reading model and initializes the pipeline.
+      2. Opens the specified video file with OpenCV.
+      3. Reads frames in a loop, displaying each frame in a window.
+      4. Processes each frame through the LipReadingPipeline until a prediction is returned.
+      5. Prints the returned prediction.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Raises:
+        Prints an error and returns early if the video file cannot be opened.
+    """
     # Instantiate the lip reading pipeline
     pipeline = LipReadingPipeline(MODEL_PATH, sequence_length=SEQUENCE_LENGTH)
 
@@ -45,9 +63,10 @@ def main():
         if prediction is not None:
             print(
                 f"Prediction after processing {frame_count} frames: {prediction.numpy().decode('utf-8')}")
-            # Optionally, clear the prediction or break if you just want one prediction:
+            # Uncomment to stop after first prediction
             # break
 
+    # Release resources
     cap.release()
     cv2.destroyAllWindows()
 

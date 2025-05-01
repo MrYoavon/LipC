@@ -34,7 +34,17 @@ REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 def create_access_token(user_id: str, additional_claims: dict = None) -> str:
     """
-    Create a short-lived access token using RS256 for signing.
+    Generate a signed JWT access token.
+
+    Args:
+        user_id (str): Subject identifier (user ID).
+        additional_claims (dict, optional): Extra claims to include in the token.
+
+    Returns:
+        str: Encoded JWT string signed with the RSA private key.
+
+    Raises:
+        jwt.PyJWTError: If token encoding fails.
     """
     now = datetime.datetime.now(datetime.timezone.utc)
     exp = now + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -52,8 +62,17 @@ def create_access_token(user_id: str, additional_claims: dict = None) -> str:
 
 def create_refresh_token(user_id: str, additional_claims: dict = None) -> str:
     """
-    Create a longer-lived refresh token, also signed with RS256.
-    The "type" claim distinguishes it from an access token.
+    Generate a signed JWT refresh token and persist its hash.
+
+    Args:
+        user_id (str): Subject identifier (user ID).
+        additional_claims (dict, optional): Extra claims to include.
+
+    Returns:
+        str: Encoded refresh JWT.
+
+    Raises:
+        jwt.PyJWTError: If token encoding fails.
     """
     now = datetime.datetime.now(datetime.timezone.utc)
     exp = now + datetime.timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
@@ -84,8 +103,18 @@ def create_refresh_token(user_id: str, additional_claims: dict = None) -> str:
 
 def verify_jwt(token: str, expected_type: str = "access") -> dict:
     """
-    Decode and validate a JWT using RS256.
-    This function verifies that the token hasn't expired and that its "type" matches the expected type.
+    Decode and validate a JWT signature and claims.
+
+    Args:
+        token (str): JWT string to verify.
+        expected_type (str): Expected 'type' claim value ('access' or 'refresh').
+
+    Returns:
+        dict: Decoded JWT payload.
+
+    Raises:
+        jwt.ExpiredSignatureError: If the token has expired.
+        jwt.InvalidTokenError: If signature invalid or type mismatch.
     """
     try:
         # The public key is used to verify the signature.
@@ -104,8 +133,17 @@ def verify_jwt(token: str, expected_type: str = "access") -> dict:
 
 def verify_jwt_in_message(token: str, expected_type: str, user_id: str) -> dict:
     """
-    Verify a JWT token in the context of a message type.
-    This function checks the token's validity and extracts the payload.
+    Validate a JWT within a message context and match its subject.
+
+    Args:
+        token (str): JWT string from client message.
+        expected_type (str): Expected token type.
+        user_id (str): Declared user ID to match the token 'sub'.
+
+    Returns:
+        tuple:
+            bool: True if valid, False otherwise.
+            dict: Payload on success, or error info on failure.
     """
     if not token:
         return False, {
@@ -136,9 +174,17 @@ def verify_jwt_in_message(token: str, expected_type: str, user_id: str) -> dict:
 
 def refresh_access_token(refresh_token: str) -> str:
     """
-    Validate the *existing* refresh token and, if valid,
-    return a new short-lived access token.  The same refresh
-    token remains usable until it naturally expires.
+    Issue a new access token if the provided refresh token is valid.
+
+    Args:
+        refresh_token (str): Existing refresh JWT.
+
+    Returns:
+        str: New access token JWT.
+
+    Raises:
+        jwt.ExpiredSignatureError: If the refresh token is expired.
+        jwt.InvalidTokenError: If the token is invalid or revoked.
     """
     try:
         payload = verify_jwt(refresh_token, expected_type="refresh")
@@ -183,4 +229,13 @@ def refresh_access_token(refresh_token: str) -> str:
 
 
 def _hash(token: str) -> str:
+    """
+    Compute SHA-256 hash of a token string.
+
+    Args:
+        token (str): Token to hash.
+
+    Returns:
+        str: Hexadecimal digest of SHA-256 hash.
+    """
     return hashlib.sha256(token.encode()).hexdigest()

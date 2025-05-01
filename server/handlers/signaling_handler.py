@@ -18,13 +18,23 @@ logger = logging.getLogger(__name__)
 
 class WebRTCServer:
     """
-    Server-side WebRTC connection handler:
-    - Manages peer connection events
-    - Handles video lip-reading and audio Vosk transcription
-    - Records call history to the database
+    Server-side WebRTC connection handler.
+
+    Manages peer connection events, media track processing (video lip-reading or audio transcription),
+    and call lifecycle including database recording and relaying messages between peers.
     """
 
-    def __init__(self, websocket, sender, aes_key, target=None, model_type="lip"):
+    def __init__(self, websocket, sender: str, aes_key: bytes, target: str = None, model_type: str = "lip"):
+        """
+        Initialize a WebRTCServer instance for a given call session.
+
+        Args:
+            websocket: WebSocket connection for signaling and relayed messages.
+            sender (str): User ID of the initiating client.
+            aes_key (bytes): AES key for encrypting messages.
+            target (str, optional): User ID of the call partner. Defaults to None.
+            model_type (str, optional): Inference mode, either 'lip' or 'vosk'. Defaults to "lip".
+        """
         self.websocket = websocket
         self.sender = sender
         self.aes_key = aes_key
@@ -33,26 +43,30 @@ class WebRTCServer:
         self.pc = RTCPeerConnection()
         clients[sender]["pc"] = self.pc
 
-        self.recognizer = VoskRecognizer(sample_rate=16000)  # Vosk
-        # Buffer for audio chunks
+        # Setup recognizer for audio transcription if needed
+        self.recognizer = VoskRecognizer(sample_rate=16000)
         self.pcm_buffer = bytearray()
         self.buffered_ms = 0.0
         self.sample_rate = self.recognizer.sample_rate
 
-        # Call record ID
-        self.call_id = None
+        self.call_id = None  # Will be set once call is established
 
-        # Register event handlers
+        # Register event handlers on the RTCPeerConnection
         self.pc.on("track", self._on_track)
         self.pc.on("connectionstatechange", self._on_pc_state)
 
     async def _on_track(self, track):
-        """Dispatch incoming media tracks to appropriate processors."""
+        """
+        Dispatch incoming media tracks to the appropriate processor.
+
+        Args:
+            track: The incoming MediaStreamTrack (video or audio).
+        """
         logger.info(f"Received {track.kind} track from {self.sender}")
         track.onended = lambda: logger.info(
             f"{track.kind} track from {self.sender} ended")
 
-        # Ensure call_id is set from pending_calls
+        # Ensure the call_id is retrieved before processing frames
         await self._ensure_call_id()
 
         if track.kind == "video" and self.model_type == "lip":
@@ -61,7 +75,11 @@ class WebRTCServer:
             await self._process_audio(track)
 
     async def _ensure_call_id(self):
-        """Retrieve call ID from pending_calls if not yet set."""
+        """
+        Wait until the call_id is set in pending_calls for this session.
+
+        Polls pending_calls for an entry matching sender and target to obtain call_id.
+        """
         while self.call_id is None:
             key = call_key(self.sender, self.target)
             info = pending_calls.get(key, {})
@@ -70,7 +88,12 @@ class WebRTCServer:
                 await asyncio.sleep(0.1)
 
     async def _process_video(self, track):
-        """Process video frames for lip-reading predictions."""
+        """
+        Process video frames for lip-reading predictions and record them.
+
+        Args:
+            track: Video MediaStreamTrack.
+        """
         logger.info(f"Starting lip-reading video for {self.sender}")
         loop = asyncio.get_event_loop()
 
@@ -82,6 +105,7 @@ class WebRTCServer:
                 break
 
             frame_array = frame.to_ndarray(format="bgr24")
+            # Run inference in TensorFlow executor
             prediction = await loop.run_in_executor(
                 thread_executors.get_tf_executor(),
                 thread_executors.lip_read,
@@ -91,17 +115,24 @@ class WebRTCServer:
             if not prediction:
                 continue
 
+            # Save prediction to database
             append_line(self.call_id, speaker_id=self.sender,
                         text=prediction, source="lip")
             logger.info(f"Lip prediction for {self.sender}: {prediction}")
 
+            # Relay prediction to partner
             await self._relay_message(
                 msg_type="lip_reading_prediction",
                 payload={"from": self.sender, "prediction": prediction}
             )
 
     async def _process_audio(self, track):
-        """Accumulate audio frames and send chunks to Vosk for transcription."""
+        """
+        Accumulate and send audio frames to Vosk for transcription.
+
+        Args:
+            track: Audio MediaStreamTrack.
+        """
         logger.info(f"Starting Vosk audio for {self.sender}")
         loop = asyncio.get_event_loop()
 
@@ -112,52 +143,59 @@ class WebRTCServer:
                 logger.error(f"Error receiving audio frame: {exc}")
                 break
 
+            # Convert frame to PCM and buffer
             pcm = convert_audio_frame_to_pcm(frame)
             self.pcm_buffer.extend(pcm)
             samples = len(pcm) / 2
             self.buffered_ms += (samples / self.sample_rate) * 1000
 
-            if self.buffered_ms < TARGET_CHUNK_SIZE:
-                continue
+            # Process chunks when enough audio is buffered
+            if self.buffered_ms >= TARGET_CHUNK_SIZE:
+                chunk = bytes(self.pcm_buffer)
+                self.pcm_buffer.clear()
+                self.buffered_ms = 0.0
 
-            chunk = bytes(self.pcm_buffer)
-            self.pcm_buffer.clear()
-            self.buffered_ms = 0.0
+                duration_ms = len(chunk) / 2 / self.sample_rate * 1000
+                logger.debug(f"Feeding Vosk {duration_ms:.1f} ms of audio")
 
-            duration_ms = len(chunk) / 2 / self.sample_rate * 1000
-            logger.debug(f"Feeding Vosk {duration_ms:.1f} ms of audio")
+                result = await loop.run_in_executor(
+                    thread_executors.get_speech_executor(),
+                    thread_executors.vosk_transcribe,
+                    self.recognizer,
+                    chunk,
+                )
+                if not result:
+                    continue
 
-            result = await loop.run_in_executor(
-                thread_executors.get_speech_executor(),
-                thread_executors.vosk_transcribe,
-                self.recognizer,
-                chunk,
-            )
-            if not result:
-                continue
+                text = result.get("text") or result.get("partial")
+                result_type = "final" if "text" in result else "partial"
+                if not text:
+                    continue
 
-            text = result.get("text") or result.get("partial")
-            result_type = "final" if "text" in result else "partial"
-            if not text:
-                continue
+                logger.info(
+                    f"Vosk {result_type} result for {self.sender}: {text}")
 
-            logger.info(
-                f"Vosk {result_type} result for {self.sender}: {text}")
+                if result_type == "final":
+                    append_line(self.call_id, speaker_id=self.sender,
+                                text=text, source="vosk")
 
-            if result_type == "final":
-                append_line(self.call_id, speaker_id=self.sender,
-                            text=text, source="vosk")
+                await self._relay_message(
+                    msg_type="lip_reading_prediction",
+                    payload={"from": self.sender, "prediction": text}
+                )
 
-            await self._relay_message(
-                msg_type="lip_reading_prediction",
-                payload={"from": self.sender, "prediction": text}
-            )
-
+        # After track ends, fetch and log final Vosk result
         final = self.recognizer.get_final_result()
         logger.info(f"Vosk final result for {self.sender}: {final}")
 
     async def _relay_message(self, msg_type, payload):
-        """Encrypt and send a message to the call partner."""
+        """
+        Encrypt and send a signaling message to the call partner.
+
+        Args:
+            msg_type (str): The type of message to send.
+            payload (dict): The message payload.
+        """
         partner = self.target
         if not partner or partner not in clients:
             return
@@ -173,7 +211,15 @@ class WebRTCServer:
         )
 
     async def handle_offer(self, offer_data):
-        """Generate an SDP answer for an incoming offer."""
+        """
+        Handle an SDP offer by generating and returning an answer.
+
+        Args:
+            offer_data (dict): Contains 'sdp' and 'type' fields from client.
+
+        Returns:
+            dict: A dict with server's SDP answer for signaling back to client.
+        """
         sdp = self._strip_rtx(offer_data["sdp"])
         offer = RTCSessionDescription(sdp=sdp, type=offer_data["type"])
         await self.pc.setRemoteDescription(offer)
@@ -185,7 +231,15 @@ class WebRTCServer:
         return {"from": "server", "target": self.sender, "answer": {"sdp": answer.sdp, "type": answer.type}}
 
     def _strip_rtx(self, sdp: str) -> str:
-        """Remove RTX codec entries from an SDP string."""
+        """
+        Remove RTX codec entries from SDP to improve interoperability.
+
+        Args:
+            sdp (str): Original session description string.
+
+        Returns:
+            str: Filtered SDP with RTX entries removed.
+        """
         lines = sdp.splitlines()
         filtered, rtx = [], set()
 
@@ -204,6 +258,9 @@ class WebRTCServer:
         return "\r\n".join(result) + "\r\n"
 
     async def _on_pc_state(self):
+        """
+        Handle changes in peer connection state and terminate call if needed.
+        """
         state = self.pc.connectionState
         logger.info(f"PC state for {self.sender}: {state}")
         if state in ("closed", "failed"):
@@ -214,7 +271,9 @@ class WebRTCServer:
                 await self._terminate_call()
 
     async def _terminate_call(self):
-        """Finalize call record and clean up peer connection."""
+        """
+        Finalize call recording, update database, and clean up resources.
+        """
         if self.call_id:
             key = call_key(self.sender, self.target)
             info = pending_calls.get(key)
@@ -230,7 +289,14 @@ class WebRTCServer:
 # ----- Top-level message handling functions -----
 
 async def handle_offer(websocket, data, aes_key):
-    """Relay or process an SDP offer message from a client."""
+    """
+    Relay or process a client's SDP offer message.
+
+    Args:
+        websocket: WebSocket connection for signaling.
+        data (dict): Parsed message containing 'user_id', 'payload', and 'jwt'.
+        aes_key (bytes): AES encryption key.
+    """
     user_id = data.get("user_id")
     payload = data.get("payload", {})
     sender = payload.get("from")
@@ -275,7 +341,14 @@ async def handle_offer(websocket, data, aes_key):
 
 
 async def handle_answer(websocket, data, aes_key):
-    """Relay or process an SDP answer message from a client."""
+    """
+    Relay or process a client's SDP answer message.
+
+    Args:
+        websocket: WebSocket connection.
+        data (dict): Parsed message with 'user_id', 'jwt', and 'payload'.
+        aes_key (bytes): AES encryption key.
+    """
     user_id = data.get("user_id")
     payload = data.get("payload", {})
     sender = payload.get("from")
@@ -321,7 +394,14 @@ async def handle_answer(websocket, data, aes_key):
 
 
 async def handle_ice_candidate(websocket, data, aes_key):
-    """Relay an ICE candidate between peers or to server handler."""
+    """
+    Relay an ICE candidate between peers or to the server handler.
+
+    Args:
+        websocket: WebSocket connection.
+        data (dict): Parsed message with 'user_id', 'jwt', and 'payload'.
+        aes_key (bytes): AES encryption key.
+    """
     user_id = data.get("user_id")
     payload = data.get("payload", {})
     sender = payload.get("from")
@@ -364,7 +444,14 @@ async def handle_ice_candidate(websocket, data, aes_key):
 
 
 async def handle_server_offer(websocket, data, aes_key):
-    """Handle a client offer intended for the server."""
+    """
+    Handle a client SDP offer directed to the server.
+
+    Args:
+        websocket: WebSocket connection.
+        data (dict): Parsed message containing 'jwt' and 'payload'.
+        aes_key (bytes): AES encryption key.
+    """
     user_id = data.get("user_id")
     payload = data.get("payload", {})
     sender = payload.get("from")
@@ -399,7 +486,14 @@ async def handle_server_offer(websocket, data, aes_key):
 
 
 async def handle_server_answer(websocket, data, aes_key):
-    """Handle a client answer to a server-initiated offer."""
+    """
+    Handle a client's SDP answer to a server-initiated offer.
+
+    Args:
+        websocket: WebSocket connection.
+        data (dict): Parsed message containing 'jwt' and 'payload'.
+        aes_key (bytes): AES encryption key.
+    """
     user_id = data.get("user_id")
     payload = data.get("payload", {})
     sender = payload.get("from")
@@ -428,7 +522,14 @@ async def handle_server_answer(websocket, data, aes_key):
 
 
 async def handle_server_ice_candidate(websocket, data, aes_key):
-    """Handle ICE candidate for a server-side peer connection."""
+    """
+    Handle an ICE candidate for a server-side connection.
+
+    Args:
+        websocket: WebSocket connection.
+        data (dict): Parsed message containing 'jwt' and 'payload'.
+        aes_key (bytes): AES encryption key.
+    """
     user_id = data.get("user_id")
     payload = data.get("payload", {})
     sender = payload.get("from")
@@ -471,7 +572,15 @@ async def handle_server_ice_candidate(websocket, data, aes_key):
 # ----- Utility Functions -----
 
 def parse_candidate(candidate_str: str) -> dict:
-    """Convert SDP candidate string into a dict for RTCIceCandidate."""
+    """
+    Parse an SDP ICE candidate string into its components.
+
+    Args:
+        candidate_str (str): Raw SDP ICE candidate line.
+
+    Returns:
+        dict: Parsed ICE candidate fields (foundation, component, protocol, etc.).
+    """
     parts = candidate_str.split()
     data = {
         "foundation": parts[0],

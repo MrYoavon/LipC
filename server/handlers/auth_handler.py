@@ -21,7 +21,22 @@ logger = logging.getLogger(__name__)
 
 async def handle_authentication(websocket, data, aes_key):
     """
-    Authenticate user credentials and return access & refresh tokens.
+    Authenticate user credentials and send access & refresh tokens.
+
+    Performs validation on provided username and password, checks against stored
+    credentials, and upon success issues JWT access and refresh tokens. Registers
+    the client session in memory.
+
+    Args:
+        websocket: WebSocket connection instance used for communication.
+        data (dict): Parsed message data, expected to contain 'payload' with 'username' and 'password'.
+        aes_key (bytes): AES key used to encrypt responses.
+
+    Returns:
+        None
+
+    Side Effects:
+        Sends an encrypted success or error message over the websocket.
     """
     msg_type = "authenticate"
     payload = data.get("payload", {})
@@ -100,7 +115,22 @@ async def handle_authentication(websocket, data, aes_key):
 
 async def handle_signup(websocket, data, aes_key):
     """
-    Register a new user and issue JWT tokens.
+    Register a new user, hash their password, and issue JWT tokens.
+
+    Validates the provided signup payload (username, password, name), ensures
+    uniqueness and format requirements, creates the user in the database,
+    and returns access & refresh tokens.
+
+    Args:
+        websocket: WebSocket connection instance used for communication.
+        data (dict): Parsed message data, expected to contain 'payload' with 'username', 'password', and 'name'.
+        aes_key (bytes): AES key used to encrypt responses.
+
+    Returns:
+        None
+
+    Side Effects:
+        Sends an encrypted success or error message over the websocket.
     """
     msg_type = "signup"
     payload = data.get("payload", {})
@@ -213,7 +243,21 @@ async def handle_signup(websocket, data, aes_key):
 
 async def handle_token_refresh(websocket, data, aes_key):
     """
-    Refresh the access token using a valid refresh token.
+    Refresh the access token using a valid refresh JWT.
+
+    Validates the provided refresh token, issues a new access token,
+    and updates the client session.
+
+    Args:
+        websocket: WebSocket connection instance used for communication.
+        data (dict): Parsed message data, expected to contain 'payload' with 'refresh_jwt'.
+        aes_key (bytes): AES key used to encrypt responses.
+
+    Returns:
+        None
+
+    Side Effects:
+        Sends an encrypted success or error message over the websocket.
     """
     msg_type = "refresh_token"
     payload = data.get("payload", {})
@@ -268,7 +312,20 @@ async def handle_token_refresh(websocket, data, aes_key):
 
 async def handle_logout(websocket, data, aes_key):
     """
-    Handle user logout by removing the session.
+    Handle user logout and remove their session state.
+
+    Expects the 'user_id' field in payload to identify which session to remove.
+
+    Args:
+        websocket: WebSocket connection instance used for communication.
+        data (dict): Parsed message data, expected to contain 'payload' with 'user_id'.
+        aes_key (bytes): AES key used to encrypt responses.
+
+    Returns:
+        None
+
+    Side Effects:
+        Sends an encrypted success or error message and removes session.
     """
     msg_type = "logout"
     payload = data.get("payload", {})

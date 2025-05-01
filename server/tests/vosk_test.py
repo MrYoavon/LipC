@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """
-A simple script to capture microphone audio and feed it into the Vosk recognizer.
+Microphone test for Vosk speech recognition.
+
+This script captures raw audio from the default input device using sounddevice,
+feeds each block to the VoskRecognizer, and prints intermediate and final
+transcription results.
+
 Requires:
     pip install sounddevice vosk
 """
@@ -14,8 +19,21 @@ q = queue.Queue()
 
 def audio_callback(indata, frames, time, status):
     """
-    This callback is called by sounddevice for each audio block.
-    indata: raw bytes or numpy array depending on dtype
+    Callback for sounddevice RawInputStream.
+
+    Captures raw audio blocks and enqueues PCM bytes for transcription.
+
+    Args:
+        indata (bytes or numpy.ndarray): Audio buffer from sounddevice.
+        frames (int): Number of audio frames in this buffer.
+        time (CData): Timestamp information (unused).
+        status: Callback status indicator; logs if non-zero.
+
+    Returns:
+        None
+
+    Side Effects:
+        Prints status messages and enqueues audio data.
     """
     if status:
         print(f"Audio status: {status}")
@@ -24,6 +42,21 @@ def audio_callback(indata, frames, time, status):
 
 
 def main():
+    """
+    Read microphone audio and process through VoskRecognizer.
+
+    Initializes VoskRecognizer at 16 kHz, opens a RawInputStream, and
+    continuously feeds audio chunks for transcription until interrupted.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Raises:
+        KeyboardInterrupt: When user stops with Ctrl+C.
+    """
     sample_rate = 16000
     rec = VoskRecognizer(sample_rate=sample_rate)
     print("Listening (press Ctrl+C to stop)...")
