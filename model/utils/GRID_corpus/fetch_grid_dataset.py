@@ -108,13 +108,12 @@ def extract_zip(zip_path: str, extract_to: str) -> int:
         return 0
 
 
-def extract_tar(tar_path: str, base_data_dir: str, person_folder: str, file_type: str) -> int:
+def extract_tar(tar_path: str, person_folder: str, file_type: str) -> int:
     """
     Extract selected members from a TAR archive based on file type.
 
     Args:
         tar_path (str): Path to the TAR file.
-        base_data_dir (str): Base data directory containing videos and transcriptions.
         person_folder (str): Subdirectory name for the talker (e.g., 's1').
         file_type (str): 'video' to extract .mpg files or 'align' for .align files.
 
