@@ -182,8 +182,6 @@ def process_talker(talker: int, pbar: tqdm) -> None:
          f"talker{talker}_pt1.tar"), "video"),
         (video_urls[1], os.path.join(DOWNLOADS_DIR,
          f"talker{talker}_pt2.tar"), "video"),
-        (video_urls[0], os.path.join(DOWNLOADS_DIR,
-         f"talker{talker}_video.zip"), "video"),
         (align_url, os.path.join(DOWNLOADS_DIR,
          f"talker{talker}_alignment.tar"), "align"),
     ]
