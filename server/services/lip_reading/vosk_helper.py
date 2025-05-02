@@ -34,7 +34,7 @@ class VoskRecognizer:
         self.sample_rate = sample_rate
         self.recognizer = KaldiRecognizer(_VOSK_MODEL, self.sample_rate)
 
-    def process_audio_chunk(self, audio_chunk: bytes) -> str:
+    def process_audio_chunk(self, audio_chunk: bytes) -> dict:
         """
         Process a chunk of raw PCM audio data.
 
@@ -46,7 +46,7 @@ class VoskRecognizer:
             audio_chunk (bytes): The raw PCM audio data chunk.
 
         Returns:
-            str: The transcription result.
+            dict: The transcription result.
                   The result is either a complete result (if recognized) or a partial result.
         """
         if self.recognizer.AcceptWaveform(audio_chunk):
