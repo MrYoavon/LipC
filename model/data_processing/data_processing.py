@@ -168,10 +168,7 @@ class DatasetPreparer:
         return train_ds, val_ds
 
     @staticmethod
-    def prepare_video_and_subtitles(
-        video_path: tf.Tensor,
-        data_loader
-    ) -> tuple[tf.Tensor, tf.Tensor]:
+    def prepare_video_and_subtitles(video_path: tf.Tensor, data_loader) -> tuple[tf.Tensor, tf.Tensor]:
         """
         Load a video tensor and its corresponding subtitle tensor.
 
@@ -190,10 +187,7 @@ class DatasetPreparer:
         return tf.cast(video, tf.float16), tf.cast(subtitle, tf.int8)
 
     @staticmethod
-    def video_path_to_data(
-        video_path: tf.Tensor,
-        data_loader
-    ) -> list[tf.Tensor]:
+    def video_path_to_data(video_path: tf.Tensor, data_loader) -> list[tf.Tensor]:
         """
         TensorFlow mapping wrapper to call prepare_video_and_subtitles.
 
