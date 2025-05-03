@@ -23,9 +23,9 @@ class RegisterPage extends ConsumerStatefulWidget {
 
 class _RegisterPageState extends ConsumerState<RegisterPage> {
   final Logger _log = AppLogger.instance;
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  // controllers
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
@@ -36,10 +36,18 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
+  // password rule trackers
+  bool _isPassword8 = false;
+  bool _hasUppercase = false;
+  bool _hasLowercase = false;
+  bool _hasNumber = false;
+  bool _hasSymbol = false;
+
   @override
   void initState() {
     super.initState();
     _log.i('💡 RegisterPage mounted');
+    _passwordController.addListener(_validatePassword);
   }
 
   @override
@@ -48,9 +56,37 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _usernameController.dispose();
+    _passwordController.removeListener(_validatePassword);
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  // Live‐validate the password rules
+  void _validatePassword() {
+    final pw = _passwordController.text;
+    setState(() {
+      _isPassword8 = pw.length >= 8;
+      _hasUppercase = pw.contains(RegExp(r'[A-Z]'));
+      _hasLowercase = pw.contains(RegExp(r'[a-z]'));
+      _hasNumber = pw.contains(RegExp(r'\d'));
+      _hasSymbol = pw.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'));
+    });
+  }
+
+  // Reusable widget for each rule
+  Widget _buildPasswordRule({required bool passed, required String label}) {
+    return Row(
+      children: [
+        Icon(
+          passed ? Icons.check_circle : Icons.cancel,
+          color: passed ? Colors.green : Colors.red,
+          size: 18,
+        ),
+        const SizedBox(width: 8),
+        Text(label, style: TextStyle(color: passed ? Colors.green : Colors.red)),
+      ],
+    );
   }
 
   // Validator that ensures the name contains only English letters.
@@ -77,7 +113,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     return null;
   }
 
-  String? _validatePassword(String? value) {
+  String? _validatePasswordField(String? value) {
     if (value == null || value.isEmpty) {
       return 'Password is required';
     }
@@ -213,6 +249,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               labelText: "First Name",
                               labelStyle: TextStyle(color: AppColors.textSecondary),
                               prefixIcon: Icon(Icons.person, color: AppColors.textSecondary),
+                              counterText: '',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -233,6 +270,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                               labelText: "Last Name",
                               labelStyle: TextStyle(color: AppColors.textSecondary),
                               prefixIcon: Icon(Icons.person_outline, color: AppColors.textSecondary),
+                              counterText: '',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -246,7 +284,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 16),
 
                     // Username field
                     TextFormField(
@@ -256,6 +294,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         labelText: "Username",
                         labelStyle: TextStyle(color: AppColors.textSecondary),
                         prefixIcon: Icon(Icons.alternate_email, color: AppColors.textSecondary),
+                        counterText: '',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -266,7 +305,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       ),
                       validator: _validateUsername,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
                     // Password field
                     TextFormField(
@@ -288,6 +327,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             });
                           },
                         ),
+                        counterText: '',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -296,9 +336,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      validator: _validatePassword,
+                      validator: _validatePasswordField,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
                     // Confirm Password field
                     TextFormField(
@@ -320,6 +360,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             });
                           },
                         ),
+                        counterText: '',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -332,6 +373,14 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     ),
                     const SizedBox(height: 12),
 
+                    // Live password‐rule feedback
+                    _buildPasswordRule(passed: _isPassword8, label: 'At least 8 characters'),
+                    _buildPasswordRule(passed: _hasUppercase, label: '1 uppercase letter'),
+                    _buildPasswordRule(passed: _hasLowercase, label: '1 lowercase letter'),
+                    _buildPasswordRule(passed: _hasNumber, label: '1 number'),
+                    _buildPasswordRule(passed: _hasSymbol, label: '1 special character'),
+
+                    const SizedBox(height: 24),
                     // Gradient Register Button
                     SizedBox(
                       width: double.infinity,

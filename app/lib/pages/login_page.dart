@@ -172,6 +172,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         labelText: "Username",
                         labelStyle: TextStyle(color: AppColors.textSecondary),
                         prefixIcon: Icon(Icons.person, color: AppColors.textSecondary),
+                        counterText: '',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -181,7 +182,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
                     /// Password field (with eye icon)
                     TextFormField(
@@ -206,6 +207,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             });
                           },
                         ),
+                        counterText: '',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -215,7 +217,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
                     /// Gradient Login Button
                     SizedBox(

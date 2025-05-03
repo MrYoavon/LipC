@@ -12,3 +12,29 @@
 03-05-2025 18:30:26 | INFO     | handlers.contacts_handler:104 | Retrieved 3 contacts for user '680d405ca183764e786f0ef9'
 03-05-2025 18:30:27 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
 03-05-2025 18:30:27 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to vosk
+03-05-2025 18:37:24 | INFO     | handlers.connection:130 | Connection closed by client
+03-05-2025 18:41:33 | INFO     | websockets.server:440 | server closing
+03-05-2025 18:41:33 | INFO     | websockets.server:473 | server closed
+03-05-2025 18:49:02 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+03-05-2025 18:49:02 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+03-05-2025 18:49:02 | INFO     | __main__:44 | Is CUDA enabled: False
+03-05-2025 18:49:02 | INFO     | __main__:45 | Is ROCm enabled: True
+03-05-2025 18:49:04 | INFO     | __main__:77 | Starting WebSocket server...
+03-05-2025 18:49:04 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+03-05-2025 18:49:15 | INFO     | websockets.server:529 | connection open
+03-05-2025 18:49:15 | INFO     | handlers.connection:91 | New connection
+03-05-2025 18:49:16 | INFO     | handlers.connection:101 | Handshake successful
+03-05-2025 18:49:16 | INFO     | handlers.auth_handler:286 | Access token refreshed for user ID 680d405ca183764e786f0ef9.
+03-05-2025 18:49:16 | INFO     | handlers.contacts_handler:104 | Retrieved 3 contacts for user '680d405ca183764e786f0ef9'
+03-05-2025 18:49:16 | INFO     | handlers.contacts_handler:104 | Retrieved 3 contacts for user '680d405ca183764e786f0ef9'
+03-05-2025 18:49:16 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+03-05-2025 18:49:16 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to vosk
+03-05-2025 18:49:19 | INFO     | handlers.auth_handler:330 | User ID 680d405ca183764e786f0ef9 logged out.
+03-05-2025 18:54:06 | INFO     | handlers.connection:130 | Connection closed by client
+03-05-2025 18:54:11 | INFO     | websockets.server:529 | connection open
+03-05-2025 18:54:11 | INFO     | handlers.connection:91 | New connection
+03-05-2025 18:54:11 | INFO     | handlers.connection:101 | Handshake successful
+03-05-2025 18:54:58 | INFO     | handlers.connection:130 | Connection closed by client
+03-05-2025 18:55:08 | INFO     | websockets.server:529 | connection open
+03-05-2025 18:55:08 | INFO     | handlers.connection:91 | New connection
+03-05-2025 18:55:09 | INFO     | handlers.connection:101 | Handshake successful
