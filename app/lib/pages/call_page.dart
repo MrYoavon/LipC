@@ -40,8 +40,6 @@ class _CallPageState extends State<CallPage> {
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   bool isRemoteCameraOn = true;
 
-  bool isCallInitialized = false;
-
   @override
   void initState() {
     super.initState();
@@ -84,10 +82,6 @@ class _CallPageState extends State<CallPage> {
       setState(() {
         isRemoteCameraOn = isVideoOn;
       });
-    });
-
-    setState(() {
-      isCallInitialized = true;
     });
     _log.i('✅ Call initialized');
   }
