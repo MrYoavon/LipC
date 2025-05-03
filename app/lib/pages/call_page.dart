@@ -87,26 +87,17 @@ class _CallPageState extends State<CallPage> {
   }
 
   Widget _buildRemotePlaceholder() {
-    // Check if the remote user has a profile picture.
-    if (widget.remoteUser.profilePic.isNotEmpty) {
-      return CircleAvatar(
-        radius: 50,
-        backgroundImage: NetworkImage(widget.remoteUser.profilePic),
-        backgroundColor: Colors.transparent,
-      );
-    } else {
-      // Build initials from the remote user's name.
-      String initials =
-          widget.remoteUser.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase();
-      return CircleAvatar(
-        radius: 50,
-        backgroundColor: Colors.blue,
-        child: Text(
-          initials,
-          style: const TextStyle(fontSize: 24, color: Colors.white),
-        ),
-      );
-    }
+    // Build initials from the remote user's name.
+    String initials =
+        widget.remoteUser.name.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join().toUpperCase();
+    return CircleAvatar(
+      radius: 50,
+      backgroundColor: Colors.blue,
+      child: Text(
+        initials,
+        style: const TextStyle(fontSize: 24, color: Colors.white),
+      ),
+    );
   }
 
   @override

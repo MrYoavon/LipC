@@ -93,7 +93,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           userId: userId,
           username: username,
           name: authResponse["name"],
-          profilePic: authResponse["profile_pic"],
         );
         ref.read(currentUserProvider.notifier).setUser(currentUser);
 

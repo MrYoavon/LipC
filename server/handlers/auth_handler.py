@@ -90,7 +90,6 @@ class AuthHandler:
         response = {
             "user_id": user_id,
             "name": user.get("name", ""),
-            "profile_pic": user.get("profile_pic", ""),
             "access_token": access_token,
             "refresh_token": refresh_token
         }
@@ -206,7 +205,6 @@ class AuthHandler:
             "username": username,
             "password_hash": hashed,
             "name": name,
-            "profile_pic": payload.get("profile_pic", ""),
             "contacts": []
         }
         user_id = str(create_user(user_data))
@@ -276,7 +274,6 @@ class AuthHandler:
                 "user_id": user_id,
                 "username": username,
                 "name": user.get("name", ""),
-                "profile_pic": user.get("profile_pic", ""),
                 "access_token": new_access
             }
             await structure_encrypt_send_message(

@@ -14,28 +14,20 @@ class OutgoingCallPage extends StatelessWidget {
   const OutgoingCallPage({super.key, required this.remoteUser});
 
   Widget _buildProfileAvatar() {
-    if (remoteUser.profilePic.isNotEmpty) {
-      return CircleAvatar(
-        radius: 80,
-        backgroundImage: NetworkImage(remoteUser.profilePic),
-        backgroundColor: Colors.transparent,
-      );
-    } else {
-      // Generate initials from the remote user's name.
-      String initials = remoteUser.name.split(" ").map((e) => e.isNotEmpty ? e[0].toUpperCase() : '').take(2).join();
-      return CircleAvatar(
-        radius: 80,
-        backgroundColor: AppColors().getUserColor(remoteUser.userId),
-        child: Text(
-          initials,
-          style: const TextStyle(
-            fontSize: 40,
-            color: AppColors.background,
-            fontWeight: FontWeight.bold,
-          ),
+    // Generate initials from the remote user's name.
+    String initials = remoteUser.name.split(" ").map((e) => e.isNotEmpty ? e[0].toUpperCase() : '').take(2).join();
+    return CircleAvatar(
+      radius: 80,
+      backgroundColor: AppColors().getUserColor(remoteUser.userId),
+      child: Text(
+        initials,
+        style: const TextStyle(
+          fontSize: 40,
+          color: AppColors.background,
+          fontWeight: FontWeight.bold,
         ),
-      );
-    }
+      ),
+    );
   }
 
   @override

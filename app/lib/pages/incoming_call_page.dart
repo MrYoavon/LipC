@@ -72,28 +72,20 @@ class _IncomingCallPageState extends State<IncomingCallPage> {
   }
 
   Widget _buildProfileAvatar() {
-    if (widget.remoteUser.profilePic.isNotEmpty) {
-      return CircleAvatar(
-        radius: 80,
-        backgroundImage: NetworkImage(widget.remoteUser.profilePic),
-        backgroundColor: Colors.transparent,
-      );
-    } else {
-      String initials =
-          widget.remoteUser.name.split(" ").map((e) => e.isNotEmpty ? e[0].toUpperCase() : '').take(2).join();
-      return CircleAvatar(
-        radius: 80,
-        backgroundColor: AppColors().getUserColor(widget.remoteUser.userId),
-        child: Text(
-          initials,
-          style: const TextStyle(
-            fontSize: 40,
-            color: AppColors.background,
-            fontWeight: FontWeight.bold,
-          ),
+    String initials =
+        widget.remoteUser.name.split(" ").map((e) => e.isNotEmpty ? e[0].toUpperCase() : '').take(2).join();
+    return CircleAvatar(
+      radius: 80,
+      backgroundColor: AppColors().getUserColor(widget.remoteUser.userId),
+      child: Text(
+        initials,
+        style: const TextStyle(
+          fontSize: 40,
+          color: AppColors.background,
+          fontWeight: FontWeight.bold,
         ),
-      );
-    }
+      ),
+    );
   }
 
   void _handleReject() {

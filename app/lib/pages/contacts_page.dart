@@ -252,17 +252,12 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                   ),
                 ],
                 icon: CircleAvatar(
-                  backgroundImage:
-                      currentUser.profilePic.isNotEmpty ? AssetImage(currentUser.profilePic) as ImageProvider : null,
-                  backgroundColor: AppColors.accent,
-                  foregroundColor: AppColors.background,
-                  child: currentUser.profilePic.isEmpty
-                      ? Text(
-                          _getInitials(currentUser.username),
-                          style: const TextStyle(color: AppColors.background, fontSize: 20),
-                        )
-                      : null,
-                ),
+                    backgroundColor: AppColors.accent,
+                    foregroundColor: AppColors.background,
+                    child: Text(
+                      _getInitials(currentUser.username),
+                      style: const TextStyle(color: AppColors.background, fontSize: 20),
+                    )),
                 padding: const EdgeInsets.only(right: 16),
               ),
             ],

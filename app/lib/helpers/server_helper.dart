@@ -414,7 +414,6 @@ class ServerHelper {
           "success": true,
           "user_id": payload['user_id'],
           "name": payload['name'],
-          "profile_pic": payload['profile_pic'],
           "access_token": payload['access_token'],
           "refresh_token": payload['refresh_token'],
         };
@@ -455,7 +454,6 @@ class ServerHelper {
     String username,
     String password,
     String name,
-    String profilePic,
   ) async {
     try {
       // Send a signup request with user registration details.
@@ -465,7 +463,6 @@ class ServerHelper {
           "username": username,
           "password": password,
           "name": name,
-          "profile_pic": profilePic,
         },
       );
 
@@ -574,7 +571,6 @@ class ServerHelper {
         "user_id": data['payload']['user_id'],
         "username": data['payload']['username'],
         "name": data['payload']['name'],
-        "profile_pic": data['payload']['profile_pic'],
         "access_token": newAccess,
         "refresh_token": refreshToken,
       };

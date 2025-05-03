@@ -31,7 +31,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-  final TextEditingController _profilePicController = TextEditingController();
 
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -51,7 +50,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _profilePicController.dispose();
     super.dispose();
   }
 
@@ -114,7 +112,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       final lastName = _lastNameController.text.trim();
       final fullName = '$firstName $lastName';
       final password = _passwordController.text.trim();
-      final profilePic = _profilePicController.text.trim();
 
       final serverHelper = ref.read(serverHelperProvider);
       setState(() => _isLoading = true);
@@ -123,7 +120,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
         username,
         password,
         fullName,
-        profilePic,
       );
       _log.d('🛰️ Registration response: $registrationResponse');
       setState(() => _isLoading = false);
@@ -136,7 +132,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           userId: userId,
           username: username,
           name: fullName,
-          profilePic: profilePic,
         );
         ref.read(currentUserProvider.notifier).setUser(currentUser);
 

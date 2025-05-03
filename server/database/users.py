@@ -22,7 +22,6 @@ def create_user(user_data: dict) -> ObjectId:
             - username (str)
             - password_hash (str)
             - name (str)
-            - profile_pic (str, optional)
             - contacts (list of ObjectId, empty by default)
 
     Returns:

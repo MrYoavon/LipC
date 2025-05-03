@@ -46,7 +46,6 @@ class _StartupPageState extends ConsumerState<StartupPage> {
           userId: result['user_id'],
           username: result['username'],
           name: result['name'],
-          profilePic: result['profile_pic'],
         );
         _log.i('✅ Auto-login succeeded for ${user.username}');
 

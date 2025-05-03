@@ -107,7 +107,6 @@ class ContactsHandler:
                 "_id": str(contact.get("_id")),
                 "username": contact.get("username"),
                 "name": contact.get("name"),
-                "profile_pic": contact.get("profile_pic"),
             }
             for contact in contacts
         ]

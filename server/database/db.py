@@ -47,7 +47,6 @@ def init_db() -> None:
                     "username": {"bsonType": "string", "description": "must be a string and is required"},
                     "password_hash": {"bsonType": "string", "description": "must be a string and is required"},
                     "name": {"bsonType": "string", "description": "must be a string and is required"},
-                    "profile_pic": {"bsonType": "string", "description": "must be a string"},
                     "contacts": {
                         "bsonType": "array",
                         "items": {"bsonType": "objectId"},
