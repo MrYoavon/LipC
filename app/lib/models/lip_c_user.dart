@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class LipCUser {
   final String userId;
   final String username;
@@ -33,13 +31,4 @@ class LipCUser {
       'profile_pic': profilePic,
     };
   }
-
-  // (Optional) Create a user from JSON
-  factory LipCUser.fromJson(String source) {
-    final data = jsonDecode(source) as Map<String, dynamic>;
-    return LipCUser.fromMap(data);
-  }
-
-  // (Optional) Convert a user to JSON
-  String toJson() => jsonEncode(toMap());
 }
