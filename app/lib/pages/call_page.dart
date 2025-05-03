@@ -40,7 +40,6 @@ class _CallPageState extends State<CallPage> {
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
   bool isRemoteCameraOn = true;
 
-  String subtitles = "Live subtitles will appear here.";
   bool isCallInitialized = false;
 
   @override
