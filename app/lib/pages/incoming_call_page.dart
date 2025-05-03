@@ -13,14 +13,12 @@ import '../constants.dart';
 
 class IncomingCallPage extends StatefulWidget {
   final LipCUser remoteUser;
-  final Map<String, dynamic> callData;
   final VoidCallback onReject;
   final VoidCallback onAccept;
 
   const IncomingCallPage({
     super.key,
     required this.remoteUser,
-    required this.callData,
     required this.onReject,
     required this.onAccept,
   });

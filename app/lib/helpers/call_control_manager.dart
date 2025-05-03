@@ -83,7 +83,6 @@ class CallControlManager {
       MaterialPageRoute(
         builder: (context) => IncomingCallPage(
           remoteUser: remoteUser,
-          callData: data,
           onReject: () {
             _log.i('✖️ Rejecting call from $invitingUserId');
             Navigator.pop(context);
