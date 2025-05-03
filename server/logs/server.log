@@ -38,3 +38,119 @@
 03-05-2025 18:55:08 | INFO     | websockets.server:529 | connection open
 03-05-2025 18:55:08 | INFO     | handlers.connection:91 | New connection
 03-05-2025 18:55:09 | INFO     | handlers.connection:101 | Handshake successful
+03-05-2025 18:58:47 | INFO     | handlers.connection:130 | Connection closed by client
+03-05-2025 19:09:46 | INFO     | websockets.server:529 | connection open
+03-05-2025 19:09:46 | INFO     | handlers.connection:91 | New connection
+03-05-2025 19:09:46 | ERROR    | handlers.connection:103 | Handshake failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 100, in handle_connection
+    self.aes_key = await self._perform_handshake()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 166, in _perform_handshake
+    raise ValueError(
+ValueError: Invalid handshake response | None
+03-05-2025 19:09:46 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+  File "/home/yoav/VSCode/Lip-C/server/app.py", line 87, in connection_entry
+    await handler.handle_connection(ws)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 104, in handle_connection
+    await self.ws.send(json.dumps({"error": "Handshake failed"}))
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 476, in send
+    async with self.send_context():
+  File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 957, in send_context
+    raise self.protocol.close_exc from original_exc
+websockets.exceptions.ConnectionClosedOK: received 1000 (OK); then sent 1000 (OK)
+03-05-2025 19:09:56 | ERROR    | asyncio:1821 | Task exception was never retrieved
+future: <Task finished name='Task-21' coro=<ConnectionHandler._heartbeat() done, defined at /home/yoav/VSCode/Lip-C/server/handlers/connection.py:175> exception=TypeError("'float' object is not subscriptable")>
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 187, in _heartbeat
+    if time.time() - self.last_ping[0] > HEARTBEAT_TIMEOUT:
+                     ~~~~~~~~~~~~~~^^^
+TypeError: 'float' object is not subscriptable
+03-05-2025 19:10:11 | INFO     | websockets.server:529 | connection open
+03-05-2025 19:10:11 | INFO     | handlers.connection:91 | New connection
+03-05-2025 19:10:11 | INFO     | handlers.connection:101 | Handshake successful
+03-05-2025 19:10:43 | INFO     | handlers.connection:130 | Connection closed by client
+03-05-2025 19:12:36 | INFO     | websockets.server:440 | server closing
+03-05-2025 19:12:36 | INFO     | websockets.server:473 | server closed
+03-05-2025 19:20:37 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+03-05-2025 19:20:37 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+03-05-2025 19:20:37 | INFO     | __main__:44 | Is CUDA enabled: False
+03-05-2025 19:20:37 | INFO     | __main__:45 | Is ROCm enabled: True
+03-05-2025 19:20:38 | INFO     | __main__:77 | Starting WebSocket server...
+03-05-2025 19:20:38 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+03-05-2025 19:20:53 | INFO     | websockets.server:529 | connection open
+03-05-2025 19:20:53 | INFO     | handlers.connection:91 | New connection
+03-05-2025 19:20:53 | INFO     | handlers.connection:101 | Handshake successful
+03-05-2025 19:21:00 | ERROR    | handlers.connection:134 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 128, in handle_connection
+    await self._dispatch(data)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 235, in _dispatch
+    return await handler(self.ws, data, self.aes_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/auth_handler.py", line 59, in handle_authentication
+    now = datetime.utcnow()
+          ^^^^^^^^^^^^^^^
+AttributeError: module 'datetime' has no attribute 'utcnow'
+03-05-2025 19:21:02 | INFO     | websockets.server:529 | connection open
+03-05-2025 19:21:02 | INFO     | handlers.connection:91 | New connection
+03-05-2025 19:21:03 | INFO     | handlers.connection:101 | Handshake successful
+03-05-2025 19:21:17 | INFO     | websockets.server:440 | server closing
+03-05-2025 19:21:17 | INFO     | websockets.server:473 | server closed
+03-05-2025 19:21:23 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+03-05-2025 19:21:23 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+03-05-2025 19:21:23 | INFO     | __main__:44 | Is CUDA enabled: False
+03-05-2025 19:21:23 | INFO     | __main__:45 | Is ROCm enabled: True
+03-05-2025 19:21:24 | INFO     | __main__:77 | Starting WebSocket server...
+03-05-2025 19:21:24 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+03-05-2025 19:21:29 | INFO     | websockets.server:529 | connection open
+03-05-2025 19:21:29 | INFO     | handlers.connection:91 | New connection
+03-05-2025 19:21:29 | INFO     | handlers.connection:101 | Handshake successful
+03-05-2025 19:21:33 | ERROR    | handlers.connection:134 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 128, in handle_connection
+    await self._dispatch(data)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 235, in _dispatch
+    return await handler(self.ws, data, self.aes_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/auth_handler.py", line 59, in handle_authentication
+    now = datetime.now()
+          ^^^^^^^^^^^^
+AttributeError: module 'datetime' has no attribute 'now'
+03-05-2025 19:21:41 | INFO     | websockets.server:529 | connection open
+03-05-2025 19:21:41 | INFO     | handlers.connection:91 | New connection
+03-05-2025 19:21:41 | INFO     | handlers.connection:101 | Handshake successful
+03-05-2025 19:21:45 | INFO     | websockets.server:440 | server closing
+03-05-2025 19:21:45 | INFO     | websockets.server:473 | server closed
+03-05-2025 19:21:51 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+03-05-2025 19:21:51 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+03-05-2025 19:21:51 | INFO     | __main__:44 | Is CUDA enabled: False
+03-05-2025 19:21:51 | INFO     | __main__:45 | Is ROCm enabled: True
+03-05-2025 19:21:52 | INFO     | __main__:77 | Starting WebSocket server...
+03-05-2025 19:21:52 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+03-05-2025 19:21:54 | INFO     | websockets.server:529 | connection open
+03-05-2025 19:21:54 | INFO     | handlers.connection:91 | New connection
+03-05-2025 19:21:54 | INFO     | handlers.connection:101 | Handshake successful
+03-05-2025 19:22:01 | INFO     | handlers.auth_handler:73 | Authentication failed: user 'mdhkhfkfh' not found.
+03-05-2025 19:22:13 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+03-05-2025 19:22:15 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+03-05-2025 19:22:16 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+03-05-2025 19:22:18 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+03-05-2025 19:22:20 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+03-05-2025 19:22:20 | WARNING  | handlers.auth_handler:92 | User 'yoavon2' locked out for 30s after 5 failed attempts.
+03-05-2025 19:22:32 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon'.
+03-05-2025 19:22:52 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+03-05-2025 19:22:55 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+03-05-2025 19:22:56 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+03-05-2025 19:22:57 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+03-05-2025 19:22:58 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+03-05-2025 19:22:58 | WARNING  | handlers.auth_handler:92 | User 'yoavon2' locked out for 30s after 5 failed attempts.
+03-05-2025 19:23:06 | INFO     | handlers.connection:130 | Connection closed by client
+03-05-2025 19:23:07 | INFO     | websockets.server:440 | server closing
+03-05-2025 19:23:07 | INFO     | websockets.server:473 | server closed

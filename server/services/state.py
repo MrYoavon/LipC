@@ -12,6 +12,9 @@ clients: Dict[str, Dict[str, Optional[object]]] = {}
 # Mapping of call keys to pending call metadata, including caller, callee, and database call_id.
 pending_calls: Dict[Tuple[str, str], Dict[str, Optional[ObjectId]]] = {}
 
+# Mapping of username to failed login attempts, including the number of attempts and the timestamp of the end of the block.
+failed_login_attempts: Dict[str, dict] = {}
+
 
 def call_key(uid1: str, uid2: str) -> Tuple[str, str]:
     """

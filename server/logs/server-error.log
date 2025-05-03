@@ -2066,3 +2066,56 @@ Traceback (most recent call last):
   File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/imports.py", line 93, in __getattr__
     raise AttributeError(f"module {package!r} has no attribute {name!r}")
 AttributeError: module 'websockets.exceptions' has no attribute 'CibbectuibCkisedError'
+03-05-2025 19:09:46 | ERROR    | handlers.connection:103 | Handshake failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 100, in handle_connection
+    self.aes_key = await self._perform_handshake()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 166, in _perform_handshake
+    raise ValueError(
+ValueError: Invalid handshake response | None
+03-05-2025 19:09:46 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+  File "/home/yoav/VSCode/Lip-C/server/app.py", line 87, in connection_entry
+    await handler.handle_connection(ws)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 104, in handle_connection
+    await self.ws.send(json.dumps({"error": "Handshake failed"}))
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 476, in send
+    async with self.send_context():
+  File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 957, in send_context
+    raise self.protocol.close_exc from original_exc
+websockets.exceptions.ConnectionClosedOK: received 1000 (OK); then sent 1000 (OK)
+03-05-2025 19:09:56 | ERROR    | asyncio:1821 | Task exception was never retrieved
+future: <Task finished name='Task-21' coro=<ConnectionHandler._heartbeat() done, defined at /home/yoav/VSCode/Lip-C/server/handlers/connection.py:175> exception=TypeError("'float' object is not subscriptable")>
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 187, in _heartbeat
+    if time.time() - self.last_ping[0] > HEARTBEAT_TIMEOUT:
+                     ~~~~~~~~~~~~~~^^^
+TypeError: 'float' object is not subscriptable
+03-05-2025 19:21:00 | ERROR    | handlers.connection:134 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 128, in handle_connection
+    await self._dispatch(data)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 235, in _dispatch
+    return await handler(self.ws, data, self.aes_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/auth_handler.py", line 59, in handle_authentication
+    now = datetime.utcnow()
+          ^^^^^^^^^^^^^^^
+AttributeError: module 'datetime' has no attribute 'utcnow'
+03-05-2025 19:21:33 | ERROR    | handlers.connection:134 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 128, in handle_connection
+    await self._dispatch(data)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 235, in _dispatch
+    return await handler(self.ws, data, self.aes_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/auth_handler.py", line 59, in handle_authentication
+    now = datetime.now()
+          ^^^^^^^^^^^^
+AttributeError: module 'datetime' has no attribute 'now'

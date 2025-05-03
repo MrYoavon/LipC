@@ -1,4 +1,5 @@
 # handlers/auth_handler.py
+import datetime
 import logging
 import re
 import bcrypt
@@ -8,7 +9,7 @@ from services.jwt_utils import (
     create_access_token, create_refresh_token,
     refresh_access_token, verify_jwt
 )
-from services.state import clients
+from services.state import clients, failed_login_attempts
 from services.crypto_utils import structure_encrypt_send_message, send_error_message
 from constants import NAME_PART_MAX_LENGTH, USERNAME_MAX_LENGTH, PASSWORD_MAX_LENGTH
 
@@ -54,6 +55,19 @@ class AuthHandler:
                                             "CREDENTIALS_TOO_LONG",
                                             f"Username ≤{USERNAME_MAX_LENGTH}, password ≤{PASSWORD_MAX_LENGTH} chars.")
 
+        # Check for active lockout
+        now = datetime.datetime.now()
+        record = failed_login_attempts.get(
+            username, {"count": 0, "blocked_until": None})
+        blocked_until = record.get("blocked_until")
+        if blocked_until and now < blocked_until:
+            retry_secs = int((blocked_until - now).total_seconds())
+            return await send_error_message(
+                websocket, aes_key, msg_type,
+                "TOO_MANY_ATTEMPTS",
+                f"Too many failed attempts. Try again in {retry_secs} seconds."
+            )
+
         user = get_user_by_username(username)
         if not user:
             logger.info(f"Authentication failed: user '{username}' not found.")
@@ -69,6 +83,21 @@ class AuthHandler:
         if not bcrypt.checkpw(password.encode(), user["password_hash"].encode()):
             logger.info(
                 f"Authentication failed: incorrect password for '{username}'.")
+            record["count"] += 1  # count this failure
+            # if this was the 5th failure, start 30 s lockout
+            if record["count"] >= 5:
+                record["blocked_until"] = now + datetime.timedelta(seconds=30)
+                record["count"] = 0
+                failed_login_attempts[username] = record
+                logger.warning(
+                    f"User '{username}' locked out for 30s after 5 failed attempts.")
+                return await send_error_message(
+                    websocket, aes_key, msg_type,
+                    "TOO_MANY_ATTEMPTS", "Too many failed attempts. Account locked for 30 seconds."
+                )
+
+            # otherwise, just note the failure and send incorrect password
+            failed_login_attempts[username] = record
             await send_error_message(
                 websocket=websocket,
                 aes_key=aes_key,
@@ -77,6 +106,10 @@ class AuthHandler:
                 error_message="Incorrect password.",
             )
             return
+
+        # Success → clear any failure history
+        if username in failed_login_attempts:
+            del failed_login_attempts[username]
 
         user_id = str(user["_id"])
         access_token = create_access_token(user_id)
