@@ -10,7 +10,7 @@ Includes:
 import os
 import tensorflow as tf
 
-from model.constants import (
+from constants import (
     MAX_FRAMES,
     VIDEO_HEIGHT,
     VIDEO_WIDTH,

@@ -16,7 +16,7 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
 # Local application imports
-from model.constants import VIDEO_WIDTH, VIDEO_HEIGHT
+from constants import VIDEO_WIDTH, VIDEO_HEIGHT
 
 
 ###############################
@@ -95,7 +95,8 @@ class MouthDetector:
             # Convert landmarks to a protobuf format required by MediaPipe drawing utils
             face_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
             face_landmarks_proto.landmark.extend([
-                landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z)
+                landmark_pb2.NormalizedLandmark(
+                    x=landmark.x, y=landmark.y, z=landmark.z)
                 for landmark in face_landmarks
             ])
 
@@ -146,11 +147,16 @@ class MouthDetector:
                     78, 191, 80, 81, 82, 13, 312, 311, 310, 415,
                     95, 88, 178, 87, 14, 317, 402, 318, 324, 308
                 ]
-                x_coords = [face_landmarks[landmark].x for landmark in mouth_landmarks]
-                y_coords = [face_landmarks[landmark].y for landmark in mouth_landmarks]
-                xmin, xmax = int(min(x_coords) * rgb_image.shape[1]), int(max(x_coords) * rgb_image.shape[1])
-                ymin, ymax = int(min(y_coords) * rgb_image.shape[0]), int(max(y_coords) * rgb_image.shape[0])
-                xmin, ymin, xmax, ymax = self.expand_bounding_box(xmin, ymin, xmax, ymax)
+                x_coords = [
+                    face_landmarks[landmark].x for landmark in mouth_landmarks]
+                y_coords = [
+                    face_landmarks[landmark].y for landmark in mouth_landmarks]
+                xmin, xmax = int(
+                    min(x_coords) * rgb_image.shape[1]), int(max(x_coords) * rgb_image.shape[1])
+                ymin, ymax = int(
+                    min(y_coords) * rgb_image.shape[0]), int(max(y_coords) * rgb_image.shape[0])
+                xmin, ymin, xmax, ymax = self.expand_bounding_box(
+                    xmin, ymin, xmax, ymax)
                 cropped_mouth = rgb_image[ymin:ymax, xmin:xmax]
                 return cv2.resize(cropped_mouth, target_size, interpolation=cv2.INTER_AREA)
             except cv2.error:
@@ -169,6 +175,7 @@ class MouthDetector:
             Cropped mouth image if detection is successful, otherwise None.
         """
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        mp_image_input = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+        mp_image_input = mp.Image(
+            image_format=mp.ImageFormat.SRGB, data=rgb_frame)
         detection_result = self.detector.detect(mp_image_input)
         return self.crop_mouth_from_landmarks(mp_image_input.numpy_view(), detection_result, target_size=target_size)

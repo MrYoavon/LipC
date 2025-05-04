@@ -22,8 +22,8 @@ from tensorflow.keras.callbacks import (
 )
 from tensorflow.keras.models import Sequential
 
-from model.constants import num_to_char, TRAIN_TFRECORDS_PATH, VAL_TFRECORDS_PATH
-from model.utils.model_utils import decode_predictions
+from constants import num_to_char, TRAIN_TFRECORDS_PATH, VAL_TFRECORDS_PATH
+from utils.model_utils import decode_predictions
 
 
 ##########################
