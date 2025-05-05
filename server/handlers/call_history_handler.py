@@ -37,7 +37,7 @@ class CallHistoryHandler:
 
         limit = payload.get("limit", 50)
         try:
-            entries = get_call_history(user_id, limit)
+            entries = await get_call_history(user_id, limit)
             serialized = [self._serialize_entry(e) for e in entries]
 
             logger.info(

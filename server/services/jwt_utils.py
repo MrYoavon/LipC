@@ -60,7 +60,7 @@ def create_access_token(user_id: str, additional_claims: dict = None) -> str:
     return token
 
 
-def create_refresh_token(user_id: str, additional_claims: dict = None) -> str:
+async def create_refresh_token(user_id: str, additional_claims: dict = None) -> str:
     """
     Generate a signed JWT refresh token and persist its hash.
 
@@ -79,7 +79,7 @@ def create_refresh_token(user_id: str, additional_claims: dict = None) -> str:
     jti = str(uuid.uuid4())  # Unique identifier for the token
 
     # Revoke the previous token (if any) and tag it
-    revoke_previous_token(user_id, replaced_by_jti=jti)
+    await revoke_previous_token(user_id, replaced_by_jti=jti)
 
     payload = {
         "sub": user_id,
@@ -92,7 +92,7 @@ def create_refresh_token(user_id: str, additional_claims: dict = None) -> str:
         payload.update(additional_claims)
     token = jwt.encode(payload, RSA_PRIVATE_KEY, algorithm=JWT_ALGORITHM)
 
-    save_refresh_token(
+    await save_refresh_token(
         user_id=user_id,
         jti=jti,
         token_hash=_hash(token),
@@ -172,7 +172,7 @@ def verify_jwt_in_message(token: str, expected_type: str, user_id: str) -> dict:
         }
 
 
-def refresh_access_token(refresh_token: str) -> str:
+async def refresh_access_token(refresh_token: str) -> str:
     """
     Issue a new access token if the provided refresh token is valid.
 
@@ -192,7 +192,7 @@ def refresh_access_token(refresh_token: str) -> str:
         token_hash = _hash(refresh_token)
 
         # 1) Must exist in DB, not revoked, not past its DB expiry timestamp
-        if not find_valid_token(jti, token_hash):
+        if not await find_valid_token(jti, token_hash):
             raise jwt.InvalidTokenError("Refresh token revoked or unknown.")
 
         # 2) Still good – issue a new access token
@@ -208,7 +208,7 @@ def refresh_access_token(refresh_token: str) -> str:
                 algorithms=[JWT_ALGORITHM],
                 options={"verify_exp": False}  # ignore exp for decoding only
             )
-            revoke_token(decoded["jti"], reason="expired")
+            await revoke_token(decoded["jti"], reason="expired")
         except Exception:
             pass  # token may be corrupt – ignore
         raise
@@ -222,7 +222,7 @@ def refresh_access_token(refresh_token: str) -> str:
                 algorithms=[JWT_ALGORITHM],
                 options={"verify_signature": False, "verify_exp": False}
             )
-            revoke_token(decoded.get("jti", "unknown"), reason="invalid")
+            await revoke_token(decoded.get("jti", "unknown"), reason="invalid")
         except Exception:
             pass
         raise

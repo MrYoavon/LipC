@@ -53,6 +53,7 @@ configure_devices()
 
 from constants import SSL_CERT_FILE, SSL_KEY_FILE
 from handlers.connection import ConnectionHandler
+from database.db import init_db
 import os
 from websockets import serve
 import ssl
@@ -103,6 +104,7 @@ async def start_server(host, port, ssl_ctx):
     Returns:
         None
     """
+    await init_db()  # Initialize the database connection
     async with serve(
             handler=connection_entry,
             host=host,

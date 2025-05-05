@@ -13,7 +13,7 @@ from database.db import get_collection
 calls = get_collection("calls")
 
 
-def start_call(caller_id: str, callee_id: str) -> ObjectId:
+async def start_call(caller_id: str, callee_id: str) -> ObjectId:
     """
     Record the start of a new call between two users.
 
@@ -36,11 +36,11 @@ def start_call(caller_id: str, callee_id: str) -> ObjectId:
         "transcripts": [],  # list of transcript entries
         # each item in transcripts: {"t": <datetime>, "speaker": ObjectId, "text": str, "source": "lip"|"vosk"}
     }
-    result = calls.insert_one(doc)
+    result = await calls.insert_one(doc)
     return result.inserted_id
 
 
-def append_line(call_id: ObjectId, speaker_id: str, text: str, source: str = "lip") -> None:
+async def append_line(call_id: ObjectId, speaker_id: str, text: str, source: str = "lip") -> None:
     """
     Append a transcript entry to an ongoing call.
 
@@ -62,11 +62,11 @@ def append_line(call_id: ObjectId, speaker_id: str, text: str, source: str = "li
         "text": text,
         "source": source,
     }
-    calls.update_one({"_id": ObjectId(call_id)}, {
-                     "$push": {"transcripts": entry}})
+    await calls.update_one({"_id": ObjectId(call_id)}, {
+        "$push": {"transcripts": entry}})
 
 
-def finish_call(call_id: ObjectId) -> None:
+async def finish_call(call_id: ObjectId) -> None:
     """
     Mark a call as finished by setting end time and computing duration.
 
@@ -81,7 +81,7 @@ def finish_call(call_id: ObjectId) -> None:
     """
     now = datetime.now()
     # Compute duration in seconds: (ended_at - started_at) / 1000 ms
-    calls.update_one(
+    await calls.update_one(
         {"_id": ObjectId(call_id)},
         [{"$set": {
             "ended_at": now,
@@ -92,7 +92,7 @@ def finish_call(call_id: ObjectId) -> None:
     )
 
 
-def get_call_history(user_id: str, limit: int = 50) -> list[dict]:
+async def get_call_history(user_id: str, limit: int = 50) -> list[dict]:
     """
     Retrieve recent calls involving a specific user, excluding transcripts.
 
@@ -112,7 +112,7 @@ def get_call_history(user_id: str, limit: int = 50) -> list[dict]:
     ]}
     cursor = calls.find(query).sort("started_at", -1).limit(limit)
     history = []
-    for doc in cursor:
+    async for doc in cursor:
         # Convert ObjectId to str for JSON
         doc["_id"] = str(doc["_id"])
         doc["caller_id"] = str(doc["caller_id"])
@@ -121,7 +121,7 @@ def get_call_history(user_id: str, limit: int = 50) -> list[dict]:
     return history
 
 
-def get_call_transcript(call_id: str) -> dict | None:
+async def get_call_transcript(call_id: str) -> dict | None:
     """
     Retrieve the full call document including transcripts, formatted for transport.
 
@@ -135,7 +135,7 @@ def get_call_transcript(call_id: str) -> dict | None:
     Raises:
         PyMongoError: If query operation fails.
     """
-    doc = calls.find_one({"_id": ObjectId(call_id)})
+    doc = await calls.find_one({"_id": ObjectId(call_id)})
     if doc is None:
         return None
     # Convert ObjectId fields to str

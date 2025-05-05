@@ -116,8 +116,8 @@ class WebRTCServer:
                 continue
 
             # Save prediction to database
-            append_line(self.call_id, speaker_id=self.sender,
-                        text=prediction, source="lip")
+            await append_line(self.call_id, speaker_id=self.sender,
+                              text=prediction, source="lip")
             logger.info(f"Lip prediction for {self.sender}: {prediction}")
 
             # Relay prediction to partner
@@ -176,8 +176,8 @@ class WebRTCServer:
                     f"Vosk {result_type} result for {self.sender}: {text}")
 
                 if result_type == "final":
-                    append_line(self.call_id, speaker_id=self.sender,
-                                text=text, source="vosk")
+                    await append_line(self.call_id, speaker_id=self.sender,
+                                      text=text, source="vosk")
 
                 await self._relay_message(
                     msg_type="lip_reading_prediction",
@@ -278,7 +278,7 @@ class WebRTCServer:
             key = call_key(self.sender, self.target)
             info = pending_calls.get(key)
             if info and not info.get("ended"):
-                await asyncio.to_thread(finish_call, self.call_id)
+                await finish_call(self.call_id)
                 info["ended"] = True
             pending_calls.pop(key, None)
 
@@ -385,7 +385,7 @@ class SignalingHandler:
         key = call_key(sender, target)
         info = pending_calls.get(key)
         if info and info.get("call_id") is None:
-            info["call_id"] = start_call(
+            info["call_id"] = await start_call(
                 info["caller"], info["callee"])  # Single DB record
 
         await structure_encrypt_send_message(

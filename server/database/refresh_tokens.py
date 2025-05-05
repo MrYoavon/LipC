@@ -13,7 +13,7 @@ import datetime
 rt_collection = get_collection("refresh_tokens")
 
 
-def save_refresh_token(user_id: str, jti: str, token_hash: str, expires_at: datetime.datetime) -> None:
+async def save_refresh_token(user_id: str, jti: str, token_hash: str, expires_at: datetime.datetime) -> None:
     """
     Persist a new refresh token record in the database.
 
@@ -36,10 +36,10 @@ def save_refresh_token(user_id: str, jti: str, token_hash: str, expires_at: date
         "replaced_by_jti": None,
         "revoked_at": None
     }
-    rt_collection.insert_one(doc)
+    await rt_collection.insert_one(doc)
 
 
-def find_valid_token(jti: str, token_hash: str) -> dict | None:
+async def find_valid_token(jti: str, token_hash: str) -> dict | None:
     """
     Retrieve a non-revoked, unexpired refresh token by its JTI and hash.
 
@@ -54,7 +54,7 @@ def find_valid_token(jti: str, token_hash: str) -> dict | None:
         PyMongoError: If the query fails.
     """
     now = datetime.datetime.now(datetime.timezone.utc)
-    return rt_collection.find_one({
+    return await rt_collection.find_one({
         "jti": jti,
         "token_hash": token_hash,
         "revoked": False,
@@ -62,7 +62,7 @@ def find_valid_token(jti: str, token_hash: str) -> dict | None:
     })
 
 
-def revoke_token(jti: str) -> None:
+async def revoke_token(jti: str) -> None:
     """
     Mark a specific refresh token as revoked.
 
@@ -75,14 +75,14 @@ def revoke_token(jti: str) -> None:
     Raises:
         PyMongoError: If the update operation fails.
     """
-    rt_collection.update_one(
+    await rt_collection.update_one(
         {"jti": jti},
         {"$set": {"revoked": True, "revoked_at": datetime.datetime.now(
             datetime.timezone.utc)}}
     )
 
 
-def revoke_previous_token(user_id: str, replaced_by_jti: str) -> str | None:
+async def revoke_previous_token(user_id: str, replaced_by_jti: str) -> str | None:
     """
     Revoke the most recently created, non-revoked refresh token for a user.
 
@@ -107,13 +107,11 @@ def revoke_previous_token(user_id: str, replaced_by_jti: str) -> str | None:
             "replaced_by_jti": replaced_by_jti
         }
     }
-    # Atomically find the most recent valid token and revoke it
-    old = rt_collection.find_one_and_update(
+    # Find the most recent valid token and revoke it
+    old = await rt_collection.find_one_and_update(
         filter_query,
         update,
         sort=[("created_at", -1)],
         return_document=ReturnDocument.BEFORE
     )
-    if old:
-        return old.get("jti")
-    return None
+    return old.get("jti") if old else None

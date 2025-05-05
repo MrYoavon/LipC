@@ -47,7 +47,7 @@ class ContactsHandler:
             )
             return
 
-        updated = add_contact_to_user(user_id, contact_username)
+        updated = await add_contact_to_user(user_id, contact_username)
         if not updated:
             await send_error_message(
                 websocket=websocket,
@@ -90,7 +90,7 @@ class ContactsHandler:
         if user_id is None:
             return
 
-        contacts = get_user_contacts(user_id)
+        contacts = await get_user_contacts(user_id)
         if contacts is None:
             await send_error_message(
                 websocket=websocket,

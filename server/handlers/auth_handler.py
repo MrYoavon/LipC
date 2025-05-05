@@ -68,7 +68,7 @@ class AuthHandler:
                 f"Too many failed attempts. Try again in {retry_secs} seconds."
             )
 
-        user = get_user_by_username(username)
+        user = await get_user_by_username(username)
         if not user:
             logger.info(f"Authentication failed: user '{username}' not found.")
             await send_error_message(
@@ -113,7 +113,7 @@ class AuthHandler:
 
         user_id = str(user["_id"])
         access_token = create_access_token(user_id)
-        refresh_token = create_refresh_token(user_id)
+        refresh_token = await create_refresh_token(user_id)
 
         # Register client session
         clients[user_id] = {"ws": websocket,
@@ -222,7 +222,7 @@ class AuthHandler:
             return
 
         # Username uniqueness
-        if get_user_by_username(username):
+        if await get_user_by_username(username):
             await send_error_message(
                 websocket=websocket,
                 aes_key=aes_key,
@@ -240,10 +240,10 @@ class AuthHandler:
             "name": name,
             "contacts": []
         }
-        user_id = str(create_user(user_data))
+        user_id = str(await create_user(user_data))
 
         access_token = create_access_token(user_id)
-        refresh_token = create_refresh_token(user_id)
+        refresh_token = await create_refresh_token(user_id)
 
         # Register client session
         clients[user_id] = {"ws": websocket,
@@ -296,8 +296,8 @@ class AuthHandler:
             # Validate and refresh token
             token_data = verify_jwt(refresh_jwt, expected_type="refresh")
             user_id = token_data.get("sub")
-            new_access = refresh_access_token(refresh_jwt)
-            user = get_user_by_id(user_id)
+            new_access = await refresh_access_token(refresh_jwt)
+            user = await get_user_by_id(user_id)
             username = user.get("username", "")
 
             # Update client session

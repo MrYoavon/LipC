@@ -6,7 +6,8 @@ helper functions to access collections. It reads configuration from environment
 variables and applies validators on import.
 """
 import os
-from pymongo import MongoClient
+import asyncio
+from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.errors import CollectionInvalid, OperationFailure
 from dotenv import load_dotenv
 
@@ -15,12 +16,12 @@ load_dotenv()
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "lip-c")
 
-# Create a global MongoDB client and database reference
-client = MongoClient(MONGODB_URI)
+# Create a global Motor client and database reference
+client = AsyncIOMotorClient(MONGODB_URI)
 db = client[DATABASE_NAME]
 
 
-def init_db() -> None:
+async def init_db() -> None:
     """
     Initialize MongoDB collections with JSON schema validation.
 
@@ -103,7 +104,7 @@ def init_db() -> None:
     for name, schema in validators.items():
         try:
             # Try creating with validator if collection doesn't exist
-            db.create_collection(
+            await db.create_collection(
                 name,
                 validator=schema,
                 validationLevel="strict",
@@ -113,7 +114,7 @@ def init_db() -> None:
         except CollectionInvalid:
             # If it exists, attempt to modify the collection to apply the schema
             try:
-                db.command(
+                await db.command(
                     {
                         "collMod": name,
                         "validator": schema,
@@ -139,7 +140,3 @@ def get_collection(collection_name: str):
         Collection: PyMongo Collection object corresponding to the given name.
     """
     return db[collection_name]
-
-
-# Initialize validators on module load
-init_db()

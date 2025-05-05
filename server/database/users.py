@@ -13,7 +13,7 @@ from database.db import get_collection
 users_collection = get_collection("users")
 
 
-def create_user(user_data: dict) -> ObjectId:
+async def create_user(user_data: dict) -> ObjectId:
     """
     Insert a new user record into the database.
 
@@ -30,11 +30,11 @@ def create_user(user_data: dict) -> ObjectId:
     Raises:
         PyMongoError: If insertion into the collection fails.
     """
-    result = users_collection.insert_one(user_data)
+    result = await users_collection.insert_one(user_data)
     return result.inserted_id
 
 
-def get_user_by_id(user_id: str | ObjectId) -> dict | None:
+async def get_user_by_id(user_id: str | ObjectId) -> dict | None:
     """
     Retrieve a user document by its unique identifier.
 
@@ -46,10 +46,10 @@ def get_user_by_id(user_id: str | ObjectId) -> dict | None:
     """
     if not isinstance(user_id, ObjectId):
         user_id = ObjectId(user_id)
-    return users_collection.find_one({"_id": user_id})
+    return await users_collection.find_one({"_id": user_id})
 
 
-def get_user_by_username(username: str) -> dict | None:
+async def get_user_by_username(username: str) -> dict | None:
     """
     Retrieve a user document by its username.
 
@@ -59,10 +59,10 @@ def get_user_by_username(username: str) -> dict | None:
     Returns:
         dict or None: The user document if found; otherwise None.
     """
-    return users_collection.find_one({"username": username})
+    return await users_collection.find_one({"username": username})
 
 
-def add_contact_to_user(user_id: str | ObjectId, contact_username: str) -> dict | None:
+async def add_contact_to_user(user_id: str | ObjectId, contact_username: str) -> dict | None:
     """
     Add another user as a contact to the given user's contact list.
 
@@ -76,11 +76,11 @@ def add_contact_to_user(user_id: str | ObjectId, contact_username: str) -> dict 
         dict or None: The updated user document after adding the contact,
                       or None if the contact username does not exist.
     """
-    contact = get_user_by_username(contact_username)
+    contact = await get_user_by_username(contact_username)
     if not contact:
         return None
     contact_id = contact.get("_id")
-    updated = users_collection.find_one_and_update(
+    updated = await users_collection.find_one_and_update(
         {"_id": ObjectId(user_id) if not isinstance(
             user_id, ObjectId) else user_id},
         {"$addToSet": {"contacts": contact_id}},
@@ -89,7 +89,7 @@ def add_contact_to_user(user_id: str | ObjectId, contact_username: str) -> dict 
     return updated
 
 
-def get_user_contacts(user_id: str | ObjectId) -> list[dict]:
+async def get_user_contacts(user_id: str | ObjectId) -> list[dict]:
     """
     Fetch full contact records for a user's contact list.
 
@@ -100,11 +100,12 @@ def get_user_contacts(user_id: str | ObjectId) -> list[dict]:
         list of dict: List of user documents for each contact,
                       with _id and any nested contact IDs stringified.
     """
-    user = get_user_by_id(user_id)
+    user = await get_user_by_id(user_id)
     if not user or not user.get("contacts"):
         return []
     contact_ids = user.get("contacts", [])
-    contacts = list(users_collection.find({"_id": {"$in": contact_ids}}))
+    cursor = users_collection.find({"_id": {"$in": contact_ids}})
+    contacts = await cursor.to_list(length=None)
     # Convert ObjectId fields to str for JSON serialization
     for c in contacts:
         c["_id"] = str(c.get("_id"))

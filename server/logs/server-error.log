@@ -2119,3 +2119,58 @@ Traceback (most recent call last):
     now = datetime.now()
           ^^^^^^^^^^^^
 AttributeError: module 'datetime' has no attribute 'now'
+05-05-2025 19:03:28 | ERROR    | handlers.auth_handler:321 | Failed to refresh token: object str can't be used in 'await' expression
+05-05-2025 19:03:45 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 67d6bae7386c75bcc71b6890: object AsyncIOMotorCursor can't be used in 'await' expression
+05-05-2025 19:04:56 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 67d6bae7386c75bcc71b6890: 'AsyncIOMotorCursor' object is not iterable
+05-05-2025 19:07:43 | ERROR    | handlers.auth_handler:321 | Failed to refresh token: object str can't be used in 'await' expression
+05-05-2025 19:07:53 | ERROR    | handlers.auth_handler:321 | Failed to refresh token: object str can't be used in 'await' expression
+05-05-2025 19:15:04 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:15:05 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:15:08 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:15:14 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:16:49 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:18:53 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:18:53 | ERROR    | asyncio:1821 | Exception in callback AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95
+handle: <Handle AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 103, in callback
+    self.emit("error", exc)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 68, in emit
+    return super().emit(event, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 215, in emit
+    self._emit_handle_potential_error(event, args[0] if args else None)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 173, in _emit_handle_potential_error
+    raise error
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 267, in _on_pc_state
+    await self._terminate_call()
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 281, in _terminate_call
+    await asyncio.to_thread(await finish_call, self.call_id)
+                            ^^^^^^^^^^^^^^^^^
+TypeError: object function can't be used in 'await' expression
+05-05-2025 19:18:54 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:18:54 | ERROR    | asyncio:1821 | Exception in callback AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95
+handle: <Handle AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 103, in callback
+    self.emit("error", exc)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 68, in emit
+    return super().emit(event, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 215, in emit
+    self._emit_handle_potential_error(event, args[0] if args else None)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 173, in _emit_handle_potential_error
+    raise error
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 267, in _on_pc_state
+    await self._terminate_call()
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 281, in _terminate_call
+    await asyncio.to_thread(await finish_call, self.call_id)
+                            ^^^^^^^^^^^^^^^^^
+TypeError: object function can't be used in 'await' expression
+05-05-2025 19:18:56 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:20:47 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:20:48 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
