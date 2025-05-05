@@ -56,6 +56,7 @@ class LipReadingModel:
             layers.LSTM(
                 units=128,
                 return_sequences=True,
+                kernel_initializer="Orthogonal",
                 activation='tanh',
                 recurrent_activation='sigmoid',
                 recurrent_dropout=0.2,
@@ -70,6 +71,7 @@ class LipReadingModel:
             layers.LSTM(
                 units=128,
                 return_sequences=True,
+                kernel_initializer="Orthogonal",
                 activation='tanh',
                 recurrent_activation='sigmoid',
                 recurrent_dropout=0.2,

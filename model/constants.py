@@ -14,8 +14,8 @@ BATCH_SIZE = 8
 #       Data Paths            #
 ###############################
 
-TRAIN_TFRECORDS_PATH = "model/data/GRID_corpus_normal/train.tfrecords"
-VAL_TFRECORDS_PATH = "model/data/GRID_corpus_normal/val.tfrecords"
+TRAIN_TFRECORDS_PATH = "model/data/GRID_corpus/train.tfrecords"
+VAL_TFRECORDS_PATH = "model/data/GRID_corpus/val.tfrecords"
 
 ###############################
 #  Vocabulary and Mappings    #

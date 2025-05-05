@@ -7,9 +7,9 @@ import random
 import tensorflow as tf
 import numpy as np
 
-# TensorFlow threading configuration
-tf.config.threading.set_intra_op_parallelism_threads(32)
-tf.config.threading.set_inter_op_parallelism_threads(32)
+# # TensorFlow threading configuration
+# tf.config.threading.set_intra_op_parallelism_threads(32)
+# tf.config.threading.set_inter_op_parallelism_threads(32)
 # tf.config.run_functions_eagerly(True)  # Uncomment for debugging
 
 # Set random seeds for reproducibility
@@ -75,7 +75,7 @@ def train_model():
     """
     Train the lip-reading model and save it to disk.
     """
-    base_dir = "model/data/GRID_corpus_normal/"
+    base_dir = "model/data/GRID_corpus/"
     video_dir = os.path.join(base_dir, "videos")
 
     # Initialize components for data preparation
@@ -130,7 +130,7 @@ def test_model():
     model.summary()
 
     # Prepare test data (using validation dataset as test data)
-    base_dir = "model/data/GRID_corpus_normal/"
+    base_dir = "model/data/GRID_corpus/"
     video_dir = os.path.join(base_dir, "videos")
 
     mouth_detector = MouthDetector()

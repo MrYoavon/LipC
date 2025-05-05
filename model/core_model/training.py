@@ -247,9 +247,9 @@ def train_model(
     )
 
     # Set up callbacks
-    lr_scheduler_callback = LearningRateScheduler(
-        lambda epoch: cosine_annealing_with_warm_restarts(epoch, T_0=7, T_mult=2, initial_lr=2e-4, eta_min=1e-5)
-    )
+    # lr_scheduler_callback = LearningRateScheduler(
+    #     lambda epoch: cosine_annealing_with_warm_restarts(epoch, T_0=7, T_mult=2, initial_lr=2e-4, eta_min=1e-5)
+    # )
 
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     run_dir = os.path.join('model/models', f'run-{timestamp}')
@@ -262,7 +262,7 @@ def train_model(
         verbose=1
     )
 
-    early_stopping_callback = EarlyStopping(monitor='val_loss', patience=10, verbose=1)
+    # early_stopping_callback = EarlyStopping(monitor='val_loss', patience=10, verbose=1)
     example_callback = ProduceExample(validation_data)
     log_dir = f"model/logs/fit/{datetime.now().strftime('%Y%m%d-%H%M%S')}"
     tensorboard_callback = TensorBoard(log_dir=log_dir, histogram_freq=1)
@@ -286,8 +286,8 @@ def train_model(
             epochs=100,
             callbacks=[
                 checkpoint_callback,
-                lr_scheduler_callback,
-                early_stopping_callback,
+                # lr_scheduler_callback,
+                # early_stopping_callback,
                 example_callback,
                 tensorboard_callback
             ],
