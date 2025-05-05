@@ -742,3 +742,41 @@ TypeError: object function can't be used in 'await' expression
 05-05-2025 19:22:50 | INFO     | handlers.connection:130 | Connection closed by client
 05-05-2025 19:22:54 | INFO     | websockets.server:440 | server closing
 05-05-2025 19:22:54 | INFO     | websockets.server:473 | server closed
+05-05-2025 22:54:51 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 22:54:51 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 22:54:51 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 22:54:51 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 22:54:52 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 22:54:52 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 22:55:45 | INFO     | websockets.server:440 | server closing
+05-05-2025 22:55:45 | INFO     | websockets.server:473 | server closed
+05-05-2025 22:55:51 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 22:55:51 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 22:55:51 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 22:55:51 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 22:55:53 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 22:55:53 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 22:56:24 | INFO     | websockets.server:440 | server closing
+05-05-2025 22:56:24 | INFO     | websockets.server:473 | server closed
+05-05-2025 22:56:30 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 22:56:30 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 22:56:30 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 22:56:30 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 22:56:31 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 22:56:31 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 22:57:00 | INFO     | websockets.server:440 | server closing
+05-05-2025 22:57:00 | INFO     | websockets.server:473 | server closed
+05-05-2025 22:57:06 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 22:57:06 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 22:57:06 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 22:57:06 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 22:57:08 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 22:57:08 | INFO     | __main__:79 | AAAA password=***
+05-05-2025 22:57:08 | INFO     | __main__:80 | BBBB password_hash=***
+05-05-2025 22:57:08 | INFO     | __main__:81 | CCCC refresh_jwt=***
+05-05-2025 22:57:08 | INFO     | __main__:82 | DDDD refresh_token=***
+05-05-2025 22:57:08 | INFO     | __main__:83 | EEEE access_jwt=***
+05-05-2025 22:57:08 | INFO     | __main__:84 | FFFF access_token=***
+05-05-2025 22:57:08 | INFO     | __main__:85 | GGGG token_hash=***
+05-05-2025 22:57:08 | INFO     | __main__:86 | HHHH aes_key=***
+05-05-2025 22:57:08 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
