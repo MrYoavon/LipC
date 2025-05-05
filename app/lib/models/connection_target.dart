@@ -1,0 +1,1 @@
+enum ConnectionTarget { peer, server }

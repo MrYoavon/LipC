@@ -1,5 +1,6 @@
 # main.py
 
+# fmt: off
 import os
 import random
 
@@ -66,6 +67,8 @@ from model.data_processing.data_loader import DataLoader
 from core_model.model import LipReadingModel
 from constants import char_to_num, num_to_char
 
+# fmt: on
+
 
 ##############################
 # Model Training Function    #
@@ -81,8 +84,10 @@ def train_model():
     # Initialize components for data preparation
     mouth_detector = MouthDetector()
     data_loader = DataLoader(detector=mouth_detector)
-    dataset_preparer = DatasetPreparer(video_directory=video_dir, data_loader=data_loader)
-    train_dataset, val_dataset = dataset_preparer.prepare_dataset(save_tfrecords=True)
+    dataset_preparer = DatasetPreparer(
+        video_directory=video_dir, data_loader=data_loader)
+    train_dataset, val_dataset = dataset_preparer.prepare_dataset(
+        save_tfrecords=True)
 
     # Print dataset information
     print(f"Train dataset: {train_dataset.cardinality().numpy()} batches")
@@ -97,7 +102,8 @@ def train_model():
 
     # Train the model
     from core_model.training import train_model as training_function
-    trained_model, training_history = training_function(model.model, train_dataset, val_dataset)
+    trained_model, training_history = training_function(
+        model.model, train_dataset, val_dataset)
 
     # Inspect training history
     print(f"Training history keys: {training_history.history.keys()}")
@@ -121,11 +127,13 @@ def test_model():
     """
     saved_model_path = "model/models/final_model.keras"
     if not os.path.exists(saved_model_path):
-        print(f"Saved model not found at {saved_model_path}. Train the model first.")
+        print(
+            f"Saved model not found at {saved_model_path}. Train the model first.")
         return
 
     # Load the saved model with custom loss
-    model = tf.keras.models.load_model(saved_model_path, custom_objects={"ctc_loss": ctc_loss})
+    model = tf.keras.models.load_model(
+        saved_model_path, custom_objects={"ctc_loss": ctc_loss})
     print(f"Model loaded from {saved_model_path}.")
     model.summary()
 
@@ -135,7 +143,8 @@ def test_model():
 
     mouth_detector = MouthDetector()
     data_loader = DataLoader(detector=mouth_detector)
-    dataset_preparer = DatasetPreparer(video_directory=video_dir, data_loader=data_loader)
+    dataset_preparer = DatasetPreparer(
+        video_directory=video_dir, data_loader=data_loader)
     _, test_dataset = dataset_preparer.prepare_dataset()
 
     # Evaluate the model on a single batch of test data
@@ -146,15 +155,18 @@ def test_model():
 
         # Decode predictions using beam search (may need updating)
         decoded_predictions = decode_predictions(predictions, beam_width=10)
-        dense_decoded = tf.sparse.to_dense(decoded_predictions[0], default_value=-1)
+        dense_decoded = tf.sparse.to_dense(
+            decoded_predictions[0], default_value=-1)
 
         # Display original labels and predictions
         for i, sequence in enumerate(dense_decoded):
             original = tf.strings.reduce_join(
-                [num_to_char(word).numpy().decode('utf-8') for word in labels[i].numpy() if word != -1]
+                [num_to_char(word).numpy().decode('utf-8')
+                 for word in labels[i].numpy() if word != -1]
             )
             prediction = tf.strings.reduce_join(
-                [num_to_char(word).numpy().decode('utf-8') for word in sequence.numpy() if word != -1]
+                [num_to_char(word).numpy().decode('utf-8')
+                 for word in sequence.numpy() if word != -1]
             )
             print(f"Original: {original} | Prediction: {prediction}")
 
@@ -167,7 +179,8 @@ def main():
     """
     Main function to train or test the model.
     """
-    action = input("Enter 'train' to train the model or 'test' to test the model: ").strip().lower()
+    action = input(
+        "Enter 'train' to train the model or 'test' to test the model: ").strip().lower()
     if action == 'train':
         train_model()
     elif action == 'test':

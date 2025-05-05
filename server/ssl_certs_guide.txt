@@ -1,0 +1,10 @@
+Create a folder under server/
+-----------------------------------------
+mkdir certs
+
+
+Do not cd into the folder and run on the server/ folder
+-----------------------------------------
+openssl req -x509 -newkey rsa:4096 -sha256 -days 365 -nodes \
+  -keyout certs/key.pem -out certs/cert.pem \
+  -subj "/CN=localhost"

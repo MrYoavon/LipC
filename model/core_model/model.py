@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 from tensorflow.keras.regularizers import l2
 
-from model.constants import MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, BATCH_SIZE
+from constants import MAX_FRAMES, VIDEO_HEIGHT, VIDEO_WIDTH, BATCH_SIZE
 
 
 ###########################################
@@ -38,11 +38,14 @@ class LipReadingModel:
         print(f"Input Shape: {self.input_shape}")
 
         # 3D Convolution layers to extract spatial and temporal features
-        model.add(layers.Conv3D(128, kernel_size=3, padding='same', activation='relu'))
+        model.add(layers.Conv3D(128, kernel_size=3,
+                  padding='same', activation='relu'))
         model.add(layers.MaxPool3D((1, 2, 2), padding='same'))
-        model.add(layers.Conv3D(256, kernel_size=3, padding='same', activation='relu'))
+        model.add(layers.Conv3D(256, kernel_size=3,
+                  padding='same', activation='relu'))
         model.add(layers.MaxPool3D((1, 2, 2), padding='same'))
-        model.add(layers.Conv3D(MAX_FRAMES, kernel_size=3, padding='same', activation='relu'))
+        model.add(layers.Conv3D(MAX_FRAMES, kernel_size=3,
+                  padding='same', activation='relu'))
         model.add(layers.MaxPool3D((1, 2, 2), padding='same'))
 
         # Flatten the spatial dimensions across time using TimeDistributed

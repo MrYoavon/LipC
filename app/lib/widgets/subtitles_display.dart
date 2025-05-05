@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SubtitlesDisplay extends StatelessWidget {
-  final String subtitles;
-  const SubtitlesDisplay({
-    Key? key,
-    required this.subtitles,
-  }) : super(key: key);
+import '../providers/subtitles_provider.dart';
+
+class SubtitlesDisplay extends ConsumerWidget {
+  const SubtitlesDisplay({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final subtitles = ref.watch(subtitlesProvider);
     return Positioned(
       bottom: 110,
       left: 20,

@@ -1,0 +1,2176 @@
+29-04-2025 13:46:20 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 13:46:21 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 13:47:27 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 13:47:30 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 13:48:42 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 13:48:43 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 13:49:45 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 13:49:50 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 13:50:53 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 13:50:54 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 13:52:14 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 13:57:36 | ERROR    | root:163 | Handshake failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 161, in handle_connection
+    aes_key = await _perform_handshake(ws)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 77, in _perform_handshake
+    raise ValueError("Invalid handshake response")
+ValueError: Invalid handshake response
+29-04-2025 13:57:36 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 164, in handle_connection
+    await ws.send(json.dumps({"error": "Handshake failed"}))
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 476, in send
+    async with self.send_context():
+  File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 957, in send_context
+    raise self.protocol.close_exc from original_exc
+websockets.exceptions.ConnectionClosedOK: received 1000 (OK); then sent 1000 (OK)
+29-04-2025 14:05:48 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 14:07:09 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 14:30:10 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 14:33:02 | ERROR    | root:78 | Error receiving video frame: 
+29-04-2025 14:33:03 | ERROR    | root:109 | Error receiving audio frame: 
+29-04-2025 14:33:29 | ERROR    | root:109 | Error receiving audio frame: 
+29-04-2025 14:33:30 | ERROR    | root:78 | Error receiving video frame: 
+29-04-2025 14:33:57 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+29-04-2025 14:33:58 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+30-04-2025 14:37:27 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+30-04-2025 18:06:33 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+30-04-2025 18:15:42 | ERROR    | root:78 | Error receiving video frame: 
+30-04-2025 18:15:43 | ERROR    | root:78 | Error receiving video frame: 
+30-04-2025 18:19:11 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+30-04-2025 18:19:12 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+30-04-2025 18:21:32 | ERROR    | root:191 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 168, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 11:11:22 | ERROR    | handlers.connection:193 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 170, in handle_connection
+    async for raw in ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 20:25:36 | ERROR    | handlers.connection:128 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 125, in handle_connection
+    await self._dispatch(data)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 228, in _dispatch
+    return await handler(self.ws, data, self.aes_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: AuthHandler.handle_refresh_token() takes 3 positional arguments but 4 were given
+01-05-2025 20:27:28 | ERROR    | handlers.connection:128 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 105, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 20:30:30 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:30:34 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:30:47 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:31:02 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:31:20 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:31:34 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:31:52 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:32:06 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:32:16 | ERROR    | handlers.connection:128 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 105, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 20:32:33 | ERROR    | handlers.connection:100 | Handshake failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 98, in handle_connection
+    self.aes_key = await self._perform_handshake()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 160, in _perform_handshake
+    raise ValueError("Invalid handshake response")
+ValueError: Invalid handshake response
+01-05-2025 20:32:38 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:32:43 | ERROR    | asyncio:1821 | Task exception was never retrieved
+future: <Task finished name='Task-45' coro=<ConnectionHandler._heartbeat() done, defined at /home/yoav/VSCode/Lip-C/server/handlers/connection.py:168> exception=TypeError("'float' object is not subscriptable")>
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 180, in _heartbeat
+    if time.time() - self.last_ping[0] > HEARTBEAT_TIMEOUT:
+                     ~~~~~~~~~~~~~~^^^
+TypeError: 'float' object is not subscriptable
+01-05-2025 20:32:57 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:33:10 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:33:29 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:33:42 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:34:01 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:34:15 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:34:33 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:34:37 | ERROR    | handlers.connection:128 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 105, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 20:53:22 | ERROR    | handlers.connection:100 | Handshake failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 98, in handle_connection
+    self.aes_key = await self._perform_handshake()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 160, in _perform_handshake
+    raise ValueError("Invalid handshake response")
+ValueError: Invalid handshake response
+01-05-2025 20:53:22 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 101, in handle_connection
+    await self.ws.send(json.dumps({"error": "Handshake failed"}))
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 476, in send
+    async with self.send_context():
+  File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 957, in send_context
+    raise self.protocol.close_exc from original_exc
+websockets.exceptions.ConnectionClosedOK: received 1000 (OK); then sent 1000 (OK)
+01-05-2025 20:53:27 | ERROR    | services.crypto_utils:202 | Failed to send encrypted message: received 1000 (OK); then sent 1000 (OK)
+01-05-2025 20:53:32 | ERROR    | asyncio:1821 | Task exception was never retrieved
+future: <Task finished name='Task-81' coro=<ConnectionHandler._heartbeat() done, defined at /home/yoav/VSCode/Lip-C/server/handlers/connection.py:168> exception=TypeError("'float' object is not subscriptable")>
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 180, in _heartbeat
+    if time.time() - self.last_ping[0] > HEARTBEAT_TIMEOUT:
+                     ~~~~~~~~~~~~~~^^^
+TypeError: 'float' object is not subscriptable
+01-05-2025 20:53:48 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:54:09 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:54:31 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:54:43 | ERROR    | handlers.connection:128 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 105, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 20:54:44 | ERROR    | handlers.connection:128 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 105, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 20:54:46 | ERROR    | handlers.connection:128 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 105, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 308, in recv
+    raise ConcurrencyError(
+websockets.exceptions.ConcurrencyError: cannot call recv while another coroutine is already running recv or recv_streaming
+01-05-2025 20:54:55 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:55:08 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:55:15 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:55:27 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:55:40 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:55:59 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:56:12 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:56:31 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:56:41 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:56:54 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:57:13 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 204, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:57:28 | ERROR    | handlers.connection:128 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 105, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 308, in recv
+    raise ConcurrencyError(
+websockets.exceptions.ConcurrencyError: cannot call recv while another coroutine is already running recv or recv_streaming
+01-05-2025 20:57:37 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 205, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:57:51 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 205, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:58:09 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 205, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:58:23 | ERROR    | handlers.connection:115 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 113, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 205, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:58:50 | ERROR    | handlers.connection:129 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 106, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 20:59:31 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 206, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 20:59:52 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 206, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:00:13 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 206, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:00:34 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 206, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:00:55 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 206, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:01:16 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 206, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:01:37 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 206, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:01:58 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 206, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:02:19 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 206, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:02:40 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 206, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:03:01 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 206, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:03:41 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:04:03 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:04:19 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:04:35 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:04:51 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:05:07 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:05:23 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:05:39 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:05:55 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:06:11 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:06:27 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:06:43 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:06:59 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:07:15 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:07:31 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:07:47 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:08:03 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:08:19 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:08:35 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:08:51 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:09:07 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:09:23 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:09:39 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:10:00 | ERROR    | handlers.connection:130 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 106, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 308, in recv
+    raise ConcurrencyError(
+websockets.exceptions.ConcurrencyError: cannot call recv while another coroutine is already running recv or recv_streaming
+01-05-2025 21:10:09 | ERROR    | handlers.connection:117 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 115, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 208, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:10:43 | ERROR    | handlers.connection:117 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 115, in handle_connection
+    except Exception as e:
+               ^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 208, in _decrypt_and_parse
+    return json.loads(plain.decode())
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:10:53 | ERROR    | handlers.connection:130 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 106, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 21:12:33 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:12:51 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:13:05 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:13:23 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:13:37 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:13:55 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:14:09 | ERROR    | handlers.connection:116 | Decrypt/parse error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 170, in decrypt_message
+    plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+                                               ^^^^^^^^^^^^^^^^^^^^
+cryptography.exceptions.InvalidTag
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 114, in handle_connection
+    data = await self._decrypt_and_parse(raw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 207, in _decrypt_and_parse
+    plain = decrypt_message(self.aes_key, nonce, ct, tag)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/services/crypto_utils.py", line 173, in decrypt_message
+    raise Exception("Decryption failed: " + str(e))
+Exception: Decryption failed: 
+01-05-2025 21:14:59 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: connection_entry() missing 1 required positional argument: 'path'
+01-05-2025 21:15:01 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: connection_entry() missing 1 required positional argument: 'path'
+01-05-2025 21:15:02 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: connection_entry() missing 1 required positional argument: 'path'
+01-05-2025 21:15:03 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: connection_entry() missing 1 required positional argument: 'path'
+01-05-2025 21:15:06 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: connection_entry() missing 1 required positional argument: 'path'
+01-05-2025 21:15:07 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: connection_entry() missing 1 required positional argument: 'path'
+01-05-2025 21:15:12 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: connection_entry() missing 1 required positional argument: 'path'
+01-05-2025 21:15:22 | ERROR    | handlers.connection:129 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 106, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 21:16:11 | ERROR    | handlers.signaling_handler:104 | Error receiving video frame: 
+01-05-2025 21:16:12 | ERROR    | handlers.signaling_handler:104 | Error receiving video frame: 
+01-05-2025 21:18:24 | ERROR    | handlers.connection:129 | Connection loop error
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/selector_events.py", line 988, in _read_ready__get_buffer
+    nbytes = self._sock.recv_into(buf)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 106, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 21:18:36 | ERROR    | handlers.connection:129 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 106, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 21:18:38 | ERROR    | handlers.connection:129 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 106, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+01-05-2025 21:21:16 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 108, in handle_connection
+    async for raw in self.ws:
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 242, in __aiter__
+    yield await self.recv()
+          ^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 322, in recv
+    raise self.protocol.close_exc from self.recv_exc
+websockets.exceptions.ConnectionClosedError: no close frame received or sent
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+  File "/home/yoav/VSCode/Lip-C/server/app.py", line 87, in connection_entry
+    await handler.handle_connection(ws)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 129, in handle_connection
+    except websockets.exceptions.CibbectuibCkisedError:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/imports.py", line 93, in __getattr__
+    raise AttributeError(f"module {package!r} has no attribute {name!r}")
+AttributeError: module 'websockets.exceptions' has no attribute 'CibbectuibCkisedError'
+03-05-2025 19:09:46 | ERROR    | handlers.connection:103 | Handshake failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 100, in handle_connection
+    self.aes_key = await self._perform_handshake()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 166, in _perform_handshake
+    raise ValueError(
+ValueError: Invalid handshake response | None
+03-05-2025 19:09:46 | ERROR    | websockets.server:378 | connection handler failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/server.py", line 376, in conn_handler
+    await self.handler(connection)
+  File "/home/yoav/VSCode/Lip-C/server/app.py", line 87, in connection_entry
+    await handler.handle_connection(ws)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 104, in handle_connection
+    await self.ws.send(json.dumps({"error": "Handshake failed"}))
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 476, in send
+    async with self.send_context():
+  File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/websockets/asyncio/connection.py", line 957, in send_context
+    raise self.protocol.close_exc from original_exc
+websockets.exceptions.ConnectionClosedOK: received 1000 (OK); then sent 1000 (OK)
+03-05-2025 19:09:56 | ERROR    | asyncio:1821 | Task exception was never retrieved
+future: <Task finished name='Task-21' coro=<ConnectionHandler._heartbeat() done, defined at /home/yoav/VSCode/Lip-C/server/handlers/connection.py:175> exception=TypeError("'float' object is not subscriptable")>
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 187, in _heartbeat
+    if time.time() - self.last_ping[0] > HEARTBEAT_TIMEOUT:
+                     ~~~~~~~~~~~~~~^^^
+TypeError: 'float' object is not subscriptable
+03-05-2025 19:21:00 | ERROR    | handlers.connection:134 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 128, in handle_connection
+    await self._dispatch(data)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 235, in _dispatch
+    return await handler(self.ws, data, self.aes_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/auth_handler.py", line 59, in handle_authentication
+    now = datetime.utcnow()
+          ^^^^^^^^^^^^^^^
+AttributeError: module 'datetime' has no attribute 'utcnow'
+03-05-2025 19:21:33 | ERROR    | handlers.connection:134 | Connection loop error
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 128, in handle_connection
+    await self._dispatch(data)
+  File "/home/yoav/VSCode/Lip-C/server/handlers/connection.py", line 235, in _dispatch
+    return await handler(self.ws, data, self.aes_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/handlers/auth_handler.py", line 59, in handle_authentication
+    now = datetime.now()
+          ^^^^^^^^^^^^
+AttributeError: module 'datetime' has no attribute 'now'
+05-05-2025 19:03:28 | ERROR    | handlers.auth_handler:321 | Failed to refresh token: object str can't be used in 'await' expression
+05-05-2025 19:03:45 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 67d6bae7386c75bcc71b6890: object AsyncIOMotorCursor can't be used in 'await' expression
+05-05-2025 19:04:56 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 67d6bae7386c75bcc71b6890: 'AsyncIOMotorCursor' object is not iterable
+05-05-2025 19:07:43 | ERROR    | handlers.auth_handler:321 | Failed to refresh token: object str can't be used in 'await' expression
+05-05-2025 19:07:53 | ERROR    | handlers.auth_handler:321 | Failed to refresh token: object str can't be used in 'await' expression
+05-05-2025 19:15:04 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:15:05 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:15:08 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:15:14 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:16:49 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:18:53 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:18:53 | ERROR    | asyncio:1821 | Exception in callback AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95
+handle: <Handle AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 103, in callback
+    self.emit("error", exc)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 68, in emit
+    return super().emit(event, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 215, in emit
+    self._emit_handle_potential_error(event, args[0] if args else None)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 173, in _emit_handle_potential_error
+    raise error
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 267, in _on_pc_state
+    await self._terminate_call()
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 281, in _terminate_call
+    await asyncio.to_thread(await finish_call, self.call_id)
+                            ^^^^^^^^^^^^^^^^^
+TypeError: object function can't be used in 'await' expression
+05-05-2025 19:18:54 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:18:54 | ERROR    | asyncio:1821 | Exception in callback AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95
+handle: <Handle AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 103, in callback
+    self.emit("error", exc)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 68, in emit
+    return super().emit(event, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 215, in emit
+    self._emit_handle_potential_error(event, args[0] if args else None)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 173, in _emit_handle_potential_error
+    raise error
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 267, in _on_pc_state
+    await self._terminate_call()
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 281, in _terminate_call
+    await asyncio.to_thread(await finish_call, self.call_id)
+                            ^^^^^^^^^^^^^^^^^
+TypeError: object function can't be used in 'await' expression
+05-05-2025 19:18:56 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:20:47 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:20:48 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 

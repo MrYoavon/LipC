@@ -19,7 +19,7 @@ def decode_predictions(y_pred: tf.Tensor, beam_width: int = 10):
     input_length = tf.fill([tf.shape(y_pred)[1]], tf.shape(y_pred)[0])
 
     # Perform beam search decoding with CTC loss support
-    decoded, log_prob = tf.nn.ctc_beam_search_decoder(
+    decoded, _ = tf.nn.ctc_beam_search_decoder(
         y_pred,
         sequence_length=input_length,
         beam_width=beam_width
