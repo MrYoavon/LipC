@@ -154,7 +154,7 @@ def test_model():
         predictions = model(videos, training=False)
 
         # Decode predictions using beam search (may need updating)
-        decoded_predictions = decode_predictions(predictions, beam_width=10)
+        decoded_predictions = decode_predictions(tf.cast(predictions, tf.float32), beam_width=10)
         dense_decoded = tf.sparse.to_dense(
             decoded_predictions[0], default_value=-1)
 
