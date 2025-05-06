@@ -143,10 +143,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                     /// Logo at the top
                     Image.asset(
-                      'assets/logo.png',
+                      'assets/app_logo.png',
                       width: 80,
                       height: 80,
-                      color: AppColors.accent,
                     ),
                     // const SizedBox(height: 20),
 

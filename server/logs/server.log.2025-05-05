@@ -1,0 +1,813 @@
+05-05-2025 18:59:05 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 18:59:05 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 18:59:05 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 18:59:05 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 18:59:07 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 19:02:46 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 19:02:46 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 19:02:46 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 19:02:46 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 19:02:47 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 19:02:47 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 19:03:14 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:03:14 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:03:15 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:03:27 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:03:27 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:03:28 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:03:28 | ERROR    | handlers.auth_handler:321 | Failed to refresh token: object str can't be used in 'await' expression
+05-05-2025 19:03:32 | INFO     | handlers.auth_handler:121 | User 'yoavon2' authenticated with ID 680d405ca183764e786f0ef9.
+05-05-2025 19:03:32 | INFO     | handlers.contacts_handler:104 | Retrieved 3 contacts for user '680d405ca183764e786f0ef9'
+05-05-2025 19:03:32 | INFO     | handlers.contacts_handler:104 | Retrieved 3 contacts for user '680d405ca183764e786f0ef9'
+05-05-2025 19:03:32 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+05-05-2025 19:03:32 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to vosk
+05-05-2025 19:03:41 | INFO     | handlers.auth_handler:121 | User 'idodo' authenticated with ID 67d6bae7386c75bcc71b6890.
+05-05-2025 19:03:42 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:03:42 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:03:42 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 19:03:42 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 19:03:45 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 67d6bae7386c75bcc71b6890: object AsyncIOMotorCursor can't be used in 'await' expression
+05-05-2025 19:04:38 | INFO     | websockets.server:440 | server closing
+05-05-2025 19:04:38 | INFO     | websockets.server:473 | server closed
+05-05-2025 19:04:43 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 19:04:43 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 19:04:43 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 19:04:43 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 19:04:45 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 19:04:45 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 19:04:50 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:04:50 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:04:50 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:04:50 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:04:50 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:04:51 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:04:56 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 67d6bae7386c75bcc71b6890: 'AsyncIOMotorCursor' object is not iterable
+05-05-2025 19:05:21 | INFO     | handlers.connection:130 | Connection closed by client
+05-05-2025 19:06:49 | INFO     | websockets.server:440 | server closing
+05-05-2025 19:06:49 | INFO     | websockets.server:473 | server closed
+05-05-2025 19:06:55 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 19:06:55 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 19:06:55 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 19:06:55 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 19:06:57 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 19:06:57 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 19:07:01 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:07:01 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:07:01 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:07:01 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:07:01 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:07:02 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:07:05 | INFO     | handlers.call_history_handler:43 | Fetched 35 history entries for user 67d6bae7386c75bcc71b6890
+05-05-2025 19:07:25 | INFO     | handlers.connection:130 | Connection closed by client
+05-05-2025 19:07:31 | INFO     | handlers.connection:130 | Connection closed by client
+05-05-2025 19:07:42 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:07:42 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:07:43 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:07:43 | ERROR    | handlers.auth_handler:321 | Failed to refresh token: object str can't be used in 'await' expression
+05-05-2025 19:07:52 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:07:52 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:07:53 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:07:53 | ERROR    | handlers.auth_handler:321 | Failed to refresh token: object str can't be used in 'await' expression
+05-05-2025 19:08:41 | INFO     | handlers.connection:130 | Connection closed by client
+05-05-2025 19:11:17 | INFO     | websockets.server:440 | server closing
+05-05-2025 19:11:17 | INFO     | websockets.server:473 | server closed
+05-05-2025 19:11:23 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 19:11:23 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 19:11:23 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 19:11:23 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 19:11:24 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 19:11:25 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 19:11:41 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:11:41 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:11:42 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:12:18 | INFO     | handlers.auth_handler:121 | User 'idodo' authenticated with ID 67d6bae7386c75bcc71b6890.
+05-05-2025 19:12:19 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:12:19 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:12:19 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 19:12:19 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 19:12:21 | INFO     | handlers.auth_handler:363 | User ID 67d6bae7386c75bcc71b6890 logged out.
+05-05-2025 19:12:31 | INFO     | handlers.auth_handler:121 | User 'idodo' authenticated with ID 67d6bae7386c75bcc71b6890.
+05-05-2025 19:12:31 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:12:31 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 19:12:35 | INFO     | handlers.connection:130 | Connection closed by client
+05-05-2025 19:12:49 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:12:49 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:12:50 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:12:51 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 67d6bae7386c75bcc71b6890.
+05-05-2025 19:12:51 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:12:51 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:12:52 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 19:12:52 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 19:12:59 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to vosk
+05-05-2025 19:13:00 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 19:13:02 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to vosk
+05-05-2025 19:13:22 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:13:22 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:13:23 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:13:35 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon'.
+05-05-2025 19:13:40 | INFO     | handlers.auth_handler:121 | User 'yoavon2' authenticated with ID 680d405ca183764e786f0ef9.
+05-05-2025 19:13:41 | INFO     | handlers.contacts_handler:104 | Retrieved 3 contacts for user '680d405ca183764e786f0ef9'
+05-05-2025 19:13:41 | INFO     | handlers.contacts_handler:104 | Retrieved 3 contacts for user '680d405ca183764e786f0ef9'
+05-05-2025 19:13:41 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+05-05-2025 19:13:41 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to vosk
+05-05-2025 19:13:43 | INFO     | handlers.call_history_handler:43 | Fetched 7 history entries for user 680d405ca183764e786f0ef9
+05-05-2025 19:13:50 | INFO     | handlers.call_handler:34 | Call invite from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:50 | INFO     | handlers.call_handler:100 | Call rejected by 67d6bae7386c75bcc71b6890 for 680d405ca183764e786f0ef9
+05-05-2025 19:13:54 | INFO     | handlers.call_handler:34 | Call invite from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:56 | INFO     | handlers.call_handler:67 | Call accepted by 67d6bae7386c75bcc71b6890 for 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:320 | Offer from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:320 | Offer from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:472 | Server-side offer from 680d405ca183764e786f0ef9 for 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:65 | Received audio track from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:65 | Received video track from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:229 | Generated answer for 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:486 | Sent server answer to 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 35595) -> ('192.168.1.103', 35840)) State.FROZEN -> State.WAITING
+05-05-2025 19:13:58 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 35595) -> ('192.168.1.103', 45362)) State.FROZEN -> State.WAITING
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:265 | PC state for 680d405ca183764e786f0ef9: connecting
+05-05-2025 19:13:58 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 35595) -> ('192.168.1.103', 35840)) State.WAITING -> State.IN_PROGRESS
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 35595) -> ('192.168.1.103', 35840)) State.IN_PROGRESS -> State.SUCCEEDED
+05-05-2025 19:13:58 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 35595) -> ('127.0.0.1', 49519)) State.FROZEN -> State.WAITING
+05-05-2025 19:13:58 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 35595) -> ('85.64.204.58', 31986)) State.FROZEN -> State.WAITING
+05-05-2025 19:13:58 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 35595) -> ('192.168.1.103', 45362)) State.WAITING -> State.FAILED
+05-05-2025 19:13:58 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 35595) -> ('127.0.0.1', 49519)) State.WAITING -> State.FAILED
+05-05-2025 19:13:58 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 35595) -> ('85.64.204.58', 31986)) State.WAITING -> State.FAILED
+05-05-2025 19:13:58 | INFO     | aioice.ice:1114 | Connection(0) ICE completed
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:265 | PC state for 680d405ca183764e786f0ef9: connected
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:58 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:371 | Answer from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:136 | Starting Vosk audio for 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:320 | Offer from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:472 | Server-side offer from 67d6bae7386c75bcc71b6890 for 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:65 | Received audio track from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:136 | Starting Vosk audio for 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:65 | Received video track from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:229 | Generated answer for 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:486 | Sent server answer to 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 56208) -> ('192.168.1.184', 35201)) State.FROZEN -> State.WAITING
+05-05-2025 19:13:59 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 56208) -> ('127.0.0.1', 49368)) State.FROZEN -> State.WAITING
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:265 | PC state for 67d6bae7386c75bcc71b6890: connecting
+05-05-2025 19:13:59 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 56208) -> ('192.168.1.184', 35201)) State.WAITING -> State.IN_PROGRESS
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 56208) -> ('192.168.1.184', 35201)) State.IN_PROGRESS -> State.SUCCEEDED
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 56208) -> ('127.0.0.1', 49368)) State.WAITING -> State.IN_PROGRESS
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 56208) -> ('85.64.204.58', 39124)) State.FROZEN -> State.IN_PROGRESS
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | aioice.ice:1114 | Connection(2) ICE completed
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:265 | PC state for 67d6bae7386c75bcc71b6890: connected
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:13:59 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:14:17 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello
+05-05-2025 19:14:17 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello hello
+05-05-2025 19:14:18 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello hello
+05-05-2025 19:14:18 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello hello testing to see
+05-05-2025 19:14:19 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello hello testing testing testing
+05-05-2025 19:14:19 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello hello testing testing testing
+05-05-2025 19:14:20 | INFO     | handlers.signaling_handler:175 | Vosk final result for 680d405ca183764e786f0ef9: obama hello hello hello testing testing testing
+05-05-2025 19:14:26 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello
+05-05-2025 19:14:26 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello global
+05-05-2025 19:14:27 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello interesting
+05-05-2025 19:14:27 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the
+05-05-2025 19:14:28 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local police
+05-05-2025 19:14:28 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local regional distinctions
+05-05-2025 19:14:29 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing for
+05-05-2025 19:14:29 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing have been a lot
+05-05-2025 19:14:30 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing the local police
+05-05-2025 19:14:30 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing hello hello hello this is
+05-05-2025 19:14:31 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface
+05-05-2025 19:14:31 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you
+05-05-2025 19:14:32 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look lovely
+05-05-2025 19:14:32 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look to
+05-05-2025 19:14:33 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is the synthesis
+05-05-2025 19:14:33 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and
+05-05-2025 19:14:34 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look distances interesting at all over the will
+05-05-2025 19:14:34 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll
+05-05-2025 19:14:35 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:35 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:36 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:36 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:37 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:37 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:38 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:38 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll was in the
+05-05-2025 19:14:39 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:39 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:40 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:40 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:41 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll never know when
+05-05-2025 19:14:41 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll win win win for losing
+05-05-2025 19:14:42 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll win win win win win
+05-05-2025 19:14:42 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:43 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll be
+05-05-2025 19:14:43 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:44 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:44 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing testing a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:45 | INFO     | handlers.signaling_handler:175 | Vosk final result for 680d405ca183764e786f0ef9: hello hello is interesting because the local blue testing testing been a local of below the surface interest you look look look this is interesting and we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll we'll
+05-05-2025 19:14:45 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: when he was
+05-05-2025 19:14:46 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: when he was wearing
+05-05-2025 19:14:46 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: when he was looking for the
+05-05-2025 19:14:47 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: when he was wearing one
+05-05-2025 19:14:47 | INFO     | handlers.signaling_handler:175 | Vosk final result for 680d405ca183764e786f0ef9: really was will bring one
+05-05-2025 19:14:59 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 67d6bae7386c75bcc71b6890: along with
+05-05-2025 19:14:59 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 67d6bae7386c75bcc71b6890: along with
+05-05-2025 19:15:00 | INFO     | handlers.signaling_handler:175 | Vosk final result for 67d6bae7386c75bcc71b6890: a level of
+05-05-2025 19:15:04 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:15:04 | INFO     | handlers.signaling_handler:189 | Vosk final result for 680d405ca183764e786f0ef9: {'text': ''}
+05-05-2025 19:15:04 | INFO     | handlers.signaling_handler:265 | PC state for 680d405ca183764e786f0ef9: closed
+05-05-2025 19:15:04 | INFO     | handlers.signaling_handler:286 | Call 6818e3c7c3012346b0392f3c ended for 680d405ca183764e786f0ef9
+05-05-2025 19:15:04 | INFO     | handlers.call_handler:134 | Call end request from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:15:05 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:15:05 | INFO     | handlers.signaling_handler:189 | Vosk final result for 67d6bae7386c75bcc71b6890: {'text': ''}
+05-05-2025 19:15:05 | INFO     | handlers.signaling_handler:265 | PC state for 67d6bae7386c75bcc71b6890: closed
+05-05-2025 19:15:05 | INFO     | handlers.signaling_handler:286 | Call 6818e3c7c3012346b0392f3c ended for 67d6bae7386c75bcc71b6890
+05-05-2025 19:15:08 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:15:14 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:16:34 | INFO     | websockets.server:440 | server closing
+05-05-2025 19:16:34 | INFO     | websockets.server:473 | server closed
+05-05-2025 19:16:41 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 19:16:41 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 19:16:41 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 19:16:41 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 19:16:43 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 19:16:43 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 19:16:46 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:16:46 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:16:46 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:16:46 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:16:47 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:16:47 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:16:49 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:17:30 | INFO     | handlers.call_history_handler:43 | Fetched 7 history entries for user 680d405ca183764e786f0ef9
+05-05-2025 19:17:34 | INFO     | handlers.call_handler:34 | Call invite from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:17:41 | INFO     | handlers.connection:130 | Connection closed by client
+05-05-2025 19:17:41 | INFO     | handlers.connection:130 | Connection closed by client
+05-05-2025 19:17:42 | INFO     | websockets.server:440 | server closing
+05-05-2025 19:17:42 | INFO     | websockets.server:473 | server closed
+05-05-2025 19:17:48 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 19:17:48 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 19:17:48 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 19:17:48 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 19:17:50 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 19:17:50 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 19:17:58 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:17:58 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:17:59 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:17:59 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 680d405ca183764e786f0ef9.
+05-05-2025 19:17:59 | INFO     | handlers.contacts_handler:104 | Retrieved 3 contacts for user '680d405ca183764e786f0ef9'
+05-05-2025 19:17:59 | INFO     | handlers.contacts_handler:104 | Retrieved 3 contacts for user '680d405ca183764e786f0ef9'
+05-05-2025 19:18:00 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+05-05-2025 19:18:00 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to vosk
+05-05-2025 19:18:05 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:18:05 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:18:06 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:18:06 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 67d6bae7386c75bcc71b6890.
+05-05-2025 19:18:06 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:18:06 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:18:07 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 19:18:07 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to vosk
+05-05-2025 19:18:10 | INFO     | handlers.call_handler:34 | Call invite from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:12 | INFO     | handlers.call_handler:67 | Call accepted by 67d6bae7386c75bcc71b6890 for 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:320 | Offer from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:320 | Offer from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:472 | Server-side offer from 680d405ca183764e786f0ef9 for 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:65 | Received audio track from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:65 | Received video track from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:229 | Generated answer for 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:486 | Sent server answer to 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:14 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 55480) -> ('192.168.1.103', 52089)) State.FROZEN -> State.WAITING
+05-05-2025 19:18:14 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 55480) -> ('192.168.1.103', 46109)) State.FROZEN -> State.WAITING
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:265 | PC state for 680d405ca183764e786f0ef9: connecting
+05-05-2025 19:18:14 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 55480) -> ('192.168.1.103', 52089)) State.WAITING -> State.IN_PROGRESS
+05-05-2025 19:18:14 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 55480) -> ('192.168.1.103', 52089)) State.IN_PROGRESS -> State.SUCCEEDED
+05-05-2025 19:18:14 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 55480) -> ('127.0.0.1', 40673)) State.FROZEN -> State.WAITING
+05-05-2025 19:18:14 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 55480) -> ('85.64.204.58', 36309)) State.FROZEN -> State.WAITING
+05-05-2025 19:18:14 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 55480) -> ('192.168.1.103', 46109)) State.WAITING -> State.IN_PROGRESS
+05-05-2025 19:18:14 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 55480) -> ('127.0.0.1', 40673)) State.WAITING -> State.FAILED
+05-05-2025 19:18:14 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 55480) -> ('85.64.204.58', 36309)) State.WAITING -> State.FAILED
+05-05-2025 19:18:14 | INFO     | aioice.ice:1114 | Connection(0) ICE completed
+05-05-2025 19:18:14 | INFO     | handlers.signaling_handler:265 | PC state for 680d405ca183764e786f0ef9: connected
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:371 | Answer from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:320 | Offer from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:472 | Server-side offer from 67d6bae7386c75bcc71b6890 for 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:65 | Received audio track from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:136 | Starting Vosk audio for 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:65 | Received video track from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:229 | Generated answer for 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:486 | Sent server answer to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 36545) -> ('192.168.1.184', 39397)) State.FROZEN -> State.WAITING
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:265 | PC state for 67d6bae7386c75bcc71b6890: connecting
+05-05-2025 19:18:15 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 36545) -> ('192.168.1.184', 39397)) State.WAITING -> State.IN_PROGRESS
+05-05-2025 19:18:15 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 36545) -> ('192.168.1.184', 39397)) State.IN_PROGRESS -> State.SUCCEEDED
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 36545) -> ('127.0.0.1', 38226)) State.FROZEN -> State.IN_PROGRESS
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:136 | Starting Vosk audio for 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 36545) -> ('85.64.204.58', 9948)) State.FROZEN -> State.IN_PROGRESS
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | aioice.ice:1114 | Connection(2) ICE completed
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:15 | INFO     | handlers.signaling_handler:265 | PC state for 67d6bae7386c75bcc71b6890: connected
+05-05-2025 19:18:20 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello
+05-05-2025 19:18:20 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello hello
+05-05-2025 19:18:21 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello hello
+05-05-2025 19:18:21 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello hello testing testing
+05-05-2025 19:18:22 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello hello testing testing testing
+05-05-2025 19:18:22 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello hello hello testing testing testing
+05-05-2025 19:18:23 | INFO     | handlers.signaling_handler:175 | Vosk final result for 680d405ca183764e786f0ef9: hello hello hello testing testing testing
+05-05-2025 19:18:23 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: a
+05-05-2025 19:18:24 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: a local wanted
+05-05-2025 19:18:24 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: a local wonder if they want
+05-05-2025 19:18:25 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: a local wonder if they want to for you and
+05-05-2025 19:18:25 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: a local wonder if they want to for you and of in
+05-05-2025 19:18:26 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: a local wonder if they want to for you and of in a while
+05-05-2025 19:18:26 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: a local wonder if they want to for you and of and a one two three
+05-05-2025 19:18:27 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: a local wonder if they want to for you and of and a one two three
+05-05-2025 19:18:27 | INFO     | handlers.signaling_handler:175 | Vosk final result for 680d405ca183764e786f0ef9: a local want if they want to for you and of and a one two three
+05-05-2025 19:18:30 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello want
+05-05-2025 19:18:31 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello want to think a lot
+05-05-2025 19:18:31 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello want to claim fellow wanted to
+05-05-2025 19:18:32 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello want to think i'm a wonderful thing
+05-05-2025 19:18:32 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello want to think i'm a wonderful thing the
+05-05-2025 19:18:33 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello want to think i'm a wonderful thing the bear walked
+05-05-2025 19:18:33 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello want to think i'm a wonderful thing the bear walked into the
+05-05-2025 19:18:34 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: hello want to think i'm a wonderful thing the bear walked into the boss
+05-05-2025 19:18:34 | INFO     | handlers.signaling_handler:175 | Vosk final result for 680d405ca183764e786f0ef9: hello want to claim fellow wanted to thing the bear walked into the boss
+05-05-2025 19:18:42 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 67d6bae7386c75bcc71b6890: the
+05-05-2025 19:18:44 | INFO     | handlers.signaling_handler:175 | Vosk final result for 67d6bae7386c75bcc71b6890: hello
+05-05-2025 19:18:45 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 67d6bae7386c75bcc71b6890: oh
+05-05-2025 19:18:45 | INFO     | handlers.signaling_handler:175 | Vosk final result for 67d6bae7386c75bcc71b6890: oh hello
+05-05-2025 19:18:53 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:18:53 | INFO     | handlers.signaling_handler:189 | Vosk final result for 680d405ca183764e786f0ef9: {'text': ''}
+05-05-2025 19:18:53 | INFO     | handlers.signaling_handler:265 | PC state for 680d405ca183764e786f0ef9: closed
+05-05-2025 19:18:53 | ERROR    | asyncio:1821 | Exception in callback AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95
+handle: <Handle AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 103, in callback
+    self.emit("error", exc)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 68, in emit
+    return super().emit(event, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 215, in emit
+    self._emit_handle_potential_error(event, args[0] if args else None)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 173, in _emit_handle_potential_error
+    raise error
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 267, in _on_pc_state
+    await self._terminate_call()
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 281, in _terminate_call
+    await asyncio.to_thread(await finish_call, self.call_id)
+                            ^^^^^^^^^^^^^^^^^
+TypeError: object function can't be used in 'await' expression
+05-05-2025 19:18:53 | INFO     | handlers.call_handler:134 | Call end request from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:18:54 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:18:54 | INFO     | handlers.signaling_handler:189 | Vosk final result for 67d6bae7386c75bcc71b6890: {'text': 'but'}
+05-05-2025 19:18:54 | INFO     | handlers.signaling_handler:265 | PC state for 67d6bae7386c75bcc71b6890: closed
+05-05-2025 19:18:54 | ERROR    | asyncio:1821 | Exception in callback AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95
+handle: <Handle AsyncIOEventEmitter._emit_run.<locals>.callback(<Task finishe... expression")>) at /home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py:95>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 103, in callback
+    self.emit("error", exc)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/asyncio.py", line 68, in emit
+    return super().emit(event, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 215, in emit
+    self._emit_handle_potential_error(event, args[0] if args else None)
+  File "/home/yoav/VSCode/Lip-C/server/venv/lib/python3.12/site-packages/pyee/base.py", line 173, in _emit_handle_potential_error
+    raise error
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 267, in _on_pc_state
+    await self._terminate_call()
+  File "/home/yoav/VSCode/Lip-C/server/handlers/signaling_handler.py", line 281, in _terminate_call
+    await asyncio.to_thread(await finish_call, self.call_id)
+                            ^^^^^^^^^^^^^^^^^
+TypeError: object function can't be used in 'await' expression
+05-05-2025 19:18:56 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
+05-05-2025 19:19:24 | INFO     | websockets.server:440 | server closing
+05-05-2025 19:19:24 | INFO     | websockets.server:473 | server closed
+05-05-2025 19:19:49 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 19:19:49 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 19:19:49 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 19:19:49 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 19:19:51 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 19:19:51 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 19:20:00 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:20:00 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:20:00 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:20:00 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 680d405ca183764e786f0ef9.
+05-05-2025 19:20:01 | INFO     | handlers.contacts_handler:104 | Retrieved 3 contacts for user '680d405ca183764e786f0ef9'
+05-05-2025 19:20:01 | INFO     | handlers.contacts_handler:104 | Retrieved 3 contacts for user '680d405ca183764e786f0ef9'
+05-05-2025 19:20:01 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+05-05-2025 19:20:01 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to vosk
+05-05-2025 19:20:10 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:20:10 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:20:11 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:20:11 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 67d6bae7386c75bcc71b6890.
+05-05-2025 19:20:11 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:20:11 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:20:12 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 19:20:12 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to vosk
+05-05-2025 19:20:15 | INFO     | handlers.call_handler:34 | Call invite from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:17 | INFO     | handlers.call_handler:67 | Call accepted by 67d6bae7386c75bcc71b6890 for 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:320 | Offer from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:320 | Offer from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:472 | Server-side offer from 680d405ca183764e786f0ef9 for 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:65 | Received audio track from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:65 | Received video track from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:229 | Generated answer for 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:486 | Sent server answer to 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 59751) -> ('192.168.1.103', 48526)) State.FROZEN -> State.WAITING
+05-05-2025 19:20:19 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 59751) -> ('192.168.1.103', 38917)) State.FROZEN -> State.WAITING
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:265 | PC state for 680d405ca183764e786f0ef9: connecting
+05-05-2025 19:20:19 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 59751) -> ('192.168.1.103', 48526)) State.WAITING -> State.IN_PROGRESS
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 59751) -> ('192.168.1.103', 48526)) State.IN_PROGRESS -> State.SUCCEEDED
+05-05-2025 19:20:19 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 59751) -> ('127.0.0.1', 49947)) State.FROZEN -> State.WAITING
+05-05-2025 19:20:19 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 59751) -> ('85.64.204.58', 30611)) State.FROZEN -> State.WAITING
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 59751) -> ('192.168.1.103', 38917)) State.WAITING -> State.IN_PROGRESS
+05-05-2025 19:20:19 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 59751) -> ('127.0.0.1', 49947)) State.WAITING -> State.FAILED
+05-05-2025 19:20:19 | INFO     | aioice.ice:1114 | Connection(0) Check CandidatePair(('192.168.1.5', 59751) -> ('85.64.204.58', 30611)) State.WAITING -> State.FAILED
+05-05-2025 19:20:19 | INFO     | aioice.ice:1114 | Connection(0) ICE completed
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:265 | PC state for 680d405ca183764e786f0ef9: connected
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to server
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 680d405ca183764e786f0ef9
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:19 | INFO     | handlers.signaling_handler:423 | ICE candidate from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:371 | Answer from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:136 | Starting Vosk audio for 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:320 | Offer from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:472 | Server-side offer from 67d6bae7386c75bcc71b6890 for 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:65 | Received audio track from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:136 | Starting Vosk audio for 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:65 | Received video track from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:229 | Generated answer for 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:486 | Sent server answer to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 42187) -> ('192.168.1.184', 54999)) State.FROZEN -> State.WAITING
+05-05-2025 19:20:20 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 42187) -> ('127.0.0.1', 47906)) State.FROZEN -> State.WAITING
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:265 | PC state for 67d6bae7386c75bcc71b6890: connecting
+05-05-2025 19:20:20 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 42187) -> ('192.168.1.184', 54999)) State.WAITING -> State.IN_PROGRESS
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 42187) -> ('192.168.1.184', 54999)) State.IN_PROGRESS -> State.SUCCEEDED
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 42187) -> ('127.0.0.1', 47906)) State.WAITING -> State.IN_PROGRESS
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | aioice.ice:1114 | Connection(2) ICE completed
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:265 | PC state for 67d6bae7386c75bcc71b6890: connected
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:423 | ICE candidate from 67d6bae7386c75bcc71b6890 to server
+05-05-2025 19:20:20 | INFO     | handlers.signaling_handler:541 | Server-side ICE candidate from 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:21 | INFO     | aioice.ice:1114 | Connection(2) Check CandidatePair(('192.168.1.5', 42187) -> ('85.64.204.58', 45296)) State.FROZEN -> State.FAILED
+05-05-2025 19:20:24 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: the
+05-05-2025 19:20:25 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: the let alone
+05-05-2025 19:20:25 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: the level of interesting
+05-05-2025 19:20:26 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: the let alone testing testing
+05-05-2025 19:20:27 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: the let alone testing testing to
+05-05-2025 19:20:27 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 680d405ca183764e786f0ef9: the let alone testing testing terrific
+05-05-2025 19:20:27 | INFO     | handlers.signaling_handler:175 | Vosk final result for 680d405ca183764e786f0ef9: the let alone testing testing terrific
+05-05-2025 19:20:34 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 67d6bae7386c75bcc71b6890: this is
+05-05-2025 19:20:34 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 67d6bae7386c75bcc71b6890: this is the
+05-05-2025 19:20:35 | INFO     | handlers.signaling_handler:175 | Vosk final result for 67d6bae7386c75bcc71b6890: this is one
+05-05-2025 19:20:38 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 67d6bae7386c75bcc71b6890: you know if you
+05-05-2025 19:20:39 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 67d6bae7386c75bcc71b6890: you know if
+05-05-2025 19:20:39 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 67d6bae7386c75bcc71b6890: hello this is
+05-05-2025 19:20:40 | INFO     | handlers.signaling_handler:175 | Vosk partial result for 67d6bae7386c75bcc71b6890: you know if this is
+05-05-2025 19:20:40 | INFO     | handlers.signaling_handler:175 | Vosk final result for 67d6bae7386c75bcc71b6890: you know if this is this
+05-05-2025 19:20:47 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:20:47 | INFO     | handlers.signaling_handler:189 | Vosk final result for 680d405ca183764e786f0ef9: {'text': ''}
+05-05-2025 19:20:47 | INFO     | handlers.signaling_handler:265 | PC state for 680d405ca183764e786f0ef9: closed
+05-05-2025 19:20:47 | INFO     | handlers.signaling_handler:286 | Call 6818e544e4de939e06ab9ac2 ended for 680d405ca183764e786f0ef9
+05-05-2025 19:20:47 | INFO     | handlers.call_handler:134 | Call end request from 680d405ca183764e786f0ef9 to 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:48 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+05-05-2025 19:20:48 | INFO     | handlers.signaling_handler:189 | Vosk final result for 67d6bae7386c75bcc71b6890: {'text': ''}
+05-05-2025 19:20:48 | INFO     | handlers.signaling_handler:265 | PC state for 67d6bae7386c75bcc71b6890: closed
+05-05-2025 19:20:48 | INFO     | handlers.signaling_handler:286 | Call 6818e544e4de939e06ab9ac2 ended for 67d6bae7386c75bcc71b6890
+05-05-2025 19:20:50 | INFO     | handlers.call_history_handler:43 | Fetched 8 history entries for user 680d405ca183764e786f0ef9
+05-05-2025 19:20:57 | INFO     | handlers.call_history_handler:43 | Fetched 36 history entries for user 67d6bae7386c75bcc71b6890
+05-05-2025 19:22:00 | INFO     | handlers.contacts_handler:62 | Added contact 'testuser' for user '680d405ca183764e786f0ef9'
+05-05-2025 19:22:00 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+05-05-2025 19:22:25 | INFO     | handlers.connection:130 | Connection closed by client
+05-05-2025 19:22:26 | INFO     | handlers.connection:130 | Connection closed by client
+05-05-2025 19:22:39 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:22:39 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:22:39 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:22:39 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 680d405ca183764e786f0ef9.
+05-05-2025 19:22:40 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+05-05-2025 19:22:40 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+05-05-2025 19:22:40 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+05-05-2025 19:22:40 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to vosk
+05-05-2025 19:22:45 | INFO     | websockets.server:529 | connection open
+05-05-2025 19:22:45 | INFO     | handlers.connection:91 | New connection
+05-05-2025 19:22:46 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 19:22:46 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 67d6bae7386c75bcc71b6890.
+05-05-2025 19:22:46 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:22:46 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 19:22:47 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 19:22:47 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to vosk
+05-05-2025 19:22:49 | INFO     | handlers.connection:130 | Connection closed by client
+05-05-2025 19:22:50 | INFO     | handlers.connection:130 | Connection closed by client
+05-05-2025 19:22:54 | INFO     | websockets.server:440 | server closing
+05-05-2025 19:22:54 | INFO     | websockets.server:473 | server closed
+05-05-2025 22:54:51 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 22:54:51 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 22:54:51 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 22:54:51 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 22:54:52 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 22:54:52 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 22:55:45 | INFO     | websockets.server:440 | server closing
+05-05-2025 22:55:45 | INFO     | websockets.server:473 | server closed
+05-05-2025 22:55:51 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 22:55:51 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 22:55:51 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 22:55:51 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 22:55:53 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 22:55:53 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 22:56:24 | INFO     | websockets.server:440 | server closing
+05-05-2025 22:56:24 | INFO     | websockets.server:473 | server closed
+05-05-2025 22:56:30 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 22:56:30 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 22:56:30 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 22:56:30 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 22:56:31 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 22:56:31 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 22:57:00 | INFO     | websockets.server:440 | server closing
+05-05-2025 22:57:00 | INFO     | websockets.server:473 | server closed
+05-05-2025 22:57:06 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 22:57:06 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 22:57:06 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 22:57:06 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 22:57:08 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 22:57:08 | INFO     | __main__:79 | AAAA password=***
+05-05-2025 22:57:08 | INFO     | __main__:80 | BBBB password_hash=***
+05-05-2025 22:57:08 | INFO     | __main__:81 | CCCC refresh_jwt=***
+05-05-2025 22:57:08 | INFO     | __main__:82 | DDDD refresh_token=***
+05-05-2025 22:57:08 | INFO     | __main__:83 | EEEE access_jwt=***
+05-05-2025 22:57:08 | INFO     | __main__:84 | FFFF access_token=***
+05-05-2025 22:57:08 | INFO     | __main__:85 | GGGG token_hash=***
+05-05-2025 22:57:08 | INFO     | __main__:86 | HHHH aes_key=***
+05-05-2025 22:57:08 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 23:13:50 | INFO     | websockets.server:440 | server closing
+05-05-2025 23:13:50 | INFO     | websockets.server:473 | server closed
+05-05-2025 23:57:24 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 23:57:24 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 23:57:24 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 23:57:24 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 23:57:39 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 23:57:39 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 23:57:39 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 23:57:39 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 23:57:51 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+05-05-2025 23:57:51 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+05-05-2025 23:57:51 | INFO     | __main__:44 | Is CUDA enabled: False
+05-05-2025 23:57:51 | INFO     | __main__:45 | Is ROCm enabled: True
+05-05-2025 23:57:53 | INFO     | __main__:78 | Starting WebSocket server...
+05-05-2025 23:57:53 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+05-05-2025 23:58:38 | INFO     | websockets.server:529 | connection open
+05-05-2025 23:58:38 | INFO     | handlers.connection:91 | New connection
+05-05-2025 23:58:39 | INFO     | handlers.connection:101 | Handshake successful
+05-05-2025 23:58:40 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 67d6bae7386c75bcc71b6890.
+05-05-2025 23:58:40 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 23:58:40 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '67d6bae7386c75bcc71b6890'
+05-05-2025 23:58:40 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 23:58:40 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to vosk
+05-05-2025 23:58:44 | INFO     | handlers.call_handler:34 | Call invite from 67d6bae7386c75bcc71b6890 to 680d405ca183764e786f0ef9
+05-05-2025 23:58:45 | INFO     | handlers.call_handler:34 | Call invite from 67d6bae7386c75bcc71b6890 to 68123f23c3eb6dc4b0a0128b
+05-05-2025 23:58:47 | INFO     | handlers.call_history_handler:43 | Fetched 36 history entries for user 67d6bae7386c75bcc71b6890
+05-05-2025 23:58:53 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 23:58:54 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to vosk
+05-05-2025 23:58:55 | INFO     | handlers.call_handler:211 | Set model preference for 67d6bae7386c75bcc71b6890 to lip
+05-05-2025 23:59:12 | INFO     | handlers.auth_handler:363 | User ID 67d6bae7386c75bcc71b6890 logged out.

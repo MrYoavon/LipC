@@ -2174,3 +2174,18 @@ TypeError: object function can't be used in 'await' expression
 05-05-2025 19:18:56 | ERROR    | handlers.call_history_handler:53 | Error fetching call history for user 680d405ca183764e786f0ef9: 'NoneType' object has no attribute 'isoformat'
 05-05-2025 19:20:47 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
 05-05-2025 19:20:48 | ERROR    | handlers.signaling_handler:143 | Error receiving audio frame: 
+06-05-2025 23:11:43 | ERROR    | handlers.connection:103 | Handshake failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/LipC/server/handlers/connection.py", line 100, in handle_connection
+    self.aes_key = await self._perform_handshake()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/LipC/server/handlers/connection.py", line 166, in _perform_handshake
+    raise ValueError(
+ValueError: Invalid handshake response | None
+06-05-2025 23:11:53 | ERROR    | asyncio:1821 | Task exception was never retrieved
+future: <Task finished name='Task-33' coro=<ConnectionHandler._heartbeat() done, defined at /home/yoav/VSCode/LipC/server/handlers/connection.py:175> exception=TypeError("'float' object is not subscriptable")>
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/LipC/server/handlers/connection.py", line 187, in _heartbeat
+    if time.time() - self.last_ping[0] > HEARTBEAT_TIMEOUT:
+                     ~~~~~~~~~~~~~~^^^
+TypeError: 'float' object is not subscriptable

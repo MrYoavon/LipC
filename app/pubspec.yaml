@@ -106,22 +106,23 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
   assets:
-    - assets/logo.png
-    - assets/app_icon.png
+    # - assets/logo.png
+    # - assets/app_icon.png
+    - assets/app_logo.png
     - assets/audio/hey_now_ringtone.mp3
 
 flutter_icons:
   android: false
   ios: true
-  image_path: "assets/app_icon.png"
+  image_path: "assets/app_logo.png"
 
 flutter_native_splash:
-  color: "#16D29A"
-  image: "assets/app_icon.png"
+  color: "#ffffff"
+  image: "assets/app_logo.png"
   android: true
   ios: true
   web: false
 
   android_12:
-    color: "#16D29A"
-    image: "assets/app_icon.png"
+    color: "#ffffff"
+    image: "assets/app_logo.png"

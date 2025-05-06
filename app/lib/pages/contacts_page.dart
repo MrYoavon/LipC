@@ -216,7 +216,7 @@ class _ContactsPageState extends ConsumerState<ContactsPage> {
                     ),
                   )
                 : const Center(
-                    child: Text('Lip-C', style: TextStyle(color: AppColors.textPrimary)),
+                    child: Text('LipC', style: TextStyle(color: AppColors.textPrimary)),
                   ),
             actions: [
               PopupMenuButton<String>(
