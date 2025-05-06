@@ -184,7 +184,7 @@ class ConnectionHandler:
         """
         while True:
             await asyncio.sleep(HEARTBEAT_INTERVAL)
-            if time.time() - self.last_ping[0] > HEARTBEAT_TIMEOUT:
+            if time.time() - self.last_ping > HEARTBEAT_TIMEOUT:
                 logger.warning("Heartbeat timeout, closing connection")
                 await self.ws.close()
                 break
