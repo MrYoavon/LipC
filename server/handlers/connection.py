@@ -91,7 +91,6 @@ class ConnectionHandler:
         logger.info("New connection")
         self.ws = ws
         ip = self.ws.remote_address[0]
-        last_ping = [time.time()]
 
         # Start heartbeat monitor
         hb = asyncio.create_task(self._heartbeat())
@@ -121,7 +120,7 @@ class ConnectionHandler:
 
                 # Heartbeat
                 if data.get("msg_type") == "ping":
-                    last_ping[0] = time.time()
+                    self.last_ping = time.time()
                     await send_encrypted(self.ws, json.dumps({"msg_type": "pong"}), self.aes_key)
                     continue
 

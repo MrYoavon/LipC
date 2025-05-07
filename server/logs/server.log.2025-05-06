@@ -1,0 +1,142 @@
+06-05-2025 00:00:30 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 00:00:30 | INFO     | websockets.server:440 | server closing
+06-05-2025 00:00:30 | INFO     | websockets.server:473 | server closed
+06-05-2025 19:45:29 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+06-05-2025 19:45:29 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+06-05-2025 19:45:29 | INFO     | __main__:44 | Is CUDA enabled: False
+06-05-2025 19:45:29 | INFO     | __main__:45 | Is ROCm enabled: True
+06-05-2025 19:45:31 | INFO     | __main__:78 | Starting WebSocket server...
+06-05-2025 19:45:31 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+06-05-2025 19:45:59 | INFO     | websockets.server:529 | connection open
+06-05-2025 19:45:59 | INFO     | handlers.connection:91 | New connection
+06-05-2025 19:45:59 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 19:45:59 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 680d405ca183764e786f0ef9.
+06-05-2025 19:45:59 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 19:45:59 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 19:46:00 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 19:46:00 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to vosk
+06-05-2025 19:46:17 | INFO     | handlers.auth_handler:363 | User ID 680d405ca183764e786f0ef9 logged out.
+06-05-2025 19:46:45 | INFO     | handlers.auth_handler:73 | Authentication failed: user 'wrongUsername' not found.
+06-05-2025 19:47:04 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+06-05-2025 19:49:08 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 19:55:35 | INFO     | websockets.server:529 | connection open
+06-05-2025 19:55:35 | INFO     | handlers.connection:91 | New connection
+06-05-2025 19:55:36 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 19:56:15 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 22:53:42 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+06-05-2025 22:53:42 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+06-05-2025 22:53:42 | INFO     | __main__:44 | Is CUDA enabled: False
+06-05-2025 22:53:42 | INFO     | __main__:45 | Is ROCm enabled: True
+06-05-2025 22:56:46 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+06-05-2025 22:56:46 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+06-05-2025 22:56:46 | INFO     | __main__:44 | Is CUDA enabled: False
+06-05-2025 22:56:46 | INFO     | __main__:45 | Is ROCm enabled: True
+06-05-2025 22:57:36 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+06-05-2025 22:57:36 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+06-05-2025 22:57:36 | INFO     | __main__:44 | Is CUDA enabled: False
+06-05-2025 22:57:36 | INFO     | __main__:45 | Is ROCm enabled: True
+06-05-2025 22:58:02 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+06-05-2025 22:58:02 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+06-05-2025 22:58:02 | INFO     | __main__:44 | Is CUDA enabled: False
+06-05-2025 22:58:02 | INFO     | __main__:45 | Is ROCm enabled: True
+06-05-2025 22:58:56 | INFO     | __main__:38 | Using GPU: PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')
+06-05-2025 22:58:56 | INFO     | __main__:43 | TensorFlow Version: 2.17.0
+06-05-2025 22:58:56 | INFO     | __main__:44 | Is CUDA enabled: False
+06-05-2025 22:58:56 | INFO     | __main__:45 | Is ROCm enabled: True
+06-05-2025 22:58:57 | INFO     | __main__:78 | Starting WebSocket server...
+06-05-2025 22:58:57 | INFO     | websockets.server:341 | server listening on 192.168.1.5:8765
+06-05-2025 22:59:01 | INFO     | websockets.server:529 | connection open
+06-05-2025 22:59:01 | INFO     | handlers.connection:91 | New connection
+06-05-2025 22:59:01 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 22:59:04 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 22:59:18 | INFO     | websockets.server:529 | connection open
+06-05-2025 22:59:18 | INFO     | handlers.connection:91 | New connection
+06-05-2025 22:59:18 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 22:59:35 | INFO     | handlers.auth_handler:121 | User 'yoavon2' authenticated with ID 680d405ca183764e786f0ef9.
+06-05-2025 22:59:36 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 22:59:36 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 22:59:36 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 22:59:36 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 22:59:56 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 23:07:07 | INFO     | websockets.server:529 | connection open
+06-05-2025 23:07:07 | INFO     | handlers.connection:91 | New connection
+06-05-2025 23:07:07 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 23:07:08 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 680d405ca183764e786f0ef9.
+06-05-2025 23:07:08 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:07:08 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:07:08 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:07:08 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:08:31 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 23:09:01 | INFO     | websockets.server:529 | connection open
+06-05-2025 23:09:01 | INFO     | handlers.connection:91 | New connection
+06-05-2025 23:09:02 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 23:09:02 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 680d405ca183764e786f0ef9.
+06-05-2025 23:09:02 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:09:02 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:09:02 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:09:02 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:09:13 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 23:09:31 | INFO     | websockets.server:529 | connection open
+06-05-2025 23:09:31 | INFO     | handlers.connection:91 | New connection
+06-05-2025 23:09:32 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 23:09:32 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 680d405ca183764e786f0ef9.
+06-05-2025 23:09:32 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:09:32 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:09:32 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:09:32 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:09:43 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 23:09:59 | INFO     | websockets.server:529 | connection open
+06-05-2025 23:09:59 | INFO     | handlers.connection:91 | New connection
+06-05-2025 23:10:00 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 23:10:00 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 680d405ca183764e786f0ef9.
+06-05-2025 23:10:00 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:10:00 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:10:00 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:10:00 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:11:25 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 23:11:43 | INFO     | websockets.server:529 | connection open
+06-05-2025 23:11:43 | INFO     | handlers.connection:91 | New connection
+06-05-2025 23:11:43 | ERROR    | handlers.connection:103 | Handshake failed
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/LipC/server/handlers/connection.py", line 100, in handle_connection
+    self.aes_key = await self._perform_handshake()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/yoav/VSCode/LipC/server/handlers/connection.py", line 166, in _perform_handshake
+    raise ValueError(
+ValueError: Invalid handshake response | None
+06-05-2025 23:11:47 | INFO     | websockets.server:529 | connection open
+06-05-2025 23:11:47 | INFO     | handlers.connection:91 | New connection
+06-05-2025 23:11:48 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 23:11:53 | ERROR    | asyncio:1821 | Task exception was never retrieved
+future: <Task finished name='Task-33' coro=<ConnectionHandler._heartbeat() done, defined at /home/yoav/VSCode/LipC/server/handlers/connection.py:175> exception=TypeError("'float' object is not subscriptable")>
+Traceback (most recent call last):
+  File "/home/yoav/VSCode/LipC/server/handlers/connection.py", line 187, in _heartbeat
+    if time.time() - self.last_ping[0] > HEARTBEAT_TIMEOUT:
+                     ~~~~~~~~~~~~~~^^^
+TypeError: 'float' object is not subscriptable
+06-05-2025 23:13:30 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 23:13:32 | INFO     | websockets.server:529 | connection open
+06-05-2025 23:13:32 | INFO     | handlers.connection:91 | New connection
+06-05-2025 23:13:32 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 23:13:40 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 23:13:41 | INFO     | websockets.server:529 | connection open
+06-05-2025 23:13:41 | INFO     | handlers.connection:91 | New connection
+06-05-2025 23:13:41 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 23:13:41 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 680d405ca183764e786f0ef9.
+06-05-2025 23:13:41 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:13:41 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:13:41 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:13:41 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:13:57 | INFO     | handlers.connection:130 | Connection closed by client
+06-05-2025 23:13:58 | INFO     | websockets.server:529 | connection open
+06-05-2025 23:13:58 | INFO     | handlers.connection:91 | New connection
+06-05-2025 23:13:59 | INFO     | handlers.connection:101 | Handshake successful
+06-05-2025 23:13:59 | INFO     | handlers.auth_handler:319 | Access token refreshed for user ID 680d405ca183764e786f0ef9.
+06-05-2025 23:13:59 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:13:59 | INFO     | handlers.contacts_handler:104 | Retrieved 4 contacts for user '680d405ca183764e786f0ef9'
+06-05-2025 23:13:59 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:13:59 | INFO     | handlers.call_handler:211 | Set model preference for 680d405ca183764e786f0ef9 to lip
+06-05-2025 23:14:02 | INFO     | handlers.auth_handler:363 | User ID 680d405ca183764e786f0ef9 logged out.
+06-05-2025 23:14:27 | INFO     | handlers.auth_handler:73 | Authentication failed: user 'wrongUsername' not found.
+06-05-2025 23:15:00 | INFO     | handlers.auth_handler:84 | Authentication failed: incorrect password for 'yoavon2'.
+06-05-2025 23:16:25 | INFO     | handlers.connection:130 | Connection closed by client
